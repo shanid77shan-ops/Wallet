@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   User, Shield, Bell, Palette, HelpCircle, LogOut,
   ChevronRight, Copy, Check, Fingerprint, Globe,
   Moon, Sun, Wallet, Gift, FileText
 } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 import './Profile.css'
 
 const address = '0x7f3a8B9c...2d4E5f6A'
@@ -42,13 +44,24 @@ const stats = [
 ]
 
 export default function Profile() {
+  const navigate = useNavigate()
+  const { user, email, logout } = useAuth()
   const [copied, setCopied] = useState(false)
   const [darkMode, setDarkMode] = useState(true)
+
+  const userEmail = email || user?.email || 'user@cryptowallet.app'
+  const userName = userEmail.split('@')[0] || 'User'
+  const userInitial = userName.charAt(0).toUpperCase()
 
   const copyAddress = () => {
     navigator.clipboard.writeText('0x7f3a8B9c2d4E5f6A').catch(() => {})
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
   }
 
   return (
@@ -64,13 +77,13 @@ export default function Profile() {
       {/* Avatar & Info */}
       <div className="profile-hero">
         <div className="profile-avatar">
-          <span>S</span>
+          <span>{userInitial}</span>
           <div className="avatar-badge">
             <Check size={10} strokeWidth={3} />
           </div>
         </div>
-        <div className="profile-name">ShaN</div>
-        <div className="profile-email">shan@cryptowallet.app</div>
+        <div className="profile-name">{userName}</div>
+        <div className="profile-email">{userEmail}</div>
 
         {/* Wallet Address */}
         <button className="address-pill" onClick={copyAddress}>
@@ -153,7 +166,7 @@ export default function Profile() {
       ))}
 
       {/* Sign Out */}
-      <button className="signout-btn">
+      <button className="signout-btn" onClick={handleLogout}>
         <LogOut size={18} />
         Sign Out
       </button>
