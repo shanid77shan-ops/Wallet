@@ -1,9 +1,10 @@
 import { NavLink } from 'react-router-dom'
-import { Home, TrendingUp, ArrowLeftRight, User } from 'lucide-react'
+import { Home, Users, TrendingUp, ArrowLeftRight, User } from 'lucide-react'
 import './BottomNav.css'
 
 const navItems = [
   { to: '/', icon: Home, label: 'Home' },
+  { to: '/p2p', icon: Users, label: 'P2P' },
   { to: '/trending', icon: TrendingUp, label: 'Trending' },
   { to: '/trade', icon: ArrowLeftRight, label: 'Trade' },
   { to: '/profile', icon: User, label: 'Profile' },

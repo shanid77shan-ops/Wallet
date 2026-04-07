@@ -17,6 +17,7 @@ const txIcons = {
   send:    { icon: ArrowUpRight,  color: '#ef4444', label: 'Sent'     },
   buy:     { icon: Plus,          color: '#3b82f6', label: 'Bought'   },
   sell:    { icon: Repeat2,       color: '#f59e0b', label: 'Sold'     },
+  p2p_sell:{ icon: Repeat2,       color: '#22c55e', label: 'P2P Sold' },
 }
 
 function CustomTooltip({ active, payload }) {
@@ -86,12 +87,12 @@ export default function Home() {
               <AreaChart data={portfolioHistory} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="balGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#d6b25f" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#d6b25f" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="value" stroke="#9d5cf6" strokeWidth={2} fill="url(#balGrad)" dot={false} />
+                <Area type="monotone" dataKey="value" stroke="#f4de9c" strokeWidth={2} fill="url(#balGrad)" dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -100,7 +101,7 @@ export default function Home() {
             {[
               { icon: ArrowDownLeft, label: 'Receive', color: '#10b981', action: 'receive' },
               { icon: ArrowUpRight,  label: 'Send',    color: '#ef4444', action: 'send'    },
-              { icon: Plus,          label: 'Buy',     color: '#7c3aed', action: null      },
+              { icon: Plus,          label: 'Buy',     color: '#d6b25f', action: null      },
               { icon: Repeat2,       label: 'Swap',    color: '#f59e0b', action: null      },
             ].map(({ icon: Icon, label, color, action }) => (
               <button key={label} className="quick-btn" onClick={() => action && setSheet(action)}>

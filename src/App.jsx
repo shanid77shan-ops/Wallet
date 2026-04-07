@@ -4,6 +4,7 @@ import { CoinProvider } from './context/CoinContext'
 import { Web3Provider } from './providers/Web3Provider'
 import BottomNav from './components/BottomNav'
 import Home from './pages/Home'
+import P2P from './pages/P2P'
 import Trending from './pages/Trending'
 import Trade from './pages/Trade'
 import Profile from './pages/Profile'
@@ -19,6 +20,7 @@ export default function App() {
               <main className="app-content">
                 <Routes>
                   <Route path="/"         element={<Home />}     />
+                  <Route path="/p2p"      element={<P2P />}      />
                   <Route path="/trending" element={<Trending />} />
                   <Route path="/trade"    element={<Trade />}    />
                   <Route path="/profile"  element={<Profile />}  />

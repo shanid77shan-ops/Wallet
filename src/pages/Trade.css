@@ -113,7 +113,7 @@
 }
 
 .slip-btn.active {
-  background: rgba(124, 58, 237, 0.2);
+  background: rgba(214, 178, 95, 0.2);
   border-color: var(--accent-purple);
   color: var(--accent-purple-light);
 }
@@ -238,8 +238,8 @@
 .pct-btn {
   flex: 1;
   padding: 6px;
-  background: rgba(124, 58, 237, 0.1);
-  border: 1px solid rgba(124, 58, 237, 0.2);
+  background: rgba(214, 178, 95, 0.12);
+  border: 1px solid rgba(214, 178, 95, 0.26);
   border-radius: 8px;
   color: var(--accent-purple-light);
   font-size: 12px;
@@ -250,7 +250,7 @@
 }
 
 .pct-btn:hover {
-  background: rgba(124, 58, 237, 0.2);
+  background: rgba(214, 178, 95, 0.2);
 }
 
 /* Swap Arrow */

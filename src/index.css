@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -5,21 +7,21 @@
 }
 
 :root {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-card: #1a1a26;
-  --bg-card-hover: #22223a;
-  --accent-purple: #7c3aed;
-  --accent-purple-light: #9d5cf6;
-  --accent-blue: #3b82f6;
+  --bg-primary: #090f1a;
+  --bg-secondary: #101a2a;
+  --bg-card: #141f32;
+  --bg-card-hover: #1a2841;
+  --accent-purple: #d6b25f;
+  --accent-purple-light: #f4de9c;
+  --accent-blue: #5f8dd6;
   --accent-green: #10b981;
   --accent-red: #ef4444;
-  --accent-yellow: #f59e0b;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #475569;
-  --border: #1e1e2e;
-  --border-light: #2a2a3e;
+  --accent-yellow: #d9a645;
+  --text-primary: #edf2ff;
+  --text-secondary: #aebdd7;
+  --text-muted: #6c7f9f;
+  --border: #1d2a43;
+  --border-light: #2a3a58;
   --nav-height: 72px;
 }
 
@@ -27,7 +29,7 @@ html, body {
   height: 100%;
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -37,7 +39,9 @@ html, body {
   max-width: 480px;
   margin: 0 auto;
   position: relative;
-  background: var(--bg-primary);
+  background:
+    radial-gradient(circle at 82% -10%, rgba(214, 178, 95, 0.16), transparent 38%),
+    var(--bg-primary);
   min-height: 100vh;
 }
 
