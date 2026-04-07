@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useAppKitAccount } from '@reown/appkit/react'
 import { createPublicClient, erc20Abi, formatUnits, http } from 'viem'
 import {
@@ -29,6 +29,23 @@ const publicClients = Object.fromEntries(
   ])
 )
 
+async function fetchUsdPrices(coinIds) {
+  if (!coinIds.length) return {}
+
+  try {
+    const ids = Array.from(new Set(coinIds)).join(',')
+    const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`)
+    if (!res.ok) return {}
+
+    const data = await res.json()
+    return Object.fromEntries(
+      coinIds.map(id => [id, data?.[id]?.usd ?? 0])
+    )
+  } catch {
+    return {}
+  }
+}
+
 function genTxHash() {
   return '0x' + Array.from({ length: 64 }, () =>
     Math.floor(Math.random() * 16).toString(16)
@@ -39,6 +56,7 @@ const initialBalances = Object.fromEntries(staticCoins.map(c => [c.id, c.balance
 
 export function WalletProvider({ children }) {
   const { address, isConnected } = useAppKitAccount()
+  const previousBalancesRef = useRef(null)
   const [balances, setBalances] = useState(initialBalances)
   const [balancesLoading, setBalancesLoading] = useState(false)
   const [balanceError, setBalanceError] = useState('')
@@ -53,6 +71,7 @@ export function WalletProvider({ children }) {
 
   useEffect(() => {
     if (!isConnected || !address) {
+      previousBalancesRef.current = null
       setBalances(initialBalances)
       setBalanceError('')
       setBalancesLoading(false)
@@ -96,6 +115,42 @@ export function WalletProvider({ children }) {
         }
 
         if (cancelled) return
+
+        const previousBalances = previousBalancesRef.current
+        if (previousBalances) {
+          const increases = staticCoins
+            .map(coin => {
+              const before = previousBalances[coin.id] ?? 0
+              const after = next[coin.id] ?? 0
+              const delta = after - before
+
+              if (!Number.isFinite(delta) || delta <= 1e-12) return null
+              return { coin, delta }
+            })
+            .filter(Boolean)
+
+          if (increases.length) {
+            const prices = await fetchUsdPrices(increases.map(x => x.coin.id))
+            const date = new Date().toISOString().split('T')[0]
+
+            const receiveTxs = increases.map(({ coin, delta }) => ({
+              id: `recv-${Date.now()}-${coin.id}-${Math.random().toString(16).slice(2, 8)}`,
+              type: 'receive',
+              coin: coin.symbol,
+              coinId: coin.id,
+              amount: Number(delta.toFixed(12)),
+              value: (prices[coin.id] ?? 0) * delta,
+              date,
+              from: 'External wallet',
+              network: 'On-chain',
+              status: 'confirmed',
+            }))
+
+            setTxHistory(prev => [...receiveTxs, ...prev])
+          }
+        }
+
+        previousBalancesRef.current = next
         setBalances(next)
         setBalanceError('')
       } catch {
@@ -239,6 +294,7 @@ export function WalletProvider({ children }) {
     <WalletContext.Provider
       value={{
         balances,
+        walletAddress: address ?? null,
         txHistory,
         sendCoin,
         recordOnchainTx,

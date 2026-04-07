@@ -1,14 +1,23 @@
 import { useState } from 'react'
 import { X, Copy, Check, ChevronRight, AlertTriangle, Share2, Search } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
+import { useAppKitAccount, useAppKit } from '@reown/appkit/react'
 import { useCoins } from '../context/CoinContext'
 import { getNetworks } from '../data/networks'
 import CoinImage from './CoinImage'
 import './Sheet.css'
 import './ReceiveSheet.css'
 
+const EVM_NETWORK_IDS = new Set(['eth-mainnet', 'arbitrum', 'optimism', 'polygon', 'base', 'bsc', 'avax-c'])
+
+function isEvmNetwork(networkId) {
+  return EVM_NETWORK_IDS.has(networkId)
+}
+
 export default function ReceiveSheet({ onClose }) {
   const { coins } = useCoins()
+  const { address, isConnected } = useAppKitAccount()
+  const { open } = useAppKit()
   const [step, setStep] = useState('coin')
   const [selectedCoin, setSelectedCoin] = useState(null)
   const [selectedNetwork, setSelectedNetwork] = useState(null)
@@ -24,8 +33,8 @@ export default function ReceiveSheet({ onClose }) {
   }
 
   const handleCopy = () => {
-    if (!selectedNetwork?.address) return
-    navigator.clipboard.writeText(selectedNetwork.address).catch(() => {})
+    if (!activeAddress) return
+    navigator.clipboard.writeText(activeAddress).catch(() => {})
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -36,6 +45,10 @@ export default function ReceiveSheet({ onClose }) {
   )
 
   const networks = selectedCoin ? getNetworks(selectedCoin.id) : []
+  const activeAddress = selectedNetwork
+    ? (isEvmNetwork(selectedNetwork.id) && address ? address : selectedNetwork.address)
+    : ''
+  const showConnectBanner = selectedNetwork && isEvmNetwork(selectedNetwork.id) && !isConnected
 
   return (
     <div className="sheet-overlay" onClick={onClose}>
@@ -90,6 +103,13 @@ export default function ReceiveSheet({ onClose }) {
         {/* Step: Address + QR */}
         {step === 'address' && selectedCoin && selectedNetwork && (
           <div className="sheet-body">
+            {showConnectBanner && (
+              <div className="wc-banner" style={{ marginBottom: 12 }}>
+                <span>Connect wallet to receive on your real {selectedNetwork.name} address</span>
+                <button className="wc-banner-btn" onClick={() => open()}>Connect</button>
+              </div>
+            )}
+
             {/* Network Selector */}
             <div className="network-section">
               <p className="field-label">Network</p>
@@ -120,7 +140,7 @@ export default function ReceiveSheet({ onClose }) {
             <div className="qr-container">
               <div className="qr-wrap">
                 <QRCodeSVG
-                  value={selectedNetwork.address}
+                  value={activeAddress}
                   size={180}
                   bgColor="transparent"
                   fgColor="#f8fafc"
@@ -139,7 +159,7 @@ export default function ReceiveSheet({ onClose }) {
 
             {/* Address Display */}
             <div className="address-box">
-              <p className="address-text">{selectedNetwork.address}</p>
+              <p className="address-text">{activeAddress}</p>
               <div className="address-actions">
                 <button className="addr-action-btn copy-btn" onClick={handleCopy}>
                   {copied ? <Check size={16} color="#10b981" /> : <Copy size={16} />}
