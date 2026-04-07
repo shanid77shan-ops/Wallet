@@ -1,0 +1,17 @@
+{
+  "name": "Crypto Wallet",
+  "short_name": "Wallet",
+  "description": "Multi-chain non-custodial crypto wallet",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/app-icon.jpg",
+      "sizes": "any",
+      "type": "image/jpeg"
+    }
+  ]
+}
