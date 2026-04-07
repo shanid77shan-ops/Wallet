@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { IndianRupee, Landmark, ShieldCheck, Clock3 } from 'lucide-react'
 import { useCoins } from '../context/CoinContext'
 import { useWallet } from '../context/WalletContext'
+import { fetchUsdInrRate } from '../services/forexApi'
 import CoinImage from '../components/CoinImage'
 import './P2P.css'
 
-const INR_RATE = 83.2
+const DEFAULT_INR_RATE = 83.2
 const PLATFORM_FEE_PCT = 0.35
 
 const fmtInr = (n) =>
@@ -28,6 +29,27 @@ export default function P2P() {
   const [submitting, setSubmitting] = useState(false)
   const [feedback, setFeedback] = useState('')
   const [error, setError] = useState('')
+  const [inrRate, setInrRate] = useState(DEFAULT_INR_RATE)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadRate() {
+      try {
+        const nextRate = await fetchUsdInrRate()
+        if (!cancelled) setInrRate(nextRate)
+      } catch {
+        if (!cancelled) setInrRate(DEFAULT_INR_RATE)
+      }
+    }
+
+    loadRate()
+    const id = setInterval(loadRate, 60_000)
+    return () => {
+      cancelled = true
+      clearInterval(id)
+    }
+  }, [])
 
   const selectedCoin = useMemo(
     () => sellableCoins.find((c) => c.id === selectedId) ?? sellableCoins[0],
@@ -36,7 +58,7 @@ export default function P2P() {
 
   const parsedAmount = parseFloat(amount || 0)
   const usdValue = (selectedCoin?.price ?? 0) * (Number.isFinite(parsedAmount) ? parsedAmount : 0)
-  const grossInr = usdValue * INR_RATE
+  const grossInr = usdValue * inrRate
   const fee = grossInr * (PLATFORM_FEE_PCT / 100)
   const netInr = Math.max(0, grossInr - fee)
 
@@ -103,7 +125,7 @@ export default function P2P() {
         <div className="p2p-hero-stats">
           <div className="hero-stat">
             <span>Rate</span>
-            <strong>1 USD = {INR_RATE} INR</strong>
+            <strong>1 USD = {inrRate.toFixed(2)} INR</strong>
           </div>
           <div className="hero-stat">
             <span>Fee</span>

@@ -8,7 +8,7 @@ const CoinContext = createContext(null)
 const POLL_INTERVAL = 30_000
 
 export function CoinProvider({ children }) {
-  const { balances } = useWallet()
+  const { balances, balancesLoading, balanceError } = useWallet()
   const [liveMap, setLiveMap] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -49,7 +49,14 @@ export function CoinProvider({ children }) {
   }))
 
   return (
-    <CoinContext.Provider value={{ coins, loading, error, lastUpdated }}>
+    <CoinContext.Provider
+      value={{
+        coins,
+        loading: loading || balancesLoading,
+        error: error || balanceError || null,
+        lastUpdated,
+      }}
+    >
       {children}
     </CoinContext.Provider>
   )

@@ -45,7 +45,7 @@ function isNativeOnChain(coinId, chainId) {
 
 export default function SendSheet({ onClose }) {
   const { coins } = useCoins()
-  const { sendCoin } = useWallet()
+  const { sendCoin, recordOnchainTx } = useWallet()
   const { open } = useAppKit()
   const { address, isConnected } = useAppKitAccount()
   const { caipNetwork } = useAppKitNetwork()
@@ -103,6 +103,32 @@ export default function SendSheet({ onClose }) {
   useEffect(() => {
     if (isConfirmed && realTxHash) setSent(true)
   }, [isConfirmed, realTxHash])
+
+  useEffect(() => {
+    if (!realTxHash || !selectedCoin || !selectedNetwork || !toAddress || !amount) return
+    const parsedAmount = parseFloat(amount)
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) return
+
+    recordOnchainTx({
+      coinId: selectedCoin.id,
+      symbol: selectedCoin.symbol,
+      amount: parsedAmount,
+      usdValue,
+      toAddress,
+      network: selectedNetwork,
+      txHash: realTxHash,
+      status: isConfirmed ? 'confirmed' : 'pending',
+    })
+  }, [
+    amount,
+    isConfirmed,
+    realTxHash,
+    recordOnchainTx,
+    selectedCoin,
+    selectedNetwork,
+    toAddress,
+    usdValue,
+  ])
 
   const handleSelectCoin = (coin) => {
     const nets = getNetworks(coin.id)
