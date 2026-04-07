@@ -234,6 +234,37 @@
   cursor: pointer;
 }
 
+/* Asset Search */
+.asset-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 9px 12px;
+  margin-bottom: 12px;
+}
+
+.asset-search-input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  flex: 1;
+}
+
+.asset-search-input::placeholder { color: var(--text-muted); }
+
+.no-results {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 20px 0;
+}
+
 /* Assets */
 .assets-list {
   display: flex;
@@ -363,6 +394,28 @@
 }
 
 .tx-date {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.tx-pending-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-yellow);
+  font-size: 10px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.tx-hash-row {
+  margin-top: 3px;
+}
+
+.tx-hash-short {
+  font-family: monospace;
   font-size: 11px;
   color: var(--text-muted);
 }

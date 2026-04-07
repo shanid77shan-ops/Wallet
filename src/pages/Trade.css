@@ -386,39 +386,113 @@
 .picker-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
   z-index: 200;
   display: flex;
   align-items: flex-end;
-  max-width: 480px;
-  left: 50%;
-  transform: translateX(-50%);
+  justify-content: center;
 }
 
 .picker-sheet {
   background: var(--bg-secondary);
   border-radius: 24px 24px 0 0;
   width: 100%;
-  max-height: 70vh;
+  max-width: 480px;
+  max-height: 85vh;
   border: 1px solid var(--border-light);
   border-bottom: none;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  animation: slideUp 0.28s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.picker-drag {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-light);
+  margin: 10px auto 0;
+  flex-shrink: 0;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  flex-shrink: 0;
 }
 
 .picker-title {
   font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
-  padding: 20px 20px 14px;
-  border-bottom: 1px solid var(--border);
+}
+
+.picker-close-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.picker-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 12px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 10px 12px;
+  flex-shrink: 0;
+}
+
+.picker-search {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  flex: 1;
+}
+
+.picker-search::placeholder { color: var(--text-muted); }
+
+.picker-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px;
 }
 
 .picker-list {
   overflow-y: auto;
-  padding: 8px;
+  padding: 4px 8px 24px;
+  flex: 1;
+  scrollbar-width: thin;
+}
+
+.picker-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 32px 0;
 }
 
 .picker-row {
@@ -426,7 +500,7 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 12px;
+  padding: 10px 8px;
   background: none;
   border: none;
   border-radius: 12px;
@@ -437,29 +511,22 @@
 
 .picker-row:hover { background: var(--bg-card); }
 
-.picker-coin-logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
 .picker-coin-info {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0;
 }
 
 .picker-coin-name {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
 }
 
 .picker-coin-sym {
@@ -472,6 +539,7 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
+  flex-shrink: 0;
 }
 
 .picker-coin-price {

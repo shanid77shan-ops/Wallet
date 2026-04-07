@@ -116,6 +116,16 @@
 
 .search-input::placeholder { color: var(--text-muted); }
 
+.search-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  flex-shrink: 0;
+}
+
 /* Filter Tabs */
 .filter-tabs {
   display: flex;

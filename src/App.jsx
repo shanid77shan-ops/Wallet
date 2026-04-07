@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { WalletProvider } from './context/WalletContext'
 import { CoinProvider } from './context/CoinContext'
 import BottomNav from './components/BottomNav'
 import Home from './pages/Home'
@@ -10,6 +11,7 @@ import './App.css'
 export default function App() {
   return (
     <BrowserRouter>
+      <WalletProvider>
       <CoinProvider>
       <div className="app-shell">
         <main className="app-content">
@@ -24,6 +26,7 @@ export default function App() {
         <BottomNav />
       </div>
       </CoinProvider>
+      </WalletProvider>
     </BrowserRouter>
   )
 }

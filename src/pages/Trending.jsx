@@ -2,16 +2,19 @@ import { useState } from 'react'
 import { Search, TrendingUp, TrendingDown, Flame, Star } from 'lucide-react'
 import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts'
 import { useCoins } from '../context/CoinContext'
+import CoinImage from '../components/CoinImage'
 import './Trending.css'
 
-const fmt = (n) => n >= 1 ? n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : n.toFixed(4)
+const fmt = (n) => n >= 1
+  ? n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  : n < 0.01 ? n.toExponential(2) : n.toFixed(4)
 
 const filters = ['All', 'Gainers', 'Losers', 'Watchlist']
 
 export default function Trending() {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('All')
-  const [watchlist, setWatchlist] = useState(['bitcoin', 'solana'])
+  const [watchlist, setWatchlist] = useState(['bitcoin', 'solana', 'tether'])
   const { coins, loading } = useCoins()
 
   const toggleWatchlist = (id) => {
@@ -44,7 +47,7 @@ export default function Trending() {
           <div className="highlight-card gainer">
             <div className="hl-label"><TrendingUp size={13} /> Top Gainer</div>
             <div className="hl-coin">
-              <span className="hl-logo" style={{ color: topGainer.color }}>{topGainer.logo}</span>
+              <CoinImage coin={topGainer} size={24} />
               <span className="hl-symbol">{topGainer.symbol}</span>
             </div>
             <div className="hl-change positive">+{(topGainer.change24h ?? 0).toFixed(2)}%</div>
@@ -52,7 +55,7 @@ export default function Trending() {
           <div className="highlight-card loser">
             <div className="hl-label"><TrendingDown size={13} /> Top Loser</div>
             <div className="hl-coin">
-              <span className="hl-logo" style={{ color: topLoser.color }}>{topLoser.logo}</span>
+              <CoinImage coin={topLoser} size={24} />
               <span className="hl-symbol">{topLoser.symbol}</span>
             </div>
             <div className="hl-change negative">{(topLoser.change24h ?? 0).toFixed(2)}%</div>
@@ -69,16 +72,15 @@ export default function Trending() {
           placeholder="Search coins..."
           className="search-input"
         />
+        {query && (
+          <button className="search-clear" onClick={() => setQuery('')}>✕</button>
+        )}
       </div>
 
       {/* Filter Tabs */}
       <div className="filter-tabs">
         {filters.map(f => (
-          <button
-            key={f}
-            className={`filter-tab${filter === f ? ' active' : ''}`}
-            onClick={() => setFilter(f)}
-          >
+          <button key={f} className={`filter-tab${filter === f ? ' active' : ''}`} onClick={() => setFilter(f)}>
             {f}
           </button>
         ))}
@@ -88,30 +90,27 @@ export default function Trending() {
       <div className="table-header">
         <span className="th-name">Name</span>
         <span className="th-chart">7D Chart</span>
-        <span className="th-price">Price / Change</span>
+        <span className="th-price">Price / 24h</span>
       </div>
 
       {/* Coin List */}
       <div className="coin-list">
         {loading ? (
-          Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="skeleton" />
-          ))
+          Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton" />)
         ) : (
           <>
             {filtered.length === 0 && (
-              <div className="empty-state">No coins found</div>
+              <div className="empty-state">No coins match "{query}"</div>
             )}
             {filtered.map((coin) => {
               const isPos = (coin.change24h ?? 0) >= 0
               const sparkData = (coin.sparkline ?? []).map(v => ({ v }))
+              const rank = coins.indexOf(coin) + 1
               return (
                 <div key={coin.id} className="coin-row">
                   <div className="coin-rank-logo">
-                    <span className="rank">{coins.indexOf(coin) + 1}</span>
-                    <div className="coin-logo-sm" style={{ background: `${coin.color}20`, color: coin.color }}>
-                      {coin.logo}
-                    </div>
+                    <span className="rank">{rank}</span>
+                    <CoinImage coin={coin} size={36} />
                     <div className="coin-names">
                       <span className="coin-name">{coin.name}</span>
                       <span className="coin-symbol-sm">{coin.symbol}</span>
@@ -119,18 +118,14 @@ export default function Trending() {
                   </div>
 
                   <div className="coin-spark">
-                    <ResponsiveContainer width={80} height={36}>
-                      <LineChart data={sparkData}>
-                        <Line
-                          type="monotone"
-                          dataKey="v"
-                          stroke={isPos ? '#10b981' : '#ef4444'}
-                          strokeWidth={1.5}
-                          dot={false}
-                        />
-                        <Tooltip content={() => null} />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    {sparkData.length > 0 && (
+                      <ResponsiveContainer width={72} height={32}>
+                        <LineChart data={sparkData}>
+                          <Line type="monotone" dataKey="v" stroke={isPos ? '#10b981' : '#ef4444'} strokeWidth={1.5} dot={false} />
+                          <Tooltip content={() => null} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    )}
                   </div>
 
                   <div className="coin-price-col">
@@ -142,7 +137,7 @@ export default function Trending() {
                       className={`star-btn${watchlist.includes(coin.id) ? ' starred' : ''}`}
                       onClick={() => toggleWatchlist(coin.id)}
                     >
-                      <Star size={14} fill={watchlist.includes(coin.id) ? '#f59e0b' : 'none'} />
+                      <Star size={13} fill={watchlist.includes(coin.id) ? '#f59e0b' : 'none'} />
                     </button>
                   </div>
                 </div>

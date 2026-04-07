@@ -1,13 +1,15 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { coins as staticCoins } from '../data/coins'
 import { fetchLivePrices } from '../services/coinGeckoApi'
+import { useWallet } from './WalletContext'
 
 const CoinContext = createContext(null)
 
 const POLL_INTERVAL = 30_000
 
 export function CoinProvider({ children }) {
-  const [coins, setCoins] = useState([])
+  const { balances } = useWallet()
+  const [liveMap, setLiveMap] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [lastUpdated, setLastUpdated] = useState(null)
@@ -18,23 +20,14 @@ export function CoinProvider({ children }) {
 
     async function load() {
       try {
-        const liveMap = await fetchLivePrices(staticCoins)
+        const map = await fetchLivePrices(staticCoins)
         if (cancelled) return
-        const merged = staticCoins.map(coin => ({
-          ...coin,
-          ...(liveMap[coin.id] ?? {}),
-        }))
-        setCoins(merged)
+        setLiveMap(map)
         setError(null)
         setLastUpdated(new Date())
-      } catch (err) {
+      } catch {
         if (cancelled) return
         setError('Price update failed — showing last known data')
-        // Preserve existing coins (stale is better than empty)
-        if (isFirstFetch.current) {
-          // First load failed: show static coins as fallback
-          setCoins(staticCoins)
-        }
       } finally {
         if (!cancelled && isFirstFetch.current) {
           setLoading(false)
@@ -45,12 +38,15 @@ export function CoinProvider({ children }) {
 
     load()
     const id = setInterval(load, POLL_INTERVAL)
-
-    return () => {
-      cancelled = true
-      clearInterval(id)
-    }
+    return () => { cancelled = true; clearInterval(id) }
   }, [])
+
+  // Recompute merged coins whenever live prices OR balances change
+  const coins = staticCoins.map(coin => ({
+    ...coin,
+    ...(liveMap[coin.id] ?? {}),
+    balance: balances[coin.id] ?? coin.balance,
+  }))
 
   return (
     <CoinContext.Provider value={{ coins, loading, error, lastUpdated }}>
