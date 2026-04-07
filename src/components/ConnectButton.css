@@ -1,0 +1,89 @@
+.connect-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 12px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: 1px solid var(--border-light);
+}
+
+.connect-btn.connected {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  max-width: 180px;
+}
+
+.connect-btn.connected:hover {
+  background: var(--bg-card-hover);
+}
+
+.connect-btn.disconnected {
+  background: rgba(124, 58, 237, 0.15);
+  border-color: rgba(124, 58, 237, 0.4);
+  color: var(--accent-purple-light);
+}
+
+.connect-btn.disconnected:hover {
+  background: rgba(124, 58, 237, 0.25);
+}
+
+.connect-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  flex-shrink: 0;
+  animation: livePulse 2s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.connect-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.connect-address {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: monospace;
+}
+
+.connect-balance {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: inherit;
+}
+
+/* Large variant — used in Profile */
+.connect-btn-large {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--accent-purple), #6d28d9);
+  border: none;
+  border-radius: 16px;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.connect-btn-large:hover   { opacity: 0.9; }
+.connect-btn-large:active  { transform: scale(0.98); }
