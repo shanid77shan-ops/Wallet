@@ -13,7 +13,7 @@ import Profile from './pages/Profile'
 import './App.css'
 
 function AppContent() {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, topMessage } = useAuth()
 
   // Show loading state while checking auth
   if (isLoading) {
@@ -35,30 +35,38 @@ function AppContent() {
 
   // Show login page if not authenticated
   if (!isAuthenticated) {
-    return <Login />
+    return (
+      <>
+        {topMessage && <div className="top-popup-message">{topMessage}</div>}
+        <Login />
+      </>
+    )
   }
 
   // Show app shell if authenticated
   return (
-    <Web3Provider>
-      <WalletProvider>
-        <CoinProvider>
-          <div className="app-shell">
-            <main className="app-content">
-              <Routes>
-                <Route path="/"         element={<Home />}     />
-                <Route path="/p2p"      element={<P2P />}      />
-                <Route path="/trending" element={<Trending />} />
-                <Route path="/trade"    element={<Trade />}    />
-                <Route path="/profile"  element={<Profile />}  />
-                <Route path="*"         element={<Navigate to="/" replace />} />
-              </Routes>
-            </main>
-            <BottomNav />
-          </div>
-        </CoinProvider>
-      </WalletProvider>
-    </Web3Provider>
+    <>
+      {topMessage && <div className="top-popup-message">{topMessage}</div>}
+      <Web3Provider>
+        <WalletProvider>
+          <CoinProvider>
+            <div className="app-shell">
+              <main className="app-content">
+                <Routes>
+                  <Route path="/"         element={<Home />}     />
+                  <Route path="/p2p"      element={<P2P />}      />
+                  <Route path="/trending" element={<Trending />} />
+                  <Route path="/trade"    element={<Trade />}    />
+                  <Route path="/profile"  element={<Profile />}  />
+                  <Route path="*"         element={<Navigate to="/" replace />} />
+                </Routes>
+              </main>
+              <BottomNav />
+            </div>
+          </CoinProvider>
+        </WalletProvider>
+      </Web3Provider>
+    </>
   )
 }
 

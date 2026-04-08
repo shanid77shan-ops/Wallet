@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useRef } from 'react'
 
 const AuthContext = createContext(null)
 
@@ -10,6 +10,21 @@ export function AuthProvider({ children }) {
   const [email, setEmail] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [topMessage, setTopMessage] = useState('')
+  const topMessageTimerRef = useRef(null)
+
+  function showTopMessage(message, duration = 3000) {
+    setTopMessage(message)
+
+    if (topMessageTimerRef.current) {
+      clearTimeout(topMessageTimerRef.current)
+    }
+
+    topMessageTimerRef.current = setTimeout(() => {
+      setTopMessage('')
+      topMessageTimerRef.current = null
+    }, duration)
+  }
 
   // Check if user is already authenticated on mount
   useEffect(() => {
@@ -29,6 +44,14 @@ export function AuthProvider({ children }) {
     }
 
     setIsLoading(false)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (topMessageTimerRef.current) {
+        clearTimeout(topMessageTimerRef.current)
+      }
+    }
   }, [])
 
   async function sendOTP(emailAddress) {
@@ -88,6 +111,7 @@ export function AuthProvider({ children }) {
 
       setUser(userData)
       setEmail(emailAddress)
+      showTopMessage('Login successful! Welcome back.')
 
       return data
     } catch (err) {
@@ -117,6 +141,7 @@ export function AuthProvider({ children }) {
         sendOTP,
         verifyOTP,
         logout,
+        topMessage,
         isAuthenticated: !!user,
       }}
     >

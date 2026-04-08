@@ -252,7 +252,7 @@ export default function Login() {
                   Verifying...
                 </>
               ) : (
-                'Verify & Login'
+                'Login'
               )}
             </button>
 
