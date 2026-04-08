@@ -1,7 +1,10 @@
 import { Resend } from 'resend';
 
-// 1. Initialize Resend with your API Key
-const resend = new Resend(process.env.RESEND_API_KEY);
+// 1. Initialize Resend only when key is available
+const createResendClient = () => {
+  if (!process.env.RESEND_API_KEY) return null;
+  return new Resend(process.env.RESEND_API_KEY);
+};
 
 // 2. In-memory OTP storage
 // Note: Vercel functions are stateless. For production, consider Upstash Redis.
@@ -36,42 +39,40 @@ export default async function handler(req, res) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // 4. Configuration Check
-    if (!process.env.RESEND_API_KEY) {
-      console.error("ERROR: RESEND_API_KEY is missing in Vercel Environment Variables.");
-      return res.status(500).json({ error: 'Server configuration error' });
-    }
-
     // 5. Generate and Store OTP
     const otp = generateOTP();
     const expiry = Date.now() + 10 * 60 * 1000; // 10 minute expiry
 
     sharedOtpStore.set(normalizedEmail, { otp, expiry });
 
-    // 6. Send Email via Resend
-    // We are using the root domain @devshanidp.xyz which we verified in your Vercel DNS
-    const { data, error } = await resend.emails.send({
-      from: 'Crypto Wallet <auth@devshanidp.xyz>', 
-      to: normalizedEmail,
-      subject: 'Your Login Code',
-      html: `
-        <div style="font-family: sans-serif; background: #0f172a; color: white; padding: 40px; border-radius: 12px; text-align: center; border: 1px solid #334155;">
-          <h2 style="color: #fbbf24; margin-bottom: 10px;">Verification Code</h2>
-          <p style="color: #94a3b8;">Enter the following code to access your wallet:</p>
-          <div style="background: #1e293b; padding: 20px; font-size: 42px; font-weight: bold; color: #6366f1; letter-spacing: 12px; margin: 25px 0; border-radius: 8px; border: 1px solid #475569;">
-            ${otp}
+    // 6. Send Email via Resend when configured; fallback to console OTP for local dev
+    const resend = createResendClient();
+    if (resend) {
+      const { error } = await resend.emails.send({
+        from: 'Crypto Wallet <auth@devshanidp.xyz>',
+        to: normalizedEmail,
+        subject: 'Your Login Code',
+        html: `
+          <div style="font-family: sans-serif; background: #0f172a; color: white; padding: 40px; border-radius: 12px; text-align: center; border: 1px solid #334155;">
+            <h2 style="color: #fbbf24; margin-bottom: 10px;">Verification Code</h2>
+            <p style="color: #94a3b8;">Enter the following code to access your wallet:</p>
+            <div style="background: #1e293b; padding: 20px; font-size: 42px; font-weight: bold; color: #6366f1; letter-spacing: 12px; margin: 25px 0; border-radius: 8px; border: 1px solid #475569;">
+              ${otp}
+            </div>
+            <p style="color: #64748b; font-size: 12px;">This code will expire in 10 minutes. If you didn't request this, you can safely ignore this email.</p>
           </div>
-          <p style="color: #64748b; font-size: 12px;">This code will expire in 10 minutes. If you didn't request this, you can safely ignore this email.</p>
-        </div>
-      `,
-    });
-
-    if (error) {
-      console.error("Resend API Error details:", error);
-      return res.status(500).json({ 
-        error: 'Failed to send email', 
-        details: error.message 
+        `,
       });
+
+      if (error) {
+        console.error('Resend API Error details:', error);
+        return res.status(500).json({
+          error: 'Failed to send email',
+          details: error.message,
+        });
+      }
+    } else {
+      console.log(`[DEV OTP] ${normalizedEmail}: ${otp}`);
     }
 
     // 7. Success Response

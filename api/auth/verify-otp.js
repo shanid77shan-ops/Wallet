@@ -98,7 +98,7 @@ export default async function handler(req, res) {
     const now = Date.now()
 
     // Check if OTP has expired
-    if (now > storedData.expiryTime) {
+    if (now > storedData.expiry) {
       otpStore.delete(normalizedEmail)
       return res.status(400).json({ error: 'OTP has expired. Please request a new one.' })
     }

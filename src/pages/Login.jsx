@@ -207,9 +207,9 @@ export default function Login() {
             </button>
 
             <div className="step-title">
-              <h2>Verify Code</h2>
+              <h2>Enter OTP</h2>
               <p>
-                Enter the {otpLength}-digit code sent to <br />
+                Enter the {otpLength}-digit OTP sent to <br />
                 <strong>{email}</strong>
               </p>
             </div>
@@ -252,7 +252,7 @@ export default function Login() {
                   Verifying...
                 </>
               ) : (
-                'Login'
+                'Proceed'
               )}
             </button>
 
