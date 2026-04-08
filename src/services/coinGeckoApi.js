@@ -1,6 +1,15 @@
 // CoinGecko IDs match local app IDs directly for all coins in our list
 // (no special mapping needed — we use CoinGecko IDs as local IDs)
 
+export async function getLivePrice(coinId = 'ethereum', currency = 'usd') {
+  const res = await fetch(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=${currency}`
+  )
+  if (!res.ok) throw new Error(`CoinGecko ${res.status}`)
+  const data = await res.json()
+  return data[coinId][currency]
+}
+
 function downsampleSparkline(prices) {
   if (!prices || prices.length === 0) return []
   const slice = prices.slice(-Math.min(24, prices.length))

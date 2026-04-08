@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext'
 import { WalletProvider } from './context/WalletContext'
 import { CoinProvider } from './context/CoinContext'
 import { Web3Provider } from './providers/Web3Provider'
+import { useMetaMask } from './hooks/useMetaMask'
 import BottomNav from './components/BottomNav'
 import AuthPage from './AuthPage'
 import Home from './pages/Home'
@@ -13,6 +14,34 @@ import Trending from './pages/Trending'
 import Trade from './pages/Trade'
 import Profile from './pages/Profile'
 import './App.css'
+
+function MetaMaskConnector({ userId }) {
+  const { walletAddress, isConnecting, error, isMetaMaskInstalled, connect } =
+    useMetaMask(userId)
+
+  const short = walletAddress
+    ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
+    : null
+
+  return (
+    <div className="metamask-bar">
+      {!isMetaMaskInstalled ? (
+        <span className="metamask-warning">MetaMask not detected</span>
+      ) : walletAddress ? (
+        <span className="metamask-address">{short}</span>
+      ) : (
+        <button
+          className="metamask-connect-btn"
+          onClick={connect}
+          disabled={isConnecting}
+        >
+          {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+        </button>
+      )}
+      {error && <span className="metamask-error">{error}</span>}
+    </div>
+  )
+}
 
 function App() {
   const [session, setSession] = useState(null)
@@ -44,6 +73,7 @@ function App() {
               <WalletProvider>
                 <CoinProvider>
                   <div className="app-shell">
+                    <MetaMaskConnector userId={session.user.id} />
                     <main className="app-content">
                       <Routes>
                         <Route path="/" element={<Home session={session} />} />

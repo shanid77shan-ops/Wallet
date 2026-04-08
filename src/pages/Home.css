@@ -34,6 +34,62 @@
   font-weight: 500;
 }
 
+/* Sepolia Testnet Balance Card */
+.sepolia-card {
+  margin: 12px 16px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid rgba(153, 69, 255, 0.25);
+  border-radius: 16px;
+}
+
+.sepolia-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.sepolia-card-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.sepolia-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: rgba(153, 69, 255, 0.15);
+  color: #9945ff;
+  letter-spacing: 0.3px;
+}
+
+.sepolia-balance {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.sepolia-unit {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.sepolia-empty,
+.sepolia-error {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+
+.sepolia-error {
+  color: #ef4444;
+}
+
 /* Header */
 .home-header {
   display: flex;

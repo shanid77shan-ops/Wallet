@@ -3,6 +3,7 @@ import { Eye, EyeOff, Bell, ArrowDownLeft, ArrowUpRight, Plus, Repeat2, ChevronR
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts'
 import { useCoins } from '../context/CoinContext'
 import { useWallet } from '../context/WalletContext'
+import { useSepoliaBalance } from '../hooks/useSepoliaBalance'
 import { portfolioHistory } from '../data/coins'
 import LiveIndicator from '../components/LiveIndicator'
 import CoinImage from '../components/CoinImage'
@@ -34,7 +35,8 @@ export default function Home({ session }) {
   const [showSupabaseSend, setShowSupabaseSend] = useState(false)
   const [assetSearch, setAssetSearch] = useState('')
   const { coins, loading, error, lastUpdated } = useCoins()
-  const { txHistory } = useWallet()
+  const { txHistory, walletAddress } = useWallet()
+  const { balance: sepoliaBalance, loading: sepoliaLoading, error: sepoliaError } = useSepoliaBalance(walletAddress)
 
   const myCoins = coins.filter(c => c.balance > 0)
   const totalBalance = myCoins.reduce((sum, c) => sum + (c.price ?? 0) * c.balance, 0)
@@ -129,6 +131,26 @@ export default function Home({ session }) {
             <SendTransaction session={session} />
           )}
         </div>
+      </div>
+
+      {/* Sepolia Testnet Balance */}
+      <div className="sepolia-card">
+        <div className="sepolia-card-header">
+          <span className="sepolia-card-label">Sepolia Testnet</span>
+          <span className="sepolia-badge">Testnet</span>
+        </div>
+        {!walletAddress ? (
+          <p className="sepolia-empty">Connect a wallet to view balance</p>
+        ) : sepoliaLoading ? (
+          <div className="skeleton" style={{ height: 26, width: '55%', marginTop: 8 }} />
+        ) : sepoliaError ? (
+          <p className="sepolia-error">{sepoliaError}</p>
+        ) : (
+          <p className="sepolia-balance">
+            {parseFloat(sepoliaBalance).toFixed(6)}
+            <span className="sepolia-unit"> ETH</span>
+          </p>
+        )}
       </div>
 
       {/* My Assets */}
