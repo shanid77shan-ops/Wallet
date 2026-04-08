@@ -125,6 +125,80 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function loginWithPassword(emailAddress, password) {
+    setError('')
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/auth/login-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailAddress, password }),
+      })
+
+      const data = response.status !== 204 ? await response.json() : {}
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Invalid email or password')
+      }
+
+      localStorage.setItem(STORAGE_KEY, data.token)
+      const userData = {
+        id: data.userId,
+        email: emailAddress,
+      }
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData))
+
+      setUser(userData)
+      setEmail(emailAddress)
+      showTopMessage('Login successful! Welcome back.')
+      return data
+    } catch (err) {
+      const message = err.message || 'Failed to login. Please try again.'
+      setError(message)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function registerWithPassword(emailAddress, password) {
+    setError('')
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/auth/register-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailAddress, password }),
+      })
+
+      const data = response.status !== 204 ? await response.json() : {}
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to register')
+      }
+
+      localStorage.setItem(STORAGE_KEY, data.token)
+      const userData = {
+        id: data.userId,
+        email: emailAddress,
+      }
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData))
+
+      setUser(userData)
+      setEmail(emailAddress)
+      showTopMessage('Account created successfully!')
+      return data
+    } catch (err) {
+      const message = err.message || 'Failed to register. Please try again.'
+      setError(message)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   function logout() {
     localStorage.removeItem(STORAGE_KEY)
     localStorage.removeItem(USER_STORAGE_KEY)
@@ -143,6 +217,8 @@ export function AuthProvider({ children }) {
         error,
         sendOTP,
         verifyOTP,
+        loginWithPassword,
+        registerWithPassword,
         logout,
         topMessage,
         isAuthenticated: !!user,

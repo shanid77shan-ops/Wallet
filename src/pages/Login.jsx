@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import './Login.css'
 
 export default function Login() {
-  const { sendOTP, verifyOTP, error, isLoading } = useAuth()
+  const { sendOTP, verifyOTP, loginWithPassword, error, isLoading } = useAuth()
 
   const [step, setStep] = useState('email') // 'email' or 'otp'
   const [mode, setMode] = useState('') // '', 'login' or 'create'
@@ -84,7 +84,11 @@ export default function Login() {
       return
     }
 
-    setLocalError('Password login is not connected yet. Please use Create Wallet OTP for now.')
+    try {
+      await loginWithPassword(email, password)
+    } catch {
+      setLocalError(error || 'Invalid email or password')
+    }
   }
 
   const handleVerifyOTP = async (e) => {
@@ -308,7 +312,7 @@ export default function Login() {
             {mode === 'login' && (
               <div className="info-box">
                 <p>
-                  Password login UI is enabled. Connect your password API endpoint to complete this flow.
+                  Use an account that already has a password configured.
                 </p>
               </div>
             )}
