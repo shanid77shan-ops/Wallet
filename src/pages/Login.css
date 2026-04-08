@@ -117,6 +117,17 @@
   margin-bottom: 16px;
 }
 
+.selection-hint {
+  background: rgba(15, 23, 39, 0.72);
+  border: 1px dashed rgba(148, 163, 184, 0.34);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 12px;
+  color: #aebdd7;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
 .field-label {
   display: block;
   font-size: 12px;
@@ -212,6 +223,17 @@
   line-height: 1.4;
 }
 
+.success-message {
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #bbf7d0;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
 /* Submit Button */
 .login-submit {
   width: 100%;
@@ -243,6 +265,31 @@
 }
 
 .login-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.enter-code-btn {
+  width: 100%;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(214, 178, 95, 0.5);
+  background: rgba(214, 178, 95, 0.14);
+  color: #f4de9c;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  margin-bottom: 16px;
+}
+
+.enter-code-btn:hover:not(:disabled) {
+  background: rgba(214, 178, 95, 0.2);
+  border-color: rgba(214, 178, 95, 0.75);
+}
+
+.enter-code-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }

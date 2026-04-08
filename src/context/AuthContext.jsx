@@ -8,6 +8,7 @@ const USER_STORAGE_KEY = 'auth_user'
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [email, setEmail] = useState(null)
+  const [isInitializing, setIsInitializing] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [topMessage, setTopMessage] = useState('')
@@ -44,6 +45,7 @@ export function AuthProvider({ children }) {
     }
 
     setIsLoading(false)
+    setIsInitializing(false)
   }, [])
 
   useEffect(() => {
@@ -136,6 +138,7 @@ export function AuthProvider({ children }) {
       value={{
         user,
         email,
+        isInitializing,
         isLoading,
         error,
         sendOTP,

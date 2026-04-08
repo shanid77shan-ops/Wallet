@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Mail, ArrowLeft, Loader } from 'lucide-react'
+import { Mail, ArrowLeft, Loader, Lock } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import './Login.css'
 
@@ -7,9 +7,11 @@ export default function Login() {
   const { sendOTP, verifyOTP, error, isLoading } = useAuth()
 
   const [step, setStep] = useState('email') // 'email' or 'otp'
-  const [mode, setMode] = useState('login') // 'login' or 'create'
+  const [mode, setMode] = useState('') // '', 'login' or 'create'
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [otp, setOtp] = useState('')
+  const [codeSent, setCodeSent] = useState(false)
   const [localError, setLocalError] = useState('')
   const [resendTimer, setResendTimer] = useState(0)
 
@@ -24,6 +26,11 @@ export default function Login() {
     e.preventDefault()
     setLocalError('')
 
+    if (mode !== 'create') {
+      setLocalError('Please choose Create Wallet to continue with OTP')
+      return
+    }
+
     if (!email.trim()) {
       setLocalError('Please enter your email')
       return
@@ -34,10 +41,13 @@ export default function Login() {
       return
     }
 
+    // Move to OTP screen immediately after valid submit for a smoother flow.
+    setStep('otp')
+    setOtp('')
+
     try {
       await sendOTP(email)
-      setStep('otp')
-      setOtp('')
+      setCodeSent(true)
       setResendTimer(60)
 
       // Countdown for resend
@@ -53,6 +63,28 @@ export default function Login() {
     } catch {
       setLocalError(error || 'Failed to send OTP')
     }
+  }
+
+  const handlePasswordLogin = async (e) => {
+    e.preventDefault()
+    setLocalError('')
+
+    if (!email.trim()) {
+      setLocalError('Please enter your email')
+      return
+    }
+
+    if (!validateEmail(email)) {
+      setLocalError('Please enter a valid email')
+      return
+    }
+
+    if (!password.trim()) {
+      setLocalError('Please enter your password')
+      return
+    }
+
+    setLocalError('Password login is not connected yet. Please use Create Wallet OTP for now.')
   }
 
   const handleVerifyOTP = async (e) => {
@@ -101,6 +133,20 @@ export default function Login() {
     setLocalError('')
   }
 
+  const handleModeSelect = (nextMode) => {
+    setMode(nextMode)
+    setStep('email')
+    setOtp('')
+    setCodeSent(false)
+    setResendTimer(0)
+    setLocalError('')
+  }
+
+  const handleGoToOtpStep = () => {
+    setStep('otp')
+    setLocalError('')
+  }
+
   return (
     <div className="login-page">
       {/* Header */}
@@ -116,13 +162,24 @@ export default function Login() {
       <div className="login-form-container">
         {step === 'email' ? (
           // Email Step
-          <form onSubmit={handleSendOTP} className="login-form">
+          <form
+            onSubmit={mode === 'create' ? handleSendOTP : handlePasswordLogin}
+            className="login-form"
+          >
             <div className="step-title">
-              <h2>{mode === 'create' ? 'Create Wallet' : 'Login'}</h2>
+              <h2>
+                {mode === 'create'
+                  ? 'Create Wallet'
+                  : mode === 'login'
+                    ? 'Login'
+                    : 'Welcome'}
+              </h2>
               <p>
                 {mode === 'create'
                   ? 'Create a new wallet with your email'
-                  : 'Enter your email to continue'}
+                  : mode === 'login'
+                    ? 'Login using your email and password'
+                    : 'Select an option to continue'}
               </p>
             </div>
 
@@ -131,67 +188,130 @@ export default function Login() {
               <button
                 type="button"
                 className={`toggle-btn ${mode === 'create' ? 'active' : ''}`}
-                onClick={() => setMode('create')}
+                onClick={() => handleModeSelect('create')}
               >
                 Create Wallet
               </button>
               <button
                 type="button"
                 className={`toggle-btn ${mode === 'login' ? 'active' : ''}`}
-                onClick={() => setMode('login')}
+                onClick={() => handleModeSelect('login')}
               >
                 Login
               </button>
             </div>
 
-            {/* Email Input */}
-            <div className="field-group">
-              <label className="field-label">Email Address</label>
-              <div className="email-input-wrap">
-                <Mail size={18} className="email-icon" />
-                <input
-                  type="email"
-                  className="login-input"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value)
-                    setLocalError('')
-                  }}
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            {/* Error Message */}
-            {(localError || error) && (
-              <div className="error-message">
-                {localError || error}
+            {!mode && (
+              <div className="selection-hint">
+                Choose Create Wallet or Login to open the form.
               </div>
             )}
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="login-submit"
-              disabled={isLoading || !email.trim()}
-            >
-              {isLoading ? (
-                <>
-                  <Loader size={18} className="spinner" />
-                  Sending OTP...
-                </>
-              ) : (
-                'Send OTP'
-              )}
-            </button>
+            {!!mode && (
+              <>
+                {/* Email Input */}
+                <div className="field-group">
+                  <label className="field-label">Email Address</label>
+                  <div className="email-input-wrap">
+                    <Mail size={18} className="email-icon" />
+                    <input
+                      type="email"
+                      className="login-input"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value)
+                        setCodeSent(false)
+                        setLocalError('')
+                      }}
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {mode === 'login' && (
+                  <div className="field-group">
+                    <label className="field-label">Password</label>
+                    <div className="email-input-wrap">
+                      <Lock size={18} className="email-icon" />
+                      <input
+                        type="password"
+                        className="login-input"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => {
+                          setPassword(e.target.value)
+                          setLocalError('')
+                        }}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Error Message */}
+                {(localError || error) && (
+                  <div className="error-message">
+                    {localError || error}
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  className="login-submit"
+                  disabled={
+                    isLoading ||
+                    !email.trim() ||
+                    (mode === 'login' && !password.trim())
+                  }
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader size={18} className="spinner" />
+                      {mode === 'create' ? 'Sending OTP...' : 'Logging in...'}
+                    </>
+                  ) : mode === 'create' ? (
+                    codeSent ? 'Send OTP Again' : 'Send OTP'
+                  ) : (
+                    'Login'
+                  )}
+                </button>
+
+                {mode === 'create' && codeSent && (
+                  <>
+                    <div className="success-message">
+                      Code sent successfully. You can now enter your verification code.
+                    </div>
+                    <button
+                      type="button"
+                      className="enter-code-btn"
+                      onClick={handleGoToOtpStep}
+                      disabled={isLoading}
+                    >
+                      Enter Code
+                    </button>
+                  </>
+                )}
+              </>
+            )}
 
             {/* Info Box */}
-            <div className="info-box">
-              <p>
-                We'll send you a one-time password (OTP) to verify your email.
-              </p>
-            </div>
+            {mode === 'create' && (
+              <div className="info-box">
+                <p>
+                  We'll send you a one-time password (OTP) to verify your email.
+                </p>
+              </div>
+            )}
+
+            {mode === 'login' && (
+              <div className="info-box">
+                <p>
+                  Password login UI is enabled. Connect your password API endpoint to complete this flow.
+                </p>
+              </div>
+            )}
           </form>
         ) : (
           // OTP Step

@@ -13,10 +13,10 @@ import Profile from './pages/Profile'
 import './App.css'
 
 function AppContent() {
-  const { isAuthenticated, isLoading, topMessage } = useAuth()
+  const { isAuthenticated, isInitializing, topMessage } = useAuth()
 
   // Show loading state while checking auth
-  if (isLoading) {
+  if (isInitializing) {
     return (
       <div style={{
         display: 'flex',
