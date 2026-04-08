@@ -1,4 +1,4 @@
-const crypto = require('crypto')
+import { randomBytes } from 'crypto'
 
 // Access shared OTP store from global scope
 const getOtpStore = () => {
@@ -38,7 +38,7 @@ function createToken(userId, email) {
 
 // Generate user ID
 function generateUserId() {
-  return 'user_' + crypto.randomBytes(8).toString('hex')
+  return 'user_' + randomBytes(8).toString('hex')
 }
 
 // Validate email
@@ -47,7 +47,7 @@ function validateEmail(email) {
   return emailRegex.test(email)
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // Set JSON header FIRST
   res.setHeader('Content-Type', 'application/json')
 
