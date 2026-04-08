@@ -6,6 +6,7 @@ import {
   Moon, Sun, Wallet, Gift, FileText
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../supabaseClient'
 import './Profile.css'
 
 const address = '0x7f3a8B9c...2d4E5f6A'
@@ -59,7 +60,8 @@ export default function Profile() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
     logout()
     navigate('/')
   }

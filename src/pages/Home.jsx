@@ -6,8 +6,9 @@ import { useWallet } from '../context/WalletContext'
 import { portfolioHistory } from '../data/coins'
 import LiveIndicator from '../components/LiveIndicator'
 import CoinImage from '../components/CoinImage'
-import SendSheet from '../components/SendSheet'
 import ReceiveSheet from '../components/ReceiveSheet'
+import SendTransaction from '../SendTransaction'
+import TransactionList from '../TransactionList'
 import './Home.css'
 
 const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -27,9 +28,10 @@ function CustomTooltip({ active, payload }) {
   return null
 }
 
-export default function Home() {
+export default function Home({ session }) {
   const [hidden, setHidden] = useState(false)
   const [sheet, setSheet] = useState(null)
+  const [showSupabaseSend, setShowSupabaseSend] = useState(false)
   const [assetSearch, setAssetSearch] = useState('')
   const { coins, loading, error, lastUpdated } = useCoins()
   const { txHistory } = useWallet()
@@ -104,7 +106,17 @@ export default function Home() {
               { icon: Plus,          label: 'Buy',     color: '#d6b25f', action: null      },
               { icon: Repeat2,       label: 'Swap',    color: '#f59e0b', action: null      },
             ].map(({ icon: Icon, label, color, action }) => (
-              <button key={label} className="quick-btn" onClick={() => action && setSheet(action)}>
+              <button
+                key={label}
+                className="quick-btn"
+                onClick={() => {
+                  if (action === 'send') {
+                    setShowSupabaseSend(s => !s)
+                    return
+                  }
+                  if (action) setSheet(action)
+                }}
+              >
                 <div className="quick-icon" style={{ background: `${color}20`, color }}>
                   <Icon size={18} />
                 </div>
@@ -112,6 +124,10 @@ export default function Home() {
               </button>
             ))}
           </div>
+
+          {showSupabaseSend && session && (
+            <SendTransaction session={session} />
+          )}
         </div>
       </div>
 
@@ -207,7 +223,11 @@ export default function Home() {
         </div>
       </section>
 
-      {sheet === 'send'    && <SendSheet    onClose={() => setSheet(null)} />}
+      {/* Supabase History (Bottom Area) */}
+      <section className="section">
+        <TransactionList />
+      </section>
+
       {sheet === 'receive' && <ReceiveSheet onClose={() => setSheet(null)} />}
     </div>
   )
