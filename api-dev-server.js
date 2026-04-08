@@ -9,10 +9,14 @@ app.use(express.json())
 // Import API handlers
 import sendOtpHandler from './api/auth/send-otp.js'
 import verifyOtpHandler from './api/auth/verify-otp.js'
+import registerPasswordHandler from './api/auth/register-password.js'
+import loginPasswordHandler from './api/auth/login-password.js'
 
 // Routes
 app.post('/api/auth/send-otp', (req, res) => sendOtpHandler(req, res))
 app.post('/api/auth/verify-otp', (req, res) => verifyOtpHandler(req, res))
+app.post('/api/auth/register-password', (req, res) => registerPasswordHandler(req, res))
+app.post('/api/auth/login-password', (req, res) => loginPasswordHandler(req, res))
 
 // Error handler
 app.use((err, req, res, next) => {
@@ -24,4 +28,6 @@ app.listen(PORT, () => {
   console.log(`✅ API server running at http://localhost:${PORT}`)
   console.log(`📧 POST /api/auth/send-otp`)
   console.log(`✔️  POST /api/auth/verify-otp`)
+  console.log(`🔐 POST /api/auth/register-password`)
+  console.log(`🔓 POST /api/auth/login-password`)
 })

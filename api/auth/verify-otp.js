@@ -1,51 +1,12 @@
-import { randomBytes } from 'crypto'
-
-// Access shared OTP store from global scope
-const getOtpStore = () => {
-  if (!global.otpStore) {
-    global.otpStore = new Map()
-  }
-  return global.otpStore
-}
-
-// Access shared user store from global scope
-const getUserStore = () => {
-  if (!global.userStore) {
-    global.userStore = new Map()
-  }
-  return global.userStore
-}
-
-// Simple JWT creation (for development)
-function createToken(userId, email) {
-  // WARNING: This is a simple implementation for development
-  // In production, use a proper JWT library like 'jsonwebtoken'
-
-  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
-  const now = Math.floor(Date.now() / 1000)
-  const payload = Buffer.from(JSON.stringify({
-    userId,
-    email,
-    iat: now,
-    exp: now + 7 * 24 * 60 * 60, // 7 days
-  })).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
-
-  // For this simple implementation, we'll just return a base64 token
-  // In production, sign with HMAC
-  const token = `${header}.${payload}.signature`
-  return token
-}
-
-// Generate user ID
-function generateUserId() {
-  return 'user_' + randomBytes(8).toString('hex')
-}
-
-// Validate email
-function validateEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
-}
+import {
+  createToken,
+  findUserByEmail,
+  generateUserId,
+  getOtpStore,
+  getUserStore,
+  normalizeEmail,
+  validateEmail,
+} from './_shared.js'
 
 export default async function handler(req, res) {
   // Set JSON header FIRST
@@ -77,7 +38,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Email and OTP are required' })
     }
 
-    const normalizedEmail = email.toLowerCase().trim()
+    const normalizedEmail = normalizeEmail(email)
 
     if (!validateEmail(normalizedEmail)) {
       return res.status(400).json({ error: 'Invalid email format' })
@@ -113,17 +74,13 @@ export default async function handler(req, res) {
 
     // Check if user exists
     const userStore = getUserStore()
-    let user = null
-    for (const [, userData] of userStore.entries()) {
-      if (userData.email === normalizedEmail) {
-        user = userData
-        break
-      }
-    }
+    const existing = findUserByEmail(userStore, normalizedEmail)
+    let user = existing ? existing[1] : null
+    let userId = existing ? existing[0] : null
 
     // Create user if doesn't exist
     if (!user) {
-      const userId = generateUserId()
+      userId = generateUserId()
       user = {
         id: userId,
         email: normalizedEmail,
