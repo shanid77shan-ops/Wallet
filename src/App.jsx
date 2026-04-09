@@ -16,7 +16,7 @@ import Profile from './pages/Profile'
 import './App.css'
 
 function MetaMaskConnector({ userId }) {
-  const { walletAddress, isConnecting, error, isMetaMaskInstalled, connect } =
+  const { walletAddress, isConnecting, isInitializing, isMetaMaskInstalled, error, connect } =
     useMetaMask(userId)
 
   const short = walletAddress
@@ -25,7 +25,12 @@ function MetaMaskConnector({ userId }) {
 
   return (
     <div className="metamask-bar">
-      {!isMetaMaskInstalled ? (
+      {isInitializing ? (
+        <span className="metamask-initializing">
+          <span className="metamask-spinner" />
+          Detecting wallet…
+        </span>
+      ) : !isMetaMaskInstalled ? (
         <span className="metamask-warning">MetaMask not detected</span>
       ) : walletAddress ? (
         <span className="metamask-address">{short}</span>
@@ -35,7 +40,8 @@ function MetaMaskConnector({ userId }) {
           onClick={connect}
           disabled={isConnecting}
         >
-          {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+          {isConnecting && <span className="metamask-spinner" />}
+          {isConnecting ? 'Connecting…' : 'Connect Wallet'}
         </button>
       )}
       {error && <span className="metamask-error">{error}</span>}

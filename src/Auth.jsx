@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import detectEthereumProvider from '@metamask/detect-provider'
 import { BrowserProvider } from 'ethers'
 import { supabase } from './supabaseClient'
 import './Auth.css'
@@ -65,13 +66,24 @@ async function upsertProfile(userId, walletAddress) {
 export default function AuthPage() {
   const [phase, setPhase] = useState('idle') // 'idle' | 'connecting' | 'authenticating' | 'error'
   const [errorMsg, setErrorMsg] = useState('')
+  const [isDetecting, setIsDetecting] = useState(true)
+  const [isMetaMaskInstalled, setIsMetaMaskInstalled] = useState(false)
 
-  const isMetaMaskInstalled = typeof window !== 'undefined' && Boolean(window.ethereum?.isMetaMask)
+  // Wait for MetaMask to inject before rendering the warning or disabling the button
+  useEffect(() => {
+    detectEthereumProvider({ mustBeMetaMask: true, timeout: 3000 })
+      .then(provider => {
+        setIsMetaMaskInstalled(Boolean(provider))
+        setIsDetecting(false)
+      })
+      .catch(() => setIsDetecting(false))
+  }, [])
 
   async function handleConnect() {
     setErrorMsg('')
 
-    if (!window.ethereum) {
+    const detectedProvider = await detectEthereumProvider({ mustBeMetaMask: true, timeout: 3000 })
+    if (!detectedProvider) {
       setErrorMsg('MetaMask is not installed. Please install it from metamask.io.')
       return
     }
@@ -132,8 +144,8 @@ export default function AuthPage() {
         <h1 className="auth-title">Crypto Wallet</h1>
         <p className="auth-subtitle">Connect your MetaMask wallet to get started</p>
 
-        {/* MetaMask not installed */}
-        {!isMetaMaskInstalled && (
+        {/* MetaMask not installed — only show after detection finishes */}
+        {!isDetecting && !isMetaMaskInstalled && (
           <div className="auth-warning">
             MetaMask not detected.{' '}
             <a
@@ -169,7 +181,7 @@ export default function AuthPage() {
         <button
           className="auth-connect-btn"
           onClick={handleConnect}
-          disabled={isBusy || !isMetaMaskInstalled}
+          disabled={isBusy || isDetecting || !isMetaMaskInstalled}
         >
           {isBusy && <span className="auth-spinner" />}
           {!isBusy && (

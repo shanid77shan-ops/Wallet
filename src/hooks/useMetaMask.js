@@ -1,75 +1,110 @@
 import { useState, useEffect, useCallback } from 'react'
+import detectEthereumProvider from '@metamask/detect-provider'
 import { BrowserProvider } from 'ethers'
 import { supabase } from '../supabaseClient'
 
 /**
- * Handles MetaMask detection, connection, and syncing the wallet address
- * to the `profiles` table in Supabase for the given authenticated user.
+ * Detects MetaMask, connects the wallet, and syncs the address to Supabase.
  *
- * @param {string|undefined} userId - Supabase user ID (session.user.id)
+ * isInitializing — true while detectEthereumProvider is still polling (up to 3 s).
+ *                  The UI must not show any "not found" warning during this window.
+ * isMetaMaskInstalled — set only after polling finishes.
+ *
+ * @param {string|undefined} userId  Supabase user ID (session.user.id)
  */
 export function useMetaMask(userId) {
-  const [walletAddress, setWalletAddress] = useState(null)
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [error, setError] = useState(null)
+  const [walletAddress,       setWalletAddress]       = useState(null)
+  const [isConnecting,        setIsConnecting]        = useState(false)
+  const [isInitializing,      setIsInitializing]      = useState(true)  // ← polling in progress
+  const [isMetaMaskInstalled, setIsMetaMaskInstalled] = useState(false)
+  const [error,               setError]               = useState(null)
 
-  const isMetaMaskInstalled =
-    typeof window !== 'undefined' && Boolean(window.ethereum?.isMetaMask)
+  // ── Persist address to Supabase profiles ──────────────────────────────────
+  // Defined before the effects that call it so the reference is stable.
+  const saveToSupabase = useCallback(async (address) => {
+    if (!userId || !address) return
+    const { error: dbError } = await supabase
+      .from('profiles')
+      .upsert({ id: userId, wallet_address: address }, { onConflict: 'id' })
+    if (dbError) console.error('Failed to save wallet address:', dbError.message)
+  }, [userId])
 
-  // Persist the address to Supabase profiles table
-  const saveToSupabase = useCallback(
-    async (address) => {
-      if (!userId || !address) return
-      const { error: dbError } = await supabase
-        .from('profiles')
-        .upsert({ id: userId, wallet_address: address }, { onConflict: 'id' })
-      if (dbError) console.error('Failed to save wallet address:', dbError.message)
-    },
-    [userId]
-  )
+  // ── Step 1: wait for MetaMask to inject, then restore any existing session ─
+  useEffect(() => {
+    let cancelled = false
 
-  // Request connection via MetaMask
+    async function detect() {
+      try {
+        const provider = await detectEthereumProvider({ mustBeMetaMask: true, timeout: 3000 })
+
+        if (cancelled) return
+        const installed = Boolean(provider)
+        setIsMetaMaskInstalled(installed)
+        setIsInitializing(false)
+
+        if (!installed) return
+
+        // Check if the user already approved this site — restore silently
+        const accounts = await provider.request({ method: 'eth_accounts' })
+        if (cancelled) return
+
+        if (accounts[0]) {
+          setWalletAddress(accounts[0])
+          await saveToSupabase(accounts[0]) // keep Supabase in sync on page reload
+        }
+      } catch {
+        if (!cancelled) setIsInitializing(false)
+      }
+    }
+
+    detect()
+    return () => { cancelled = true }
+  }, [saveToSupabase])
+
+  // ── Step 2: react to account switches / disconnects inside MetaMask ────────
+  useEffect(() => {
+    if (!window.ethereum) return
+
+    const handleAccountsChanged = (accounts) => {
+      const address = accounts[0] ?? null
+      setWalletAddress(address)
+      if (address) saveToSupabase(address)
+    }
+
+    window.ethereum.on('accountsChanged', handleAccountsChanged)
+    return () => window.ethereum.removeListener('accountsChanged', handleAccountsChanged)
+  }, [saveToSupabase])
+
+  // ── Connect: prompt MetaMask and save address ──────────────────────────────
   const connect = useCallback(async () => {
-    if (!window.ethereum) {
-      setError('MetaMask is not installed. Please install it from metamask.io.')
+    setError(null)
+
+    const provider = await detectEthereumProvider({ mustBeMetaMask: true, timeout: 3000 })
+    if (!provider) {
+      setError('MetaMask not found. Please install it from metamask.io.')
       return
     }
+
     setIsConnecting(true)
-    setError(null)
     try {
-      const provider = new BrowserProvider(window.ethereum)
-      const accounts = await provider.send('eth_requestAccounts', [])
+      const ethersProvider = new BrowserProvider(window.ethereum)
+      const accounts = await ethersProvider.send('eth_requestAccounts', [])
       const address = accounts[0]
       setWalletAddress(address)
       await saveToSupabase(address)
     } catch (err) {
-      // Error code 4001 = user rejected the request
       setError(err.code === 4001 ? 'Connection rejected.' : err.message)
     } finally {
       setIsConnecting(false)
     }
   }, [saveToSupabase])
 
-  // If MetaMask already has an authorised connection, restore it silently
-  useEffect(() => {
-    if (!window.ethereum) return
-    window.ethereum
-      .request({ method: 'eth_accounts' })
-      .then((accounts) => { if (accounts[0]) setWalletAddress(accounts[0]) })
-      .catch(() => {})
-  }, [])
-
-  // Keep state in sync when the user switches or disconnects accounts in MetaMask
-  useEffect(() => {
-    if (!window.ethereum) return
-    const handleAccountsChanged = (accounts) => {
-      const address = accounts[0] ?? null
-      setWalletAddress(address)
-      if (address) saveToSupabase(address)
-    }
-    window.ethereum.on('accountsChanged', handleAccountsChanged)
-    return () => window.ethereum.removeListener('accountsChanged', handleAccountsChanged)
-  }, [saveToSupabase])
-
-  return { walletAddress, isConnecting, error, isMetaMaskInstalled, connect }
+  return {
+    walletAddress,
+    isConnecting,
+    isInitializing,
+    isMetaMaskInstalled,
+    error,
+    connect,
+  }
 }

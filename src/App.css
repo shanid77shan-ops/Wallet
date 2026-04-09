@@ -37,6 +37,86 @@
   }
 }
 
+/* MetaMask connector bar */
+.metamask-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--bg-card, #111d2f);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  min-height: 36px;
+}
+
+.metamask-initializing {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted, #6b7280);
+}
+
+.metamask-address {
+  font-family: monospace;
+  font-size: 12px;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+.metamask-warning {
+  font-size: 12px;
+  color: #f59e0b;
+}
+
+.metamask-error {
+  font-size: 12px;
+  color: #ef4444;
+}
+
+.metamask-connect-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: rgba(153, 69, 255, 0.15);
+  border: 1px solid rgba(153, 69, 255, 0.35);
+  border-radius: 20px;
+  color: #b97aff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.metamask-connect-btn:hover:not(:disabled) {
+  background: rgba(153, 69, 255, 0.25);
+}
+
+.metamask-connect-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Shared spinner used in the bar and connect button */
+.metamask-spinner {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border: 2px solid rgba(153, 69, 255, 0.25);
+  border-top-color: #b97aff;
+  border-radius: 50%;
+  animation: mm-spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes mm-spin {
+  to { transform: rotate(360deg); }
+}
+
 .app-content {
   flex: 1;
   overflow-y: auto;
