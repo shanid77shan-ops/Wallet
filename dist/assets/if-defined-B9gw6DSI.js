@@ -1,0 +1,1 @@
+import{y as e}from"./wui-text-DOWykSyR.js";var t=t=>t??e;export{t};
