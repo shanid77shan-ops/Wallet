@@ -4,6 +4,7 @@ import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts'
 import { useCoins } from '../context/CoinContext'
 import { useWallet } from '../context/WalletContext'
 import { useSepoliaBalance } from '../hooks/useSepoliaBalance'
+import { useCryptoPrices } from '../hooks/useCryptoPrices'
 import { portfolioHistory } from '../data/coins'
 import LiveIndicator from '../components/LiveIndicator'
 import CoinImage from '../components/CoinImage'
@@ -13,6 +14,12 @@ import TransactionList from '../TransactionList'
 import './Home.css'
 
 const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+const PRICE_COINS = [
+  { symbol: 'BTC', name: 'Bitcoin',  color: '#f7931a' },
+  { symbol: 'ETH', name: 'Ethereum', color: '#627eea' },
+  { symbol: 'SOL', name: 'Solana',   color: '#9945ff' },
+]
 
 const txIcons = {
   receive: { icon: ArrowDownLeft, color: '#10b981', label: 'Received' },
@@ -37,6 +44,7 @@ export default function Home({ session }) {
   const { coins, loading, error, lastUpdated } = useCoins()
   const { txHistory, walletAddress } = useWallet()
   const { balance: sepoliaBalance, loading: sepoliaLoading, error: sepoliaError } = useSepoliaBalance(walletAddress)
+  const { prices, loading: pricesLoading, error: pricesError, lastUpdated: pricesUpdated } = useCryptoPrices()
 
   const myCoins = coins.filter(c => c.balance > 0)
   const totalBalance = myCoins.reduce((sum, c) => sum + (c.price ?? 0) * c.balance, 0)
@@ -136,22 +144,94 @@ export default function Home({ session }) {
       {/* Sepolia Testnet Balance */}
       <div className="sepolia-card">
         <div className="sepolia-card-header">
-          <span className="sepolia-card-label">Sepolia Testnet</span>
-          <span className="sepolia-badge">Testnet</span>
+          <div className="sepolia-card-header-left">
+            <span className="sepolia-card-label">Sepolia Testnet · ETH Balance</span>
+            <span className="sepolia-badge">Testnet</span>
+          </div>
+          {walletAddress && (
+            <a
+              className="sepolia-etherscan-link"
+              href={`https://sepolia.etherscan.io/address/${walletAddress}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Etherscan ↗
+            </a>
+          )}
         </div>
+
         {!walletAddress ? (
-          <p className="sepolia-empty">Connect a wallet to view balance</p>
+          <p className="sepolia-empty">Connect a wallet to view your balance</p>
         ) : sepoliaLoading ? (
-          <div className="skeleton" style={{ height: 26, width: '55%', marginTop: 8 }} />
+          <>
+            <div className="skeleton" style={{ height: 28, width: '50%', marginTop: 8, borderRadius: 8 }} />
+            <div className="skeleton" style={{ height: 16, width: '30%', marginTop: 6, borderRadius: 6 }} />
+          </>
         ) : sepoliaError ? (
           <p className="sepolia-error">{sepoliaError}</p>
         ) : (
-          <p className="sepolia-balance">
-            {parseFloat(sepoliaBalance).toFixed(6)}
-            <span className="sepolia-unit"> ETH</span>
-          </p>
+          <>
+            {/* ETH amount — always show, even when 0 */}
+            <p className="sepolia-balance">
+              {sepoliaBalance === 0
+                ? '0.000000'
+                : sepoliaBalance.toFixed(6)
+              }
+              <span className="sepolia-unit"> ETH</span>
+            </p>
+
+            {/* USD equivalent — shows $0.00 when balance or price is 0 */}
+            <p className="sepolia-usd">
+              {(() => {
+                const usd = (sepoliaBalance ?? 0) * (prices.ETH ?? 0)
+                return `$${usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              })()}
+            </p>
+
+            {/* Truncated wallet address */}
+            <p className="sepolia-address">
+              {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
+            </p>
+          </>
         )}
       </div>
+
+      {/* Live Prices */}
+      <section className="section">
+        <div className="section-header">
+          <h2>Live Prices</h2>
+          <span className="prices-updated">
+            {pricesUpdated ? `Updated ${pricesUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : 'Updating…'}
+          </span>
+        </div>
+
+        <div className="price-cards">
+          {PRICE_COINS.map(({ symbol, name, color }) => (
+            <div key={symbol} className="price-card">
+              <div className="price-card-top">
+                <div className="price-coin-dot" style={{ background: color }} />
+                <div className="price-coin-info">
+                  <span className="price-coin-symbol">{symbol}</span>
+                  <span className="price-coin-name">{name}</span>
+                </div>
+                <span className="price-live-badge">LIVE</span>
+              </div>
+
+              {pricesLoading ? (
+                <div className="skeleton" style={{ height: 20, width: '80%', marginTop: 12, borderRadius: 8 }} />
+              ) : pricesError ? (
+                <p className="price-error">—</p>
+              ) : (
+                <p className="price-value">
+                  ${prices[symbol] != null
+                    ? prices[symbol].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    : '—'}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* My Assets */}
       <section className="section">

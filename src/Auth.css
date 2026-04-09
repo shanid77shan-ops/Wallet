@@ -1,0 +1,194 @@
+/* ── Page ───────────────────────────────────────────────────────────────────── */
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 60% 0%,  rgba(214, 178, 95, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(99, 102, 241, 0.07) 0%, transparent 50%),
+    #09101c;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* ── Card ───────────────────────────────────────────────────────────────────── */
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: linear-gradient(160deg, #111d2f 0%, #0d1626 100%);
+  border: 1px solid rgba(214, 178, 95, 0.18);
+  border-radius: 28px;
+  padding: 40px 32px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Logo ───────────────────────────────────────────────────────────────────── */
+.auth-logo {
+  margin-bottom: 20px;
+}
+
+.auth-logo-ring {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(214, 178, 95, 0.08);
+  border: 1px solid rgba(214, 178, 95, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Headings ───────────────────────────────────────────────────────────────── */
+.auth-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #f0e6cc;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+}
+
+.auth-subtitle {
+  font-size: 14px;
+  color: var(--text-muted, #6b7280);
+  margin: 0 0 28px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── MetaMask warning ───────────────────────────────────────────────────────── */
+.auth-warning {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 12px;
+  font-size: 13px;
+  color: #f59e0b;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.auth-link {
+  color: #d6b25f;
+  text-decoration: none;
+  font-weight: 600;
+}
+.auth-link:hover { text-decoration: underline; }
+
+/* ── Step indicator ─────────────────────────────────────────────────────────── */
+.auth-steps {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+}
+
+.auth-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-muted, #6b7280);
+  transition: color 0.2s;
+}
+
+.auth-step.active  { color: #d6b25f; }
+.auth-step.done    { color: #10b981; }
+
+.auth-step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.auth-step.active .auth-step-dot {
+  box-shadow: 0 0 0 3px rgba(214, 178, 95, 0.2);
+  animation: auth-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes auth-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ── Connect button ─────────────────────────────────────────────────────────── */
+.auth-connect-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #d6b25f 0%, #b8922a 100%);
+  color: #0d1117;
+  border: none;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  margin-bottom: 16px;
+  letter-spacing: 0.1px;
+}
+
+.auth-connect-btn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.auth-connect-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.auth-connect-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Spinner ────────────────────────────────────────────────────────────────── */
+.auth-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(13, 17, 23, 0.25);
+  border-top-color: #0d1117;
+  border-radius: 50%;
+  animation: auth-spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes auth-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Error ──────────────────────────────────────────────────────────────────── */
+.auth-error {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  border-radius: 12px;
+  font-size: 13px;
+  color: #ef4444;
+  text-align: center;
+  margin: 0 0 16px;
+}
+
+/* ── Footnote ───────────────────────────────────────────────────────────────── */
+.auth-footnote {
+  font-size: 11px;
+  color: var(--text-muted, #6b7280);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}

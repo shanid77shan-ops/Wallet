@@ -37,57 +37,92 @@
 /* Sepolia Testnet Balance Card */
 .sepolia-card {
   margin: 12px 16px;
-  padding: 14px 16px;
-  background: var(--bg-card);
-  border: 1px solid rgba(153, 69, 255, 0.25);
-  border-radius: 16px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, rgba(153, 69, 255, 0.07) 0%, var(--bg-card) 60%);
+  border: 1px solid rgba(153, 69, 255, 0.22);
+  border-radius: 20px;
 }
 
 .sepolia-card-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.sepolia-card-header-left {
+  display: flex;
+  align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
 }
 
 .sepolia-card-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-muted);
 }
 
 .sepolia-badge {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 9px;
+  font-weight: 700;
   padding: 2px 7px;
   border-radius: 20px;
   background: rgba(153, 69, 255, 0.15);
   color: #9945ff;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 }
 
+.sepolia-etherscan-link {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9945ff;
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.sepolia-etherscan-link:hover { opacity: 1; }
+
 .sepolia-balance {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 800;
   color: var(--text-primary);
-  margin: 0;
+  margin: 0 0 2px;
+  letter-spacing: -0.5px;
 }
 
 .sepolia-unit {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--text-muted);
 }
 
-.sepolia-empty,
-.sepolia-error {
+.sepolia-usd {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin: 0 0 6px;
+}
+
+.sepolia-address {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 0;
+  opacity: 0.7;
+}
+
+.sepolia-empty {
   font-size: 12px;
   color: var(--text-muted);
   margin: 4px 0 0;
 }
 
 .sepolia-error {
+  font-size: 12px;
   color: #ef4444;
+  margin: 4px 0 0;
 }
 
 /* Header */
@@ -259,6 +294,93 @@
   font-size: 11px;
   font-weight: 500;
   color: var(--text-secondary);
+}
+
+/* Live Price Cards */
+.prices-updated {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.price-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.price-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.15s;
+}
+
+.price-card:hover { background: var(--bg-card-hover); }
+
+.price-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.price-coin-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.price-coin-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.price-coin-symbol {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.price-coin-name {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.price-live-badge {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 6px;
+  padding: 2px 5px;
+  flex-shrink: 0;
+}
+
+.price-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.price-error {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
 }
 
 /* Sections */
