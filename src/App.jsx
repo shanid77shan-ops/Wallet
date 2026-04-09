@@ -6,7 +6,7 @@ import { WalletProvider } from './context/WalletContext'
 import { CoinProvider } from './context/CoinContext'
 import { Web3Provider } from './providers/Web3Provider'
 import { useMetaMask } from './hooks/useMetaMask'
-import BottomNav from './components/BottomNav'
+import BottomNav from './components/BottomNav' // <--- Keep this one
 import AuthPage from './AuthPage'
 import Home from './pages/Home'
 import P2P from './pages/P2P'
@@ -27,20 +27,14 @@ function MetaMaskConnector({ userId }) {
     <div className="metamask-bar">
       {isInitializing ? (
         <span className="metamask-initializing">
-          <span className="metamask-spinner" />
-          Detecting wallet…
+          <span className="metamask-spinner" /> Detecting wallet…
         </span>
       ) : !isMetaMaskInstalled ? (
         <span className="metamask-warning">MetaMask not detected</span>
       ) : walletAddress ? (
         <span className="metamask-address">{short}</span>
       ) : (
-        <button
-          className="metamask-connect-btn"
-          onClick={connect}
-          disabled={isConnecting}
-        >
-          {isConnecting && <span className="metamask-spinner" />}
+        <button className="metamask-connect-btn" onClick={connect} disabled={isConnecting}>
           {isConnecting ? 'Connecting…' : 'Connect Wallet'}
         </button>
       )}
@@ -51,22 +45,36 @@ function MetaMaskConnector({ userId }) {
 
 function App() {
   const [session, setSession] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check current session
+    // 1. Check current session immediately
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
+      setLoading(false)
+    }).catch(err => {
+      console.error("Supabase Session Error:", err)
+      setLoading(false)
     })
 
-    // Listen for changes (login/logout)
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    // 2. Listen for login/logout
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
+      setLoading(false)
     })
 
     return () => subscription.unsubscribe()
   }, [])
+
+  // If Supabase is still thinking, show a loader instead of a black screen
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="metamask-spinner"></div>
+        <p>Connecting to Network...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="App">
