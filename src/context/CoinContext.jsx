@@ -1,17 +1,15 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { coins as staticCoins } from '../data/coins'
 import { fetchLivePrices } from '../services/coinGeckoApi'
-import { useWallet } from './WalletContext'
 
 const CoinContext = createContext(null)
 
 const POLL_INTERVAL = 30_000
 
 export function CoinProvider({ children }) {
-  const { balances, balancesLoading, balanceError } = useWallet()
-  const [liveMap, setLiveMap] = useState({})
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [liveMap,     setLiveMap]     = useState({})
+  const [loading,     setLoading]     = useState(true)
+  const [error,       setError]       = useState(null)
   const [lastUpdated, setLastUpdated] = useState(null)
   const isFirstFetch = useRef(true)
 
@@ -41,22 +39,13 @@ export function CoinProvider({ children }) {
     return () => { cancelled = true; clearInterval(id) }
   }, [])
 
-  // Recompute merged coins whenever live prices OR balances change
   const coins = staticCoins.map(coin => ({
     ...coin,
     ...(liveMap[coin.id] ?? {}),
-    balance: balances[coin.id] ?? coin.balance,
   }))
 
   return (
-    <CoinContext.Provider
-      value={{
-        coins,
-        loading: loading || balancesLoading,
-        error: error || balanceError || null,
-        lastUpdated,
-      }}
-    >
+    <CoinContext.Provider value={{ coins, loading, error, lastUpdated }}>
       {children}
     </CoinContext.Provider>
   )

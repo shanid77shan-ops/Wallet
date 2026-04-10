@@ -1,13 +1,13 @@
 import { NavLink } from 'react-router-dom'
-import { Home, Users, TrendingUp, ArrowLeftRight, User } from 'lucide-react'
+import { House, ChartLine, ArrowsLeftRight, Users, User } from '@phosphor-icons/react'
 import './BottomNav.css'
 
 const navItems = [
-  { to: '/', icon: Home, label: 'Home' },
-  { to: '/p2p', icon: Users, label: 'P2P' },
-  { to: '/trending', icon: TrendingUp, label: 'Trending' },
-  { to: '/trade', icon: ArrowLeftRight, label: 'Trade' },
-  { to: '/profile', icon: User, label: 'Profile' },
+  { to: '/',         icon: House,          label: 'Wallet'  },
+  { to: '/trending', icon: ChartLine,      label: 'Market'  },
+  { to: '/trade',    icon: ArrowsLeftRight, label: 'Trade'   },
+  { to: '/p2p',      icon: Users,          label: 'P2P'     },
+  { to: '/profile',  icon: User,           label: 'Profile' },
 ]
 
 export default function BottomNav() {
@@ -21,7 +21,7 @@ export default function BottomNav() {
           className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
         >
           <div className="nav-icon-wrap">
-            <Icon size={22} strokeWidth={1.8} />
+            <Icon size={22} weight="fill" />
           </div>
           <span className="nav-label">{label}</span>
         </NavLink>

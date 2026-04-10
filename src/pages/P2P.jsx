@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { IndianRupee, Landmark, ShieldCheck, Clock3 } from 'lucide-react'
 import { useCoins } from '../context/CoinContext'
-import { useWallet } from '../context/WalletContext'
+import { useXDTWallet } from '../context/XDTWalletContext'
 import { fetchUsdInrRate } from '../services/forexApi'
 import CoinImage from '../components/CoinImage'
 import './P2P.css'
@@ -17,7 +17,9 @@ const fmtUsd = (n) =>
 
 export default function P2P() {
   const { coins, loading } = useCoins()
-  const { sellP2P, txHistory } = useWallet()
+  const { txHistory } = useXDTWallet()
+  // P2P sell is not yet wired to the HD wallet — show coming-soon placeholder
+  const sellP2P = () => { throw new Error('P2P sell coming soon') }
 
   const sellableCoins = useMemo(() => coins.filter((c) => c.balance > 0), [coins])
   const [selectedId, setSelectedId] = useState('')

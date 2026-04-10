@@ -1,0 +1,202 @@
+/* Setup.css — xdt-wallet onboarding */
+
+.setup-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 20px 48px;
+  background:
+    radial-gradient(ellipse at 70% -5%, rgba(214,178,95,0.14) 0%, transparent 45%),
+    radial-gradient(ellipse at 20% 90%, rgba(99,102,241,0.08) 0%, transparent 50%),
+    var(--bg-primary);
+  box-sizing: border-box;
+}
+
+/* Logo */
+.setup-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 32px;
+}
+
+.setup-logo-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(214,178,95,0.18) 0%, rgba(99,102,241,0.12) 100%);
+  border: 1.5px solid rgba(214,178,95,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.setup-logo-text {
+  font-size: 28px;
+  font-weight: 900;
+  color: #d6b25f;
+  letter-spacing: -1px;
+}
+
+.setup-brand {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.setup-tagline {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Card */
+.setup-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.setup-card-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.setup-card-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.warning-text {
+  color: #f59e0b;
+  font-size: 12.5px;
+}
+
+/* Buttons */
+.setup-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.setup-btn:active { transform: scale(0.98); }
+.setup-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.setup-btn.primary {
+  background: linear-gradient(135deg, #d6b25f, #b8902f);
+  color: #0a0f1a;
+}
+.setup-btn.secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+}
+.setup-btn.ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+/* Phrase grid */
+.phrase-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.phrase-word {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.word-num {
+  font-size: 10px;
+  color: var(--text-muted);
+  min-width: 14px;
+  font-weight: 600;
+}
+
+.word-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Inputs */
+.setup-input {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 15px;
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.setup-input:focus { border-color: #d6b25f; }
+
+.setup-textarea {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-family: monospace;
+  outline: none;
+  box-sizing: border-box;
+  resize: none;
+  line-height: 1.6;
+  transition: border-color 0.15s;
+}
+.setup-textarea:focus { border-color: #d6b25f; }
+
+/* Error */
+.setup-error {
+  font-size: 13px;
+  color: var(--accent-red);
+  margin: 0;
+  padding: 10px 12px;
+  background: rgba(239,68,68,0.08);
+  border-radius: 10px;
+  border: 1px solid rgba(239,68,68,0.2);
+}
+
+/* Notice */
+.setup-notice {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+  padding-top: 4px;
+}

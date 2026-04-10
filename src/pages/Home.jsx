@@ -1,228 +1,211 @@
-import React, { useEffect, useState } from 'react'
-import { supabase } from '../supabaseClient'
-import { ArrowUpRight, ArrowDown, Plus, Clock, X, Copy, CaretRight } from '@phosphor-icons/react'
-import { ethers } from 'ethers'
-import { QRCodeSVG } from 'qrcode.react' // Real QR Code support
+/**
+ * Home.jsx — xdt-wallet main screen
+ * Shows ETH, USDT ERC-20 and USDT TRC-20 balances with send/receive sheets.
+ */
+import { useState } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
+import {
+  ArrowUpRight, ArrowDown, Copy, X, CaretRight,
+  ArrowClockwise, Eye, EyeSlash,
+} from '@phosphor-icons/react'
+import { useXDTWallet } from '../context/XDTWalletContext'
+import { fmtUSD, fmtToken } from '../services/xdtPriceService'
+import './Home.css'
 
-const SUPPORTED_COINS = [
-  { id: 'eth', name: 'Ethereum', symbol: 'ETH', icon: '🌐', networks: ['Ethereum Mainnet', 'Arbitrum', 'Optimism', 'Base'] },
-  { id: 'btc', name: 'Bitcoin', symbol: 'BTC', icon: '₿', networks: ['Bitcoin Mainnet', 'Lightning Network'] },
-  { id: 'usdt', name: 'Tether', symbol: 'USDT', icon: '💵', networks: ['Ethereum (ERC20)', 'Tron (TRC20)', 'BNB Smart Chain (BEP20)'] },
-  { id: 'bnb', name: 'Binance Coin', symbol: 'BNB', icon: '🔶', networks: ['BNB Smart Chain', 'Beacon Chain'] }
-]
+// ── Token icons (inline SVG / emoji for zero dependency) ─────────────────────
+function TokenIcon({ id }) {
+  if (id === 'eth')      return <div className="tok-icon eth">Ξ</div>
+  if (id === 'usdt-erc') return <div className="tok-icon erc">₮</div>
+  if (id === 'usdt-trc') return <div className="tok-icon trc">₮</div>
+  return <div className="tok-icon">?</div>
+}
 
-const Home = ({ session }) => {
-  const [transactions, setTransactions] = useState([])
-  const [balance, setBalance] = useState("0.00")
-  const [showSend, setShowSend] = useState(false)
-  const [showReceive, setShowReceive] = useState(false)
-  const [selectedCoin, setSelectedCoin] = useState(null)
-  const [selectedNetwork, setSelectedNetwork] = useState(null)
-  const [recipient, setRecipient] = useState('')
-  const [amount, setAmount] = useState('')
-  const [isSending, setIsSending] = useState(false)
+function NetworkBadge({ network }) {
+  const cls = network === 'ERC-20' ? 'badge-erc' : network === 'TRC-20' ? 'badge-trc' : 'badge-eth'
+  return <span className={`net-badge ${cls}`}>{network}</span>
+}
 
-  useEffect(() => {
-    fetchTransactions()
-    updateBalance() // Fetch real balance on load
+// ── Copy util ─────────────────────────────────────────────────────────────────
+function useCopy() {
+  const [copied, setCopied] = useState(false)
+  function copy(text) {
+    navigator.clipboard.writeText(text).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  return { copied, copy }
+}
 
-    const channel = supabase.channel('schema-db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions', filter: `user_id=eq.${session.user.id}` }, 
-        (payload) => { if (payload.eventType === 'INSERT') setTransactions((prev) => [payload.new, ...prev]) })
-      .subscribe()
-    return () => supabase.removeChannel(channel)
-  }, [session])
+// ── Send Sheet ────────────────────────────────────────────────────────────────
+function SendSheet({ token, onClose, ethAddress, tronAddress }) {
+  const { sendToken, prices } = useXDTWallet()
+  const [to,      setTo]     = useState('')
+  const [amount,  setAmount] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error,   setError]  = useState('')
+  const [txHash,  setTxHash] = useState('')
 
-  // --- NEW: Fetch Actual MetaMask Balance ---
-  const updateBalance = async () => {
-    if (window.ethereum) {
-      const provider = new ethers.BrowserProvider(window.ethereum)
-      const accounts = await provider.send("eth_requestAccounts", [])
-      const rawBalance = await provider.getBalance(accounts[0])
-      setBalance(ethers.formatEther(rawBalance).slice(0, 6)) // Shows e.g., 0.1234
+  const price = token.symbol === 'ETH' ? prices.eth : prices.usdt
+  const usdVal = amount ? (parseFloat(amount) * price).toFixed(2) : '0.00'
+
+  async function handleSend(e) {
+    e.preventDefault()
+    setError('')
+    if (!to.trim()) { setError('Enter a recipient address.'); return }
+    if (!amount || parseFloat(amount) <= 0) { setError('Enter a valid amount.'); return }
+    if (parseFloat(amount) > token.balance) { setError('Insufficient balance.'); return }
+
+    // Basic address validation
+    if (token.id === 'usdt-trc') {
+      if (!to.trim().startsWith('T') || to.trim().length < 30) {
+        setError('Enter a valid TRON address (starts with T).')
+        return
+      }
+    } else {
+      if (!to.trim().startsWith('0x') || to.trim().length !== 42) {
+        setError('Enter a valid Ethereum address (0x…).')
+        return
+      }
+    }
+
+    setLoading(true)
+    try {
+      const hash = await sendToken({ tokenId: token.id, toAddress: to.trim(), amount })
+      setTxHash(hash)
+    } catch (err) {
+      setError(err.message || 'Transaction failed')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const fetchTransactions = async () => {
-    const { data, error } = await supabase.from('transactions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false })
-    if (!error) setTransactions(data)
-  }
+  if (txHash) {
+    const explorer = token.id === 'usdt-trc'
+      ? `https://tronscan.org/#/transaction/${txHash}`
+      : `https://etherscan.io/tx/${txHash}`
 
-  const handleSendAction = async (e) => {
-    e.preventDefault()
-    if (!window.ethereum) return alert("Please install MetaMask!")
-    try {
-      setIsSending(true)
-      const provider = new ethers.BrowserProvider(window.ethereum)
-      const signer = await provider.getSigner()
-      const tx = await signer.sendTransaction({ to: recipient, value: ethers.parseEther(amount) })
-      
-      await supabase.from('transactions').insert([{ 
-        user_id: session.user.id, 
-        amount, 
-        type: 'send', 
-        status: 'pending', 
-        recipient_address: recipient, 
-        tx_hash: tx.hash 
-      }])
-      
-      setShowSend(false); setAmount(''); setRecipient('')
-      updateBalance() // Refresh balance after send
-    } catch (error) { alert("Transaction failed: " + error.message) } finally { setIsSending(false) }
-  }
-
-  const closeReceive = () => {
-    setShowReceive(false)
-    setSelectedCoin(null)
-    setSelectedNetwork(null)
+    return (
+      <div className="sheet-overlay" onClick={onClose}>
+        <div className="bottom-sheet" onClick={e => e.stopPropagation()}>
+          <div className="sheet-header">
+            <h3>Transaction Sent!</h3>
+            <button className="sheet-close" onClick={onClose}><X size={20} /></button>
+          </div>
+          <div className="tx-success">
+            <div className="tx-success-icon">✓</div>
+            <p className="tx-success-label">Your {token.symbol} is on the way</p>
+            <a className="tx-explorer-link" href={explorer} target="_blank" rel="noreferrer">
+              View on {token.id === 'usdt-trc' ? 'TronScan' : 'Etherscan'} ↗
+            </a>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="home-container">
-      {/* Wallet Balance Card */}
-      <div className="balance-card">
-        <div className="card-glass-overlay"></div>
-        <p className="balance-label">Total Balance</p>
-        <h1 className="balance-amount">{balance} <span className="currency">ETH</span></h1>
-        <div className="card-footer">
-          <span className="network-badge">Live Network</span>
+    <div className="sheet-overlay" onClick={onClose}>
+      <div className="bottom-sheet" onClick={e => e.stopPropagation()}>
+        <div className="sheet-header">
+          <h3>Send {token.symbol} <NetworkBadge network={token.network} /></h3>
+          <button className="sheet-close" onClick={onClose}><X size={20} /></button>
         </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="action-grid">
-        <button className="action-item" onClick={() => alert('Exchange coming soon!')}>
-          <div className="icon-circle primary"><Plus size={24} weight="bold" /></div>
-          <span>Buy</span>
-        </button>
-        <button className="action-item" onClick={() => setShowSend(true)}>
-          <div className="icon-circle secondary"><ArrowUpRight size={24} weight="bold" /></div>
-          <span>Send</span>
-        </button>
-        <button className="action-item" onClick={() => setShowReceive(true)}>
-          <div className="icon-circle tertiary"><ArrowDown size={24} weight="bold" /></div>
-          <span>Receive</span>
-        </button>
-      </div>
-
-      {/* --- RECEIVE BOTTOM SHEET --- */}
-      {showReceive && (
-        <div className="sheet-overlay" onClick={closeReceive}>
-          <div className="bottom-sheet" onClick={e => e.stopPropagation()}>
-            <div className="sheet-header">
-              <h3>{!selectedCoin ? 'Select Asset' : !selectedNetwork ? 'Select Network' : 'Deposit Details'}</h3>
-              <X size={24} onClick={closeReceive} style={{cursor: 'pointer'}} />
-            </div>
-            <div className="sheet-content">
-              {!selectedCoin && (
-                <div className="selection-list">
-                  {SUPPORTED_COINS.map(coin => (
-                    <div key={coin.id} className="selection-item" onClick={() => setSelectedCoin(coin)}>
-                      <div className="item-left">
-                        <span className="coin-icon-large">{coin.icon}</span>
-                        <div className="coin-info-text">
-                          <p className="coin-name">{coin.name}</p>
-                          <p className="coin-symbol">{coin.symbol}</p>
-                        </div>
-                      </div>
-                      <CaretRight size={20} color="#666" />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {selectedCoin && !selectedNetwork && (
-                <div className="selection-list">
-                  <p className="selection-hint">Choose network for <strong>{selectedCoin.symbol}</strong></p>
-                  {selectedCoin.networks.map(net => (
-                    <div key={net} className="selection-item" onClick={() => setSelectedNetwork(net)}>
-                      <div className="item-left">
-                        <div className="net-dot"></div>
-                        <p className="net-name">{net}</p>
-                      </div>
-                      <CaretRight size={20} color="#666" />
-                    </div>
-                  ))}
-                  <button className="back-btn" onClick={() => setSelectedCoin(null)}>← Back to Assets</button>
-                </div>
-              )}
-
-              {selectedCoin && selectedNetwork && (
-                <div className="receive-final">
-                  <div className="qr-container">
-                    <QRCodeSVG value={session.user.id} size={150} bgColor="#ffffff" fgColor="#000000" includeMargin={true} />
-                  </div>
-                  <p className="receive-label-small">Your {selectedCoin.symbol} Address ({selectedNetwork})</p>
-                  <div className="address-card" onClick={() => {navigator.clipboard.writeText(session.user.id); alert('Copied!')}}>
-                    <span className="address-text">{session.user.id}</span>
-                    <Copy size={20} color="#6366f1" />
-                  </div>
-                  <div className="warning-box">
-                    <p>⚠️ Only send <strong>{selectedCoin.symbol}</strong> via <strong>{selectedNetwork}</strong>.</p>
-                  </div>
-                  <button className="back-btn" onClick={() => setSelectedNetwork(null)}>Choose different network</button>
-                </div>
-              )}
-            </div>
+        <form className="sheet-form" onSubmit={handleSend}>
+          <div className="sheet-balance-hint">
+            Balance: <strong>{fmtToken(token.balance)} {token.symbol}</strong>
           </div>
-        </div>
-      )}
 
-      {/* --- SEND BOTTOM SHEET --- */}
-      {showSend && (
-        <div className="sheet-overlay" onClick={() => setShowSend(false)}>
-          <div className="bottom-sheet" onClick={e => e.stopPropagation()}>
-            <div className="sheet-header">
-              <h3>Send ETH</h3>
-              <X size={24} onClick={() => setShowSend(false)} style={{cursor: 'pointer'}} />
-            </div>
-            <form onSubmit={handleSendAction} className="sheet-form">
-              <div className="input-group">
-                <label>Recipient Address</label>
-                <input type="text" placeholder="0x..." value={recipient} onChange={(e) => setRecipient(e.target.value)} required />
-              </div>
-              <div className="input-group">
-                <label>Amount (ETH)</label>
-                <input type="number" step="0.0001" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} required />
-              </div>
-              <button type="submit" className="sheet-action-btn" disabled={isSending}>
-                {isSending ? "Processing..." : "Confirm Transfer"}
+          <div className="input-group">
+            <label>
+              Recipient Address
+              <span className="input-hint">
+                ({token.id === 'usdt-trc' ? 'TRON T… address' : 'Ethereum 0x… address'})
+              </span>
+            </label>
+            <input
+              type="text"
+              autoComplete="off"
+              autoCapitalize="none"
+              placeholder={token.id === 'usdt-trc' ? 'TXxx…' : '0x…'}
+              value={to}
+              onChange={e => { setTo(e.target.value); setError('') }}
+            />
+          </div>
+
+          <div className="input-group">
+            <label>
+              Amount ({token.symbol})
+              <button type="button" className="max-btn"
+                onClick={() => setAmount(String(token.balance))}>
+                MAX
               </button>
-            </form>
+            </label>
+            <input
+              type="number"
+              step="any"
+              min="0"
+              placeholder="0.00"
+              value={amount}
+              onChange={e => { setAmount(e.target.value); setError('') }}
+            />
+            {amount && <p className="usd-equiv">≈ ${usdVal} USD</p>}
           </div>
-        </div>
-      )}
 
-      {/* Transactions Section */}
-      <div className="transactions-section">
-        <div className="section-header">
-          <h3>Recent Activity</h3>
-          <button className="view-all">See All</button>
+          {error && <p className="sheet-error">{error}</p>}
+
+          {token.id === 'eth' && (
+            <p className="sheet-notice">⛽ Gas fee will be deducted from your ETH balance.</p>
+          )}
+          {token.id === 'usdt-erc' && (
+            <p className="sheet-notice">⛽ ETH needed in wallet to pay ERC-20 gas fee.</p>
+          )}
+          {token.id === 'usdt-trc' && (
+            <p className="sheet-notice">⚡ TRX needed for energy/bandwidth to send TRC-20.</p>
+          )}
+
+          <button type="submit" className="sheet-submit-btn" disabled={loading}>
+            {loading ? 'Broadcasting…' : `Send ${token.symbol}`}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// ── Receive Sheet ─────────────────────────────────────────────────────────────
+function ReceiveSheet({ token, onClose, ethAddress, tronAddress }) {
+  const { copied, copy } = useCopy()
+  const address = token.id === 'usdt-trc' ? tronAddress : ethAddress
+
+  return (
+    <div className="sheet-overlay" onClick={onClose}>
+      <div className="bottom-sheet" onClick={e => e.stopPropagation()}>
+        <div className="sheet-header">
+          <h3>Receive {token.symbol} <NetworkBadge network={token.network} /></h3>
+          <button className="sheet-close" onClick={onClose}><X size={20} /></button>
         </div>
-        <div className="transaction-list">
-          {transactions.length > 0 ? (
-            transactions.map((tx) => (
-              <div key={tx.id} className="tx-item">
-                <div className={`tx-icon ${tx.type}`}>
-                  {tx.type === 'send' ? <ArrowUpRight size={20} /> : <ArrowDown size={20} />}
-                </div>
-                <div className="tx-info">
-                  <p className="tx-title">{tx.type === 'send' ? 'Sent ETH' : 'Received ETH'}</p>
-                  <p className="tx-date">{new Date(tx.created_at).toLocaleDateString()}</p>
-                </div>
-                <div className="tx-amount-wrapper">
-                  <p className={`tx-amount ${tx.type}`}>
-                    {tx.type === 'send' ? '-' : '+'}{tx.amount} ETH
-                  </p>
-                  <p className="tx-status">{tx.status}</p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="empty-state">
-              <Clock size={48} weight="light" />
-              <p>No transactions found yet.</p>
-            </div>
+        <div className="receive-body">
+          <div className="qr-wrap">
+            <QRCodeSVG value={address} size={180} bgColor="#ffffff" fgColor="#000000" includeMargin />
+          </div>
+          <p className="receive-hint">
+            Only send <strong>{token.symbol} ({token.network})</strong> to this address.
+          </p>
+          <div className="address-row" onClick={() => copy(address)}>
+            <span className="address-text">{address}</span>
+            <Copy size={18} color={copied ? '#10b981' : '#6c7f9f'} />
+          </div>
+          {copied && <p className="copied-msg">Copied!</p>}
+
+          {token.id === 'usdt-trc' && (
+            <p className="receive-warning">
+              ⚠️ This is a <strong>TRON</strong> address. Sending ERC-20 USDT here will result in loss of funds.
+            </p>
+          )}
+          {token.id === 'usdt-erc' && (
+            <p className="receive-warning">
+              ⚠️ This is an <strong>Ethereum</strong> address. Sending TRC-20 USDT here will result in loss of funds.
+            </p>
           )}
         </div>
       </div>
@@ -230,4 +213,190 @@ const Home = ({ session }) => {
   )
 }
 
-export default Home
+// ── Token Card ────────────────────────────────────────────────────────────────
+function TokenCard({ token, onSend, onReceive }) {
+  const { prices } = useXDTWallet()
+  const price = token.symbol === 'ETH' ? prices.eth : prices.usdt
+  const usdVal = token.balance * price
+  const change = token.symbol === 'ETH' ? prices.ethChange : prices.usdtChange
+
+  return (
+    <div className="token-card">
+      <div className="token-left">
+        <TokenIcon id={token.id} />
+        <div className="token-info">
+          <div className="token-name-row">
+            <span className="token-name">{token.name}</span>
+            <NetworkBadge network={token.network} />
+          </div>
+          <span className="token-price">
+            {fmtUSD(price)}
+            <span className={`price-change ${change >= 0 ? 'pos' : 'neg'}`}>
+              {change >= 0 ? '+' : ''}{change.toFixed(2)}%
+            </span>
+          </span>
+        </div>
+      </div>
+      <div className="token-right">
+        <span className="token-balance">{fmtToken(token.balance, token.symbol === 'ETH' ? 6 : 2)}</span>
+        <span className="token-usd">{fmtUSD(usdVal)}</span>
+        <div className="token-actions">
+          <button className="tok-btn send" onClick={onSend}><ArrowUpRight size={14} weight="bold" /></button>
+          <button className="tok-btn recv" onClick={onReceive}><ArrowDown size={14} weight="bold" /></button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Main Component ────────────────────────────────────────────────────────────
+export default function Home() {
+  const {
+    tokens, totalUSD, balancesLoading, balanceError,
+    txHistory, refreshBalances, keys, prices,
+  } = useXDTWallet()
+
+  const [sendToken,    setSendToken]    = useState(null)
+  const [receiveToken, setReceiveToken] = useState(null)
+  const [hideBalance,  setHideBalance]  = useState(false)
+
+  const ethAddress  = keys?.ethAddress  ?? ''
+  const tronAddress = keys?.tronAddress ?? ''
+
+  const shortEth  = ethAddress  ? `${ethAddress.slice(0,6)}…${ethAddress.slice(-4)}`  : ''
+  const shortTron = tronAddress ? `${tronAddress.slice(0,6)}…${tronAddress.slice(-4)}` : ''
+
+  return (
+    <div className="home-page">
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <div className="home-header">
+        <div className="home-header-left">
+          <div className="home-logo-small">X</div>
+          <span className="home-title">XDT Wallet</span>
+        </div>
+        <button
+          className="refresh-btn"
+          onClick={refreshBalances}
+          disabled={balancesLoading}
+          title="Refresh balances"
+        >
+          <ArrowClockwise size={18} className={balancesLoading ? 'spin' : ''} />
+        </button>
+      </div>
+
+      {/* ── Balance Card ───────────────────────────────────────────────────── */}
+      <div className="balance-card-new">
+        <div className="balance-card-glow" />
+        <div className="balance-top-row">
+          <p className="balance-label-new">Total Portfolio Value</p>
+          <button className="hide-btn" onClick={() => setHideBalance(h => !h)}>
+            {hideBalance ? <Eye size={16} /> : <EyeSlash size={16} />}
+          </button>
+        </div>
+        <h2 className="balance-amount-new">
+          {hideBalance ? '••••••' : fmtUSD(totalUSD)}
+        </h2>
+        <div className="address-pills">
+          {ethAddress && (
+            <span className="addr-pill eth-pill" title={ethAddress}>
+              <span className="addr-dot" style={{ background: '#627eea' }} /> {shortEth}
+            </span>
+          )}
+          {tronAddress && (
+            <span className="addr-pill trc-pill" title={tronAddress}>
+              <span className="addr-dot" style={{ background: '#eb0029' }} /> {shortTron}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* ── Quick Actions ──────────────────────────────────────────────────── */}
+      <div className="quick-actions">
+        <button className="qa-btn" onClick={() => setSendToken(tokens[0])}>
+          <div className="qa-icon qa-send"><ArrowUpRight size={20} weight="bold" /></div>
+          <span>Send</span>
+        </button>
+        <button className="qa-btn" onClick={() => setReceiveToken(tokens[0])}>
+          <div className="qa-icon qa-recv"><ArrowDown size={20} weight="bold" /></div>
+          <span>Receive</span>
+        </button>
+      </div>
+
+      {/* ── Error Banner ──────────────────────────────────────────────────── */}
+      {balanceError && (
+        <div className="balance-err-banner">{balanceError}</div>
+      )}
+
+      {/* ── Token List ─────────────────────────────────────────────────────── */}
+      <div className="section">
+        <h3 className="section-title">My Assets</h3>
+        <div className="token-list">
+          {tokens.map(token => (
+            <TokenCard
+              key={token.id}
+              token={token}
+              onSend={() => setSendToken(token)}
+              onReceive={() => setReceiveToken(token)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* ── Recent Transactions ────────────────────────────────────────────── */}
+      <div className="section">
+        <h3 className="section-title">Recent Activity</h3>
+        {txHistory.length === 0 ? (
+          <div className="empty-tx">
+            <p>No transactions yet</p>
+          </div>
+        ) : (
+          <div className="tx-list">
+            {txHistory.slice(0, 15).map(tx => (
+              <div key={tx.txID || tx.id} className="tx-item">
+                <div className={`tx-icon-wrap ${tx.type}`}>
+                  {tx.type === 'send'
+                    ? <ArrowUpRight size={16} weight="bold" />
+                    : <ArrowDown size={16} weight="bold" />}
+                </div>
+                <div className="tx-info">
+                  <span className="tx-label">
+                    {tx.type === 'send' ? 'Sent' : 'Received'} {tx.symbol}
+                  </span>
+                  <span className="tx-network">{tx.network}</span>
+                </div>
+                <div className="tx-amount-wrap">
+                  <span className={`tx-amount ${tx.type === 'send' ? 'neg' : 'pos'}`}>
+                    {tx.type === 'send' ? '-' : '+'}{fmtToken(tx.amount, 4)} {tx.symbol}
+                  </span>
+                  {tx.timestamp && (
+                    <span className="tx-date">
+                      {new Date(tx.timestamp).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Sheets ─────────────────────────────────────────────────────────── */}
+      {sendToken && (
+        <SendSheet
+          token={sendToken}
+          onClose={() => setSendToken(null)}
+          ethAddress={ethAddress}
+          tronAddress={tronAddress}
+        />
+      )}
+      {receiveToken && (
+        <ReceiveSheet
+          token={receiveToken}
+          onClose={() => setReceiveToken(null)}
+          ethAddress={ethAddress}
+          tronAddress={tronAddress}
+        />
+      )}
+    </div>
+  )
+}

@@ -1,113 +1,97 @@
-import { useEffect, useState } from 'react'
+/**
+ * App.jsx — xdt-wallet root
+ * Routing:
+ *   • No wallet on device → Setup
+ *   • Wallet exists, session cold → Unlock (PIN)
+ *   • Wallet unlocked + auth session → Main app shell
+ *   • Not authenticated → Auth (email OTP)
+ */
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { supabase } from './supabaseClient'
-import { AuthProvider } from './context/AuthContext'
-import { WalletProvider } from './context/WalletContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import { XDTWalletProvider, useXDTWallet } from './context/XDTWalletContext'
 import { CoinProvider } from './context/CoinContext'
-import { Web3Provider } from './providers/Web3Provider'
-import { useMetaMask } from './hooks/useMetaMask'
-import BottomNav from './components/BottomNav' // <--- Keep this one
-import AuthPage from './AuthPage'
-import Home from './pages/Home'
-import P2P from './pages/P2P'
-import Trending from './pages/Trending'
-import Trade from './pages/Trade'
-import Profile from './pages/Profile'
+
+import BottomNav  from './components/BottomNav'
+import Setup      from './pages/Setup'
+import Unlock     from './pages/Unlock'
+import Home       from './pages/Home'
+import Trending   from './pages/Trending'
+import Trade      from './pages/Trade'
+import Profile    from './pages/Profile'
+import P2P        from './pages/P2P'
+
 import './App.css'
 
-function MetaMaskConnector({ userId }) {
-  const { walletAddress, isConnecting, isInitializing, isMetaMaskInstalled, error, connect } =
-    useMetaMask(userId)
+// ── Auth gate ─────────────────────────────────────────────────────────────────
+import Auth from './Auth'
 
-  const short = walletAddress
-    ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
-    : null
+function AuthGate({ children }) {
+  const { isAuthenticated, isInitializing } = useAuth()
 
-  return (
-    <div className="metamask-bar">
-      {isInitializing ? (
-        <span className="metamask-initializing">
-          <span className="metamask-spinner" /> Detecting wallet…
-        </span>
-      ) : !isMetaMaskInstalled ? (
-        <span className="metamask-warning">MetaMask not detected</span>
-      ) : walletAddress ? (
-        <span className="metamask-address">{short}</span>
-      ) : (
-        <button className="metamask-connect-btn" onClick={connect} disabled={isConnecting}>
-          {isConnecting ? 'Connecting…' : 'Connect Wallet'}
-        </button>
-      )}
-      {error && <span className="metamask-error">{error}</span>}
-    </div>
-  )
-}
-
-function App() {
-  const [session, setSession] = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // 1. Check current session immediately
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
-    }).catch(err => {
-      console.error("Supabase Session Error:", err)
-      setLoading(false)
-    })
-
-    // 2. Listen for login/logout
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  // If Supabase is still thinking, show a loader instead of a black screen
-  if (loading) {
+  if (isInitializing) {
     return (
       <div className="loading-screen">
-        <div className="metamask-spinner"></div>
-        <p>Connecting to Network...</p>
+        <div className="loading-spinner" />
+        <p>Loading…</p>
       </div>
     )
   }
 
+  if (!isAuthenticated) return <Auth />
+  return children
+}
+
+// ── Wallet gate (inside AuthGate) ─────────────────────────────────────────────
+function WalletGate({ children }) {
+  const { isUnlocked, isLocked } = useXDTWallet()
+
+  if (!isUnlocked && !isLocked) {
+    // No wallet stored on this device → onboarding
+    return <Setup />
+  }
+
+  if (!isUnlocked && isLocked) {
+    // Wallet exists but PIN not entered this session
+    return <Unlock />
+  }
+
+  return children
+}
+
+// ── Main App Shell ────────────────────────────────────────────────────────────
+function AppShell() {
   return (
-    <div className="App">
-      {!session ? (
-        <AuthPage />
-      ) : (
-        <BrowserRouter>
-          <AuthProvider>
-            <Web3Provider>
-              <WalletProvider>
-                <CoinProvider>
-                  <div className="app-shell">
-                    <MetaMaskConnector userId={session.user.id} />
-                    <main className="app-content">
-                      <Routes>
-                        <Route path="/" element={<Home session={session} />} />
-                        <Route path="/p2p" element={<P2P />} />
-                        <Route path="/trending" element={<Trending />} />
-                        <Route path="/trade" element={<Trade />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                      </Routes>
-                    </main>
-                    <BottomNav />
-                  </div>
-                </CoinProvider>
-              </WalletProvider>
-            </Web3Provider>
-          </AuthProvider>
-        </BrowserRouter>
-      )}
-    </div>
+    <WalletGate>
+      <CoinProvider>
+        <div className="app-shell">
+          <main className="app-content">
+            <Routes>
+              <Route path="/"         element={<Home />} />
+              <Route path="/trending" element={<Trending />} />
+              <Route path="/trade"    element={<Trade />} />
+              <Route path="/p2p"      element={<P2P />} />
+              <Route path="/profile"  element={<Profile />} />
+              <Route path="*"         element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+          <BottomNav />
+        </div>
+      </CoinProvider>
+    </WalletGate>
   )
 }
 
-export default App
+// ── Root ─────────────────────────────────────────────────────────────────────
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <XDTWalletProvider>
+          <AuthGate>
+            <AppShell />
+          </AuthGate>
+        </XDTWalletProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  )
+}
