@@ -1,3 +1,5 @@
+/* BottomNav.css */
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -6,14 +8,14 @@
   width: 100%;
   max-width: 480px;
   height: var(--nav-height);
-  background: rgba(18, 18, 26, 0.92);
+  background: rgba(14, 20, 34, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 8px;
+  padding: 0 4px;
   z-index: 100;
 }
 
@@ -21,36 +23,40 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   flex: 1;
-  padding: 8px 4px;
+  padding: 7px 2px;
   color: var(--text-muted);
   text-decoration: none;
   transition: color 0.2s;
   position: relative;
 }
 
-.nav-item.active {
-  color: var(--accent-purple-light);
-}
+.nav-item.active { color: var(--accent-purple-light); }
 
 .nav-icon-wrap {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   transition: background 0.2s;
 }
 
 .nav-item.active .nav-icon-wrap {
-  background: rgba(214, 178, 95, 0.18);
+  background: rgba(214, 178, 95, 0.15);
 }
 
 .nav-label {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.3px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* Responsive: smaller on tiny screens */
+@media (max-width: 360px) {
+  .nav-icon-wrap { width: 28px; height: 28px; }
+  .nav-label     { font-size: 8px; }
 }

@@ -29,7 +29,7 @@
 }
 
 .page-header h1 {
-  font-size: 24px;
+  font-size: var(--fs-xl);
   font-weight: 800;
   color: var(--text-primary);
 }
@@ -64,7 +64,7 @@
   border-radius: 10px;
   background: none;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: var(--fs-lg);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -88,7 +88,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--text-secondary);
   margin-bottom: 10px;
 }
@@ -106,7 +106,7 @@
   border: 1px solid var(--border-light);
   border-radius: 8px;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--fs-md);
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s;
@@ -125,7 +125,7 @@
   border: 1px solid var(--border-light);
   border-radius: 8px;
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: var(--fs-md);
   font-family: inherit;
   outline: none;
   text-align: center;
@@ -141,7 +141,7 @@
 }
 
 .trade-card-label {
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--text-muted);
   font-weight: 500;
   margin-bottom: 12px;
@@ -179,12 +179,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: var(--fs-md);
   font-weight: 700;
 }
 
 .picker-symbol {
-  font-size: 14px;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -194,7 +194,7 @@
   background: none;
   border: none;
   outline: none;
-  font-size: 28px;
+  font-size: var(--fs-3xl);
   font-weight: 700;
   color: var(--text-primary);
   text-align: right;
@@ -206,7 +206,7 @@
 
 .receive-amount {
   flex: 1;
-  font-size: 24px;
+  font-size: var(--fs-2xl);
   font-weight: 700;
   color: var(--text-secondary);
   text-align: right;
@@ -220,12 +220,12 @@
 }
 
 .balance-hint {
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--text-muted);
 }
 
 .usd-equiv {
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--text-secondary);
   font-weight: 500;
 }
@@ -242,7 +242,7 @@
   border: 1px solid rgba(214, 178, 95, 0.26);
   border-radius: 8px;
   color: var(--accent-purple-light);
-  font-size: 12px;
+  font-size: var(--fs-base);
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
@@ -275,7 +275,7 @@
 
 .rate-pill {
   text-align: center;
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--text-muted);
   padding: 6px 0;
 }
@@ -295,7 +295,7 @@
 .detail-row {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 
 .detail-row span:first-child { color: var(--text-muted); }
@@ -309,7 +309,7 @@
   padding: 16px;
   border-radius: 16px;
   border: none;
-  font-size: 16px;
+  font-size: var(--fs-xl);
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
@@ -326,7 +326,7 @@
 
 /* Market Overview */
 .market-overview h3 {
-  font-size: 15px;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 12px;
@@ -361,24 +361,24 @@
 .pair-card:hover { background: var(--bg-card-hover); }
 
 .pair-logo {
-  font-size: 20px;
+  font-size: var(--fs-2xl);
   margin-bottom: 2px;
 }
 
 .pair-symbol {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
   font-weight: 500;
 }
 
 .pair-price {
-  font-size: 13px;
+  font-size: var(--fs-md);
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .pair-change {
-  font-size: 12px;
+  font-size: var(--fs-base);
   font-weight: 600;
 }
 
@@ -430,7 +430,7 @@
 }
 
 .picker-title {
-  font-size: 16px;
+  font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -465,7 +465,7 @@
   border: none;
   outline: none;
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: var(--fs-lg);
   font-family: inherit;
   flex: 1;
 }
@@ -477,7 +477,7 @@
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--fs-base);
   padding: 2px;
 }
 
@@ -491,7 +491,7 @@
 .picker-empty {
   text-align: center;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: var(--fs-md);
   padding: 32px 0;
 }
 
@@ -520,7 +520,7 @@
 }
 
 .picker-coin-name {
-  font-size: 14px;
+  font-size: var(--fs-lg);
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
@@ -530,7 +530,7 @@
 }
 
 .picker-coin-sym {
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--text-muted);
 }
 
@@ -543,7 +543,17 @@
 }
 
 .picker-coin-price {
-  font-size: 13px;
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 360px) {
+  .trade-page { padding: 0 12px 24px; }
+  .mode-tab   { padding: 8px; }
+  .trade-card { padding: 12px; }
+  .amount-input { font-size: var(--fs-2xl); }
+  .receive-amount { font-size: var(--fs-xl); }
+  .pair-card  { min-width: 96px; padding: 10px 12px; }
 }

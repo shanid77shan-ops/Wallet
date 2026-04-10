@@ -6,23 +6,23 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px 24px;
+  padding: 24px 20px;
   background: var(--bg-primary);
   box-sizing: border-box;
-  gap: 20px;
+  gap: 18px;
 }
 
 .unlock-logo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 4px;
 }
 
 .unlock-logo-ring {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   background: rgba(214,178,95,0.1);
   border: 1.5px solid rgba(214,178,95,0.3);
@@ -32,20 +32,20 @@
 }
 
 .unlock-logo-text {
-  font-size: 26px;
+  font-size: var(--fs-2xl);
   font-weight: 900;
   color: #d6b25f;
 }
 
 .unlock-brand {
-  font-size: 20px;
+  font-size: var(--fs-xl);
   font-weight: 800;
   color: var(--text-primary);
   margin: 0;
 }
 
 .unlock-label {
-  font-size: 15px;
+  font-size: var(--fs-md);
   font-weight: 500;
   color: var(--text-secondary);
   margin: 0;
@@ -54,12 +54,12 @@
 /* PIN dots */
 .pin-dots {
   display: flex;
-  gap: 14px;
+  gap: 12px;
 }
 
 .pin-dot {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   border: 2px solid var(--border-light);
   background: transparent;
@@ -74,18 +74,18 @@
 /* Numpad */
 .numpad {
   display: grid;
-  grid-template-columns: repeat(3, 72px);
-  gap: 12px;
+  grid-template-columns: repeat(3, 64px);
+  gap: 10px;
 }
 
 .num-key {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: var(--bg-card);
   border: 1px solid var(--border);
   color: var(--text-primary);
-  font-size: 22px;
+  font-size: var(--fs-xl);
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
@@ -99,29 +99,36 @@
 .num-key.empty  { background: transparent; border-color: transparent; cursor: default; }
 
 .unlock-error {
-  font-size: 13px;
+  font-size: var(--fs-base);
   color: var(--accent-red);
   margin: 0;
-  padding: 10px 16px;
+  padding: 9px 14px;
   background: rgba(239,68,68,0.08);
-  border-radius: 10px;
+  border-radius: 9px;
   border: 1px solid rgba(239,68,68,0.18);
   text-align: center;
-  max-width: 260px;
+  max-width: 240px;
 }
 
 .unlock-submit-btn {
-  width: 240px;
-  padding: 14px;
-  border-radius: 14px;
+  width: 220px;
+  padding: 13px;
+  border-radius: 13px;
   background: linear-gradient(135deg, #d6b25f, #b8902f);
   color: #0a0f1a;
-  font-size: 15px;
+  font-size: var(--fs-md);
   font-weight: 700;
   border: none;
   cursor: pointer;
   font-family: inherit;
   transition: opacity 0.15s;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 .unlock-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .numpad       { grid-template-columns: repeat(3, 58px); gap: 8px; }
+  .num-key      { width: 58px; height: 58px; font-size: var(--fs-lg); }
+  .unlock-page  { gap: 14px; }
+}

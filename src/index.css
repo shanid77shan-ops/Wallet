@@ -22,7 +22,21 @@
   --text-muted: #6c7f9f;
   --border: #1d2a43;
   --border-light: #2a3a58;
-  --nav-height: 72px;
+  --nav-height: 64px;
+
+  /* Responsive font scale */
+  --fs-xs:   10px;
+  --fs-sm:   11px;
+  --fs-base: 12px;
+  --fs-md:   13px;
+  --fs-lg:   14px;
+  --fs-xl:   16px;
+  --fs-2xl:  20px;
+  --fs-3xl:  26px;
+}
+
+html {
+  font-size: 14px;
 }
 
 html, body {
@@ -45,8 +59,22 @@ html, body {
   min-height: 100vh;
 }
 
+/* On narrow screens tighten up spacing slightly */
+@media (max-width: 360px) {
+  :root {
+    --fs-xs:   9px;
+    --fs-sm:   10px;
+    --fs-base: 11px;
+    --fs-md:   12px;
+    --fs-lg:   13px;
+    --fs-xl:   14px;
+    --fs-2xl:  17px;
+    --fs-3xl:  22px;
+  }
+}
+
 /* Scrollbar */
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
 

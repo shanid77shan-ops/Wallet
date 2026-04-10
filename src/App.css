@@ -1,21 +1,20 @@
-/* App.css — xdt-wallet global layout styles */
+/* App.css — xdt-wallet global layout */
 
-/* Loading screen */
 .loading-screen {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 14px;
   background: var(--bg-primary);
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: var(--fs-md);
 }
 
 .loading-spinner {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border: 3px solid var(--border);
   border-top-color: #d6b25f;
   border-radius: 50%;
@@ -24,7 +23,6 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* App shell */
 .app-shell {
   width: 100%;
   height: 100%;
@@ -37,18 +35,17 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 72px; /* space for BottomNav */
+  padding-bottom: var(--nav-height);
 }
 
-/* Receive UI legacy */
 .qr-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .receive-label-small {
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--text-muted);
   text-align: center;
 }
