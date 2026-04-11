@@ -19,7 +19,7 @@
 }
 
 .p2p-header h1 {
-  font-size: 25px;
+  font-size: var(--fs-2xl);
   font-weight: 800;
   letter-spacing: -0.4px;
   color: var(--p2p-ink);
@@ -28,7 +28,7 @@
 
 .p2p-header p {
   color: #b5c3dc;
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 
 .p2p-hero-stats {
@@ -47,13 +47,13 @@
 
 .hero-stat span {
   display: block;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
   margin-bottom: 4px;
 }
 
 .hero-stat strong {
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--p2p-gold-soft);
   font-weight: 700;
 }
@@ -69,7 +69,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: #b8c5db;
   background: rgba(15, 23, 39, 0.72);
   border: 1px solid rgba(148, 163, 184, 0.2);
@@ -96,7 +96,7 @@
 }
 
 .section-title {
-  font-size: 12px;
+  font-size: var(--fs-base);
   font-weight: 700;
   color: #b2c1d8;
   letter-spacing: 0.6px;
@@ -110,7 +110,7 @@
 
 .field-label {
   display: block;
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--text-muted);
   margin-bottom: 6px;
 }
@@ -121,6 +121,7 @@
   background: rgba(5, 11, 21, 0.72);
   color: var(--text-primary);
   font-family: inherit;
+  font-size: var(--fs-md);
   border-radius: 12px;
   padding: 11px 12px;
   margin-bottom: 10px;
@@ -150,13 +151,13 @@
 }
 
 .selected-coin-meta div {
-  font-size: 14px;
+  font-size: var(--fs-lg);
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .selected-coin-meta span {
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--text-secondary);
 }
 
@@ -173,7 +174,7 @@
   background: rgba(214, 178, 95, 0.12);
   color: var(--p2p-gold-soft);
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--fs-base);
   font-weight: 600;
   padding: 7px 0;
   cursor: pointer;
@@ -191,7 +192,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--text-secondary);
   margin-bottom: 8px;
 }
@@ -201,7 +202,7 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 
 .quote-row.muted strong {
@@ -227,7 +228,7 @@
 .p2p-message {
   border-radius: 10px;
   padding: 10px 12px;
-  font-size: 12px;
+  font-size: var(--fs-base);
   margin-bottom: 10px;
 }
 
@@ -255,7 +256,7 @@
   background: linear-gradient(135deg, #d6b25f 0%, #f4de9c 50%, #c89b44 100%);
   color: #1f2937;
   font-family: inherit;
-  font-size: 15px;
+  font-size: var(--fs-lg);
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 10px 18px rgba(146, 114, 37, 0.34);
@@ -278,7 +279,7 @@
 
 .empty-note {
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 
 .p2p-history-list {
@@ -301,13 +302,13 @@
 .history-row strong {
   color: var(--text-primary);
   display: block;
-  font-size: 13px;
+  font-size: var(--fs-md);
   margin-bottom: 2px;
 }
 
 .history-row span {
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: var(--fs-base);
 }
 
 .history-right {
@@ -322,6 +323,13 @@
 .history-right .pending {
   color: var(--accent-yellow);
   text-transform: capitalize;
+}
+
+@media (max-width: 360px) {
+  .p2p-page    { padding: 0 12px 24px; }
+  .p2p-hero    { padding: 14px; margin: 14px 0 10px; }
+  .p2p-card    { padding: 12px; }
+  .p2p-submit  { padding: 11px; }
 }
 
 @media (min-width: 420px) {
