@@ -4,6 +4,7 @@ import {
   Shield, Bell, Globe, Palette, HelpCircle, LogOut,
   ChevronRight, Copy, Check, Fingerprint, Wallet, FileText, Gift,
 } from 'lucide-react'
+import BackButton from '../components/BackButton'
 import { useAuth }      from '../context/AuthContext'
 import { useXDTWallet } from '../context/XDTWalletContext'
 import { clearWalletData } from '../services/walletKeyService'
@@ -92,7 +93,9 @@ export default function Profile() {
     <div className="profile-page">
       {/* Header */}
       <div className="profile-header">
+        <BackButton to="/" />
         <h1>Profile</h1>
+        <div style={{ width: 34 }} />
       </div>
 
       {/* Avatar & Info */}

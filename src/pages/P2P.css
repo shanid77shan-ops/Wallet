@@ -7,6 +7,20 @@
   --p2p-surface-2: #1c1010;
 }
 
+.p2p-top-bar {
+  display: grid;
+  grid-template-columns: 34px 1fr 34px;
+  align-items: center;
+  padding: 14px 0 10px;
+}
+
+.p2p-page-title {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  text-align: center;
+}
+
 .p2p-hero {
   margin: 18px 0 12px;
   padding: 18px;
@@ -16,14 +30,6 @@
     radial-gradient(circle at 88% -12%, rgba(220, 38, 38, 0.24), transparent 42%),
     linear-gradient(145deg, #1b0e0e 0%, #100b0b 100%);
   box-shadow: 0 14px 28px rgba(10, 4, 4, 0.45);
-}
-
-.p2p-header h1 {
-  font-size: var(--fs-2xl);
-  font-weight: 800;
-  letter-spacing: -0.4px;
-  color: var(--p2p-ink);
-  margin-bottom: 6px;
 }
 
 .p2p-header p {

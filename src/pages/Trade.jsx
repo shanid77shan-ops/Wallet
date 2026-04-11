@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { ChevronDown, ArrowUpDown, Info, Zap, Search, X } from 'lucide-react'
 import { useCoins } from '../context/CoinContext'
 import CoinImage from '../components/CoinImage'
+import BackButton from '../components/BackButton'
 import './Trade.css'
 
 const fmt = (n) => n >= 1 ? n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : n.toFixed(6)
@@ -110,7 +111,7 @@ export default function Trade() {
   if (loading || !fromCoin || !toCoin) {
     return (
       <div className="trade-page">
-        <div className="page-header"><h1>Trade</h1></div>
+        <div className="page-header"><BackButton to="/" /><h1>Trade</h1><div style={{ width: 34 }} /></div>
         <div className="mode-tabs">
           {['buy', 'sell', 'swap'].map(m => (
             <button key={m} className={`mode-tab${mode === m ? ' active ' + m : ''}`} onClick={() => setMode(m)}>
@@ -127,6 +128,7 @@ export default function Trade() {
   return (
     <div className="trade-page">
       <div className="page-header">
+        <BackButton to="/" />
         <h1>Trade</h1>
         <button className="icon-btn-sm" onClick={() => setShowSlippage(s => !s)}>
           <Zap size={18} />

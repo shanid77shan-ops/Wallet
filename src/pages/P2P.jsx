@@ -4,6 +4,7 @@ import { useCoins } from '../context/CoinContext'
 import { useXDTWallet } from '../context/XDTWalletContext'
 import { fetchUsdInrRate } from '../services/forexApi'
 import CoinImage from '../components/CoinImage'
+import BackButton from '../components/BackButton'
 import './P2P.css'
 
 const DEFAULT_INR_RATE = 83.2
@@ -118,9 +119,13 @@ export default function P2P() {
 
   return (
     <div className="p2p-page">
+      <div className="p2p-top-bar">
+        <BackButton to="/" />
+        <h1 className="p2p-page-title">P2P Exchange</h1>
+        <div />
+      </div>
       <div className="p2p-hero">
         <div className="p2p-header">
-          <h1>P2P Exchange</h1>
           <p>Sell crypto and receive INR directly in your bank account.</p>
         </div>
 

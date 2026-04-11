@@ -3,6 +3,7 @@ import { Search, TrendingUp, TrendingDown, Flame, Star } from 'lucide-react'
 import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts'
 import { useCoins } from '../context/CoinContext'
 import CoinImage from '../components/CoinImage'
+import BackButton from '../components/BackButton'
 import './Trending.css'
 
 const fmt = (n) => n >= 1
@@ -37,6 +38,7 @@ export default function Trending() {
     <div className="trending-page">
       {/* Header */}
       <div className="page-header">
+        <BackButton to="/" />
         <h1>Market</h1>
         <Flame size={20} color="#f59e0b" />
       </div>

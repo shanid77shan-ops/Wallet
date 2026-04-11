@@ -39,10 +39,14 @@ export function CoinProvider({ children }) {
     return () => { cancelled = true; clearInterval(id) }
   }, [])
 
-  const coins = staticCoins.map(coin => ({
-    ...coin,
-    ...(liveMap[coin.id] ?? {}),
-  }))
+  const coins = staticCoins.map(coin => {
+    const live = liveMap[coin.id] ?? {}
+    return {
+      ...coin,
+      ...live,
+      image: live.image ?? coin.image,  // live image when available, static CDN as fallback
+    }
+  })
 
   return (
     <CoinContext.Provider value={{ coins, loading, error, lastUpdated }}>

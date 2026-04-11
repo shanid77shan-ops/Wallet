@@ -22,9 +22,9 @@
 }
 
 .page-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 34px 1fr 34px;
   align-items: center;
-  justify-content: space-between;
   padding: 20px 0 14px;
 }
 
@@ -32,6 +32,12 @@
   font-size: var(--fs-xl);
   font-weight: 800;
   color: var(--text-primary);
+  text-align: center;
+}
+
+.page-header > :last-child {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .icon-btn-sm {

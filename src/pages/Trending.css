@@ -23,9 +23,9 @@
 }
 
 .page-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 34px 1fr 34px;
   align-items: center;
-  justify-content: space-between;
   padding: 14px 16px 12px;
 }
 
@@ -33,6 +33,12 @@
   font-size: var(--fs-xl, 16px);
   font-weight: 800;
   color: var(--text-primary);
+  text-align: center;
+}
+
+.page-header > :last-child {
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* Highlights */
