@@ -103,13 +103,119 @@
   display: flex;
 }
 
+.balance-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
 .balance-amount-new {
   font-size: var(--fs-3xl);
   font-weight: 800;
   color: var(--text-primary);
-  margin: 0 0 12px;
+  margin: 0;
   letter-spacing: -0.5px;
   line-height: 1.1;
+}
+
+/* ── Currency dropdown ───────────────────────────────────────────────────────── */
+.currency-dropdown-wrap {
+  position: relative;
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
+
+.currency-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+  transition: background 0.15s, color 0.15s;
+  touch-action: manipulation;
+}
+.currency-toggle-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.currency-dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.currency-dropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 4px;
+  min-width: 180px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  animation: dropdown-in 0.12s ease;
+}
+
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.currency-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+  touch-action: manipulation;
+}
+.currency-option:hover {
+  background: var(--bg-card-hover);
+}
+.currency-option.active {
+  background: rgba(229,53,53,0.1);
+}
+
+.currency-option-flag {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.currency-option-code {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 36px;
+}
+.currency-option-label {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  flex: 1;
+  text-align: left;
+}
+.currency-option-check {
+  font-size: var(--fs-sm);
+  color: var(--accent-purple-light);
+  font-weight: 700;
 }
 
 .address-pills {

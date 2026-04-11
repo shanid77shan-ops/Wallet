@@ -5,9 +5,10 @@ const STORAGE_KEY = 'xdt_currency'
 const DEFAULT_RATES = { INR: 83.2, AED: 3.67 }
 
 export const CURRENCIES = [
-  { code: 'USD', symbol: '$',   label: 'US Dollar',   flag: '🇺🇸' },
-  { code: 'INR', symbol: '₹',   label: 'Indian Rupee', flag: '🇮🇳' },
-  { code: 'AED', symbol: 'AED', label: 'UAE Dirham',   flag: '🇦🇪' },
+  { code: 'USD',  symbol: '$',    label: 'US Dollar',    flag: '🇺🇸' },
+  { code: 'INR',  symbol: '₹',    label: 'Indian Rupee', flag: '🇮🇳' },
+  { code: 'AED',  symbol: 'AED',  label: 'UAE Dirham',   flag: '🇦🇪' },
+  { code: 'USDT', symbol: 'USDT', label: 'Tether USD',   flag: '₮'   },
 ]
 
 const CurrencyContext = createContext(null)
@@ -38,6 +39,9 @@ export function CurrencyProvider({ children }) {
     if (currency === 'AED') {
       const v = usdAmount * rates.AED
       return 'AED\u00A0' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    }
+    if (currency === 'USDT') {
+      return usdAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '\u00A0USDT'
     }
     return '$' + usdAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }

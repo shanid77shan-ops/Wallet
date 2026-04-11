@@ -10,7 +10,7 @@ import {
   ArrowClockwise, Eye, EyeSlash,
 } from '@phosphor-icons/react'
 import { useXDTWallet } from '../context/XDTWalletContext'
-import { useCurrency } from '../context/CurrencyContext'
+import { useCurrency, CURRENCIES } from '../context/CurrencyContext'
 import { fmtUSD, fmtToken } from '../services/xdtPriceService'
 import './Home.css'
 
@@ -296,7 +296,8 @@ export default function Home() {
     tokens, totalUSD, balancesLoading, balanceError,
     txHistory, refreshBalances, keys,
   } = useXDTWallet()
-  const { fmt } = useCurrency()
+  const { fmt, currency, setCurrency } = useCurrency()
+  const [currencyOpen, setCurrencyOpen] = useState(false)
 
   const [sendToken,    setSendToken]    = useState(null)
   const [receiveToken, setReceiveToken] = useState(null)
@@ -351,9 +352,41 @@ export default function Home() {
             {hideBalance ? <Eye size={16} /> : <EyeSlash size={16} />}
           </button>
         </div>
-        <h2 className="balance-amount-new">
-          {hideBalance ? '••••••' : fmt(totalUSD)}
-        </h2>
+        <div className="balance-amount-row">
+          <h2 className="balance-amount-new">
+            {hideBalance ? '••••••' : fmt(totalUSD)}
+          </h2>
+          <div className="currency-dropdown-wrap">
+            <button
+              className="currency-toggle-btn"
+              onClick={() => setCurrencyOpen(o => !o)}
+            >
+              {currency}
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                <path d={currencyOpen ? 'M9 5L5 1L1 5' : 'M1 1L5 5L9 1'} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            {currencyOpen && (
+              <>
+                <div className="currency-dropdown-backdrop" onClick={() => setCurrencyOpen(false)} />
+                <div className="currency-dropdown">
+                  {CURRENCIES.map(c => (
+                    <button
+                      key={c.code}
+                      className={`currency-option${currency === c.code ? ' active' : ''}`}
+                      onClick={() => { setCurrency(c.code); setCurrencyOpen(false) }}
+                    >
+                      <span className="currency-option-flag">{c.flag}</span>
+                      <span className="currency-option-code">{c.code}</span>
+                      <span className="currency-option-label">{c.label}</span>
+                      {currency === c.code && <span className="currency-option-check">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
         <div className="address-pills">
           {ethAddress && (
             <span className="addr-pill eth-pill" title={ethAddress}>
