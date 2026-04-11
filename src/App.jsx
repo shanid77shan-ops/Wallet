@@ -6,13 +6,15 @@
  *   • Wallet unlocked + auth session → Main app shell
  *   • Not authenticated → Auth (email OTP)
  */
+import { useRef } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { XDTWalletProvider, useXDTWallet } from './context/XDTWalletContext'
-import { CoinProvider } from './context/CoinContext'
+import { CoinProvider, useCoins } from './context/CoinContext'
 
 import { CurrencyProvider } from './context/CurrencyContext'
-import BottomNav  from './components/BottomNav'
+import BottomNav     from './components/BottomNav'
+import PullToRefresh from './components/PullToRefresh'
 import Setup      from './pages/Setup'
 import Unlock     from './pages/Unlock'
 import Home       from './pages/Home'
@@ -44,8 +46,7 @@ function AuthGate({ children }) {
   return children
 }
 
-// ── DEV BYPASS — set to false to restore Setup + Unlock screens ──────────────
-const DEV_BYPASS_WALLET = true
+const DEV_BYPASS_WALLET = false
 
 // ── Wallet gate (inside AuthGate) ─────────────────────────────────────────────
 function WalletGate({ children }) {
@@ -67,27 +68,44 @@ function WalletGate({ children }) {
   return children
 }
 
+// ── Inner shell — needs both wallet + coin contexts ───────────────────────────
+function InnerShell() {
+  const { refreshBalances } = useXDTWallet()
+  const { refresh: refreshCoins } = useCoins()
+  const scrollRef = useRef(null)
+
+  async function handleRefresh() {
+    await Promise.allSettled([refreshBalances(), refreshCoins()])
+  }
+
+  return (
+    <div className="app-shell">
+      <main className="app-content" ref={scrollRef}>
+        <PullToRefresh onRefresh={handleRefresh} scrollRef={scrollRef}>
+          <Routes>
+            <Route path="/"          element={<Home />} />
+            <Route path="/coin/:id"  element={<CoinDetail />} />
+            <Route path="/trending"  element={<Trending />} />
+            <Route path="/trade"     element={<Trade />} />
+            <Route path="/p2p"       element={<P2P />} />
+            <Route path="/assets"    element={<Assets />} />
+            <Route path="/profile"   element={<Profile />} />
+            <Route path="*"          element={<Navigate to="/" replace />} />
+          </Routes>
+        </PullToRefresh>
+      </main>
+      <BottomNav />
+    </div>
+  )
+}
+
 // ── Main App Shell ────────────────────────────────────────────────────────────
 function AppShell() {
   return (
     <WalletGate>
       <CoinProvider>
       <CurrencyProvider>
-        <div className="app-shell">
-          <main className="app-content">
-            <Routes>
-              <Route path="/"          element={<Home />} />
-              <Route path="/coin/:id"  element={<CoinDetail />} />
-              <Route path="/trending"  element={<Trending />} />
-              <Route path="/trade"     element={<Trade />} />
-              <Route path="/p2p"       element={<P2P />} />
-              <Route path="/assets"    element={<Assets />} />
-              <Route path="/profile"   element={<Profile />} />
-              <Route path="*"          element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-          <BottomNav />
-        </div>
+        <InnerShell />
       </CurrencyProvider>
       </CoinProvider>
     </WalletGate>

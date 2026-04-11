@@ -2,17 +2,17 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Shield, Bell, Globe, Palette, HelpCircle, LogOut,
-  ChevronRight, Copy, Check, Fingerprint, Wallet, FileText, Gift,
+  ChevronRight, Copy, Check, Fingerprint, Wallet, FileText, Gift, X,
 } from 'lucide-react'
 import BackButton from '../components/BackButton'
 import { useAuth }      from '../context/AuthContext'
 import { useXDTWallet } from '../context/XDTWalletContext'
 import { useCurrency, CURRENCIES } from '../context/CurrencyContext'
-import { clearWalletData } from '../services/walletKeyService'
+import { clearWalletData, loadWalletData, decryptMnemonic } from '../services/walletKeyService'
 import './Profile.css'
 
 const securityItems = [
-  { icon: Shield,      label: 'Backup Phrase',    sub: 'Store safely',  color: '#10b981' },
+  { icon: Shield,      label: 'Backup Phrase',    sub: 'Store safely',  color: '#10b981', action: 'backup' },
   { icon: Fingerprint, label: 'PIN / Biometrics', sub: 'Enabled',       color: '#3b82f6' },
   { icon: Wallet,      label: 'Connected dApps',  sub: 'None',          color: '#7c3aed' },
 ]
@@ -31,6 +31,39 @@ export default function Profile() {
 
   const [copiedEth,  setCopiedEth]  = useState(false)
   const [copiedTron, setCopiedTron] = useState(false)
+
+  // ── Backup phrase modal ────────────────────────────────────────────────────
+  const [backupOpen,    setBackupOpen]    = useState(false)
+  const [backupPin,     setBackupPin]     = useState('')
+  const [backupPhrase,  setBackupPhrase]  = useState('')
+  const [backupErr,     setBackupErr]     = useState('')
+  const [backupLoading, setBackupLoading] = useState(false)
+  const [phraseCopied,  setPhraseCopied]  = useState(false)
+
+  function openBackup() { setBackupOpen(true); setBackupPin(''); setBackupPhrase(''); setBackupErr('') }
+  function closeBackup() { setBackupOpen(false); setBackupPhrase(''); setBackupPin('') }
+
+  async function handleRevealPhrase(e) {
+    e.preventDefault()
+    setBackupErr('')
+    setBackupLoading(true)
+    try {
+      const stored = loadWalletData()
+      if (!stored) throw new Error('No wallet found on this device')
+      const phrase = await decryptMnemonic(stored.encryptedMnemonic, backupPin)
+      setBackupPhrase(phrase)
+    } catch (err) {
+      setBackupErr(err.message || 'Wrong PIN')
+    } finally {
+      setBackupLoading(false)
+    }
+  }
+
+  function copyPhrase() {
+    navigator.clipboard.writeText(backupPhrase).catch(() => {})
+    setPhraseCopied(true)
+    setTimeout(() => setPhraseCopied(false), 2000)
+  }
 
   const userEmail   = email || user?.email || 'user@xdtwallet.app'
   const userName    = userEmail.split('@')[0] || 'Trader'
@@ -159,8 +192,12 @@ export default function Profile() {
       <div className="menu-section">
         <div className="menu-section-title">Security</div>
         <div className="menu-section-card">
-          {securityItems.map(({ icon: Icon, label, sub, color }, i, arr) => (
-            <button key={label} className={`menu-item${i < arr.length - 1 ? ' bordered' : ''}`}>
+          {securityItems.map(({ icon: Icon, label, sub, color, action }, i, arr) => (
+            <button
+              key={label}
+              className={`menu-item${i < arr.length - 1 ? ' bordered' : ''}`}
+              onClick={action === 'backup' ? openBackup : undefined}
+            >
               <div className="menu-icon" style={{ background: `${color}20`, color }}>
                 <Icon size={17} />
               </div>
@@ -265,6 +302,60 @@ export default function Profile() {
       </button>
 
       <div className="version-text">XDT Wallet v1.0.0</div>
+
+      {/* ── Backup Phrase Modal ──────────────────────────────────────────────── */}
+      {backupOpen && (
+        <div className="backup-overlay" onClick={closeBackup}>
+          <div className="backup-sheet" onClick={e => e.stopPropagation()}>
+            <div className="backup-header">
+              <h3>Backup Phrase</h3>
+              <button className="backup-close" onClick={closeBackup}><X size={20} /></button>
+            </div>
+
+            {!backupPhrase ? (
+              <>
+                <p className="backup-warning">
+                  ⚠️ Your seed phrase gives full access to your wallet. Never share it with anyone.
+                </p>
+                <form className="backup-form" onSubmit={handleRevealPhrase}>
+                  <label className="backup-pin-label">Enter your PIN to reveal</label>
+                  <input
+                    className="backup-pin-input"
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={8}
+                    placeholder="PIN"
+                    value={backupPin}
+                    onChange={e => { setBackupPin(e.target.value.replace(/\D/g, '')); setBackupErr('') }}
+                    autoFocus
+                  />
+                  {backupErr && <p className="backup-error">{backupErr}</p>}
+                  <button className="backup-reveal-btn" type="submit" disabled={backupLoading || !backupPin}>
+                    {backupLoading ? 'Decrypting…' : 'Reveal Phrase'}
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <p className="backup-warning">
+                  Write these 12 words down in order and store them somewhere safe offline.
+                </p>
+                <div className="backup-phrase-grid">
+                  {backupPhrase.split(' ').map((word, i) => (
+                    <div key={i} className="backup-word">
+                      <span className="backup-word-num">{i + 1}</span>
+                      <span className="backup-word-val">{word}</span>
+                    </div>
+                  ))}
+                </div>
+                <button className="backup-copy-btn" onClick={copyPhrase}>
+                  {phraseCopied ? <><Check size={15} /> Copied!</> : <><Copy size={15} /> Copy to clipboard</>}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

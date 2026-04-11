@@ -1,38 +1,6 @@
-/**
- * Auth.jsx — DEV BYPASS MODE
- * Real auth is commented out below. Tell Claude to restore when ready.
- */
+import { useState } from 'react'
 import { useAuth } from './context/AuthContext'
 import './Auth.css'
-
-export default function Auth() {
-  const { devLogin } = useAuth()
-
-  return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <div className="auth-logo">
-          <img src="/app-icon.jpg" alt="XDT Wallet" className="auth-logo-img" />
-        </div>
-        <h1 className="auth-title">XDT Wallet</h1>
-        <p className="auth-subtitle">Testing mode</p>
-        <button className="auth-btn" onClick={devLogin} style={{ marginTop: 16 }}>
-          Enter App
-        </button>
-        <p className="auth-footnote" style={{ marginTop: 16 }}>
-          Non-custodial · Your keys · Your crypto
-        </p>
-      </div>
-    </div>
-  )
-}
-
-/* ============================================================
-   ORIGINAL AUTH — restore by replacing the export above
-   with this block when testing is done:
-   ============================================================
-
-import { useState } from 'react'
 
 export default function Auth() {
   const { sendOTP, verifyOTP, loginWithPassword, registerWithPassword, isLoading, error } = useAuth()
@@ -126,4 +94,3 @@ export default function Auth() {
     </div>
   )
 }
-============================================================ */

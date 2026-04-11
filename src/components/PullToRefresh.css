@@ -1,0 +1,50 @@
+.ptr-root {
+  position: relative;
+  min-height: 100%;
+}
+
+/* ── Pull indicator ─────────────────────────────────────────────────────────── */
+.ptr-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow: hidden;
+  pointer-events: none;
+  transition: height 0.28s ease, opacity 0.2s ease;
+  transform: translateY(-100%);
+}
+
+.ptr-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(220, 38, 38, 0.25);
+  border-top-color: #e53535;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ptr-spinner.spin {
+  animation: ptr-spin 0.7s linear infinite;
+}
+
+@keyframes ptr-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ptr-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+/* ── Content wrapper ────────────────────────────────────────────────────────── */
+.ptr-content {
+  will-change: transform;
+}
