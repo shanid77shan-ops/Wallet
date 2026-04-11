@@ -117,6 +117,116 @@
 }
 .unlock-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+.forgot-pin-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: color 0.15s;
+  margin-top: -4px;
+}
+.forgot-pin-btn:hover { color: #e53535; }
+
+/* ── Recovery card ───────────────────────────────────────────────────────────── */
+.recover-card {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recover-title {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.recover-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.recover-phrase-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 13px 14px;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  resize: none;
+  line-height: 1.6;
+}
+.recover-phrase-input:focus {
+  outline: none;
+  border-color: rgba(220,38,38,0.5);
+}
+
+.recover-pin-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 14px;
+  font-size: var(--fs-lg);
+  color: var(--text-primary);
+  font-family: inherit;
+  letter-spacing: 4px;
+  text-align: center;
+}
+.recover-pin-input:focus {
+  outline: none;
+  border-color: rgba(220,38,38,0.5);
+}
+
+.recover-error {
+  font-size: var(--fs-sm);
+  color: var(--accent-red);
+  margin: 0;
+  padding: 9px 12px;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.18);
+  border-radius: 9px;
+  text-align: center;
+}
+
+.recover-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 13px;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+}
+.recover-btn.primary {
+  background: linear-gradient(135deg, #e53535, #c62828);
+  color: #fff;
+}
+.recover-btn.primary:disabled { opacity: 0.45; cursor: not-allowed; }
+.recover-btn.ghost {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+}
+.recover-btn.ghost:hover { color: var(--text-primary); }
+
 /* ── Responsive ─────────────────────────────────────────────────────────────── */
 @media (max-width: 360px) {
   .numpad       { grid-template-columns: repeat(3, 58px); gap: 8px; }
