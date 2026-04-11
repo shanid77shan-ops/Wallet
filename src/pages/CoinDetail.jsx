@@ -16,10 +16,12 @@ import { fmtUSD, fmtToken } from '../services/xdtPriceService'
 import './CoinDetail.css'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
+// Maps any token id variant → CoinGecko chart id
 const COINGECKO_IDS = {
-  'eth':  'ethereum',
-  'usdt': 'tether',
-  // legacy ids still work
+  'eth':      'ethereum',
+  'ethereum': 'ethereum',
+  'usdt':     'tether',
+  'tether':   'tether',
   'usdt-erc': 'tether',
   'usdt-trc': 'tether',
 }
@@ -285,11 +287,16 @@ export default function CoinDetail() {
   const navigate = useNavigate()
   const { tokens, keys, prices } = useXDTWallet()
 
-  // Build token: merge usdt-erc + usdt-trc into a single 'usdt' object
-  const rawToken = tokens.find(t => t.id === id)
-  const usdtErc  = tokens.find(t => t.id === 'usdt-erc')
-  const usdtTrc  = tokens.find(t => t.id === 'usdt-trc')
-  const token    = id === 'usdt'
+  // Normalize: Home/Assets navigate with CoinGecko IDs (ethereum, tether)
+  // but wallet tokens use (eth, usdt-erc, usdt-trc)
+  const isUsdt = id === 'tether'   || id === 'usdt'
+  const isEth  = id === 'ethereum' || id === 'eth'
+
+  const usdtErc = tokens.find(t => t.id === 'usdt-erc')
+  const usdtTrc = tokens.find(t => t.id === 'usdt-trc')
+  const ethWalletToken = tokens.find(t => t.id === 'eth')
+
+  const token = isUsdt
     ? {
         id:         'usdt',
         symbol:     'USDT',
@@ -300,7 +307,16 @@ export default function CoinDetail() {
         ercBalance: usdtErc?.balance ?? 0,
         trcBalance: usdtTrc?.balance ?? 0,
       }
-    : rawToken
+    : isEth
+      ? {
+          id:      'eth',
+          symbol:  'ETH',
+          name:    'Ethereum',
+          network: 'Ethereum',
+          color:   '#627eea',
+          balance: ethWalletToken?.balance ?? 0,
+        }
+      : tokens.find(t => t.id === id)
 
   const [period,       setPeriod]       = useState(PERIODS[0])
   const [chartData,    setChartData]    = useState([])

@@ -20,6 +20,7 @@ import Trending   from './pages/Trending'
 import Trade      from './pages/Trade'
 import Profile    from './pages/Profile'
 import P2P        from './pages/P2P'
+import Assets     from './pages/Assets'
 import CoinDetail from './pages/CoinDetail'
 
 import './App.css'
@@ -43,9 +44,15 @@ function AuthGate({ children }) {
   return children
 }
 
+// ── DEV BYPASS — set to false to restore Setup + Unlock screens ──────────────
+const DEV_BYPASS_WALLET = true
+
 // ── Wallet gate (inside AuthGate) ─────────────────────────────────────────────
 function WalletGate({ children }) {
   const { isUnlocked, isLocked } = useXDTWallet()
+
+  // DEV: skip wallet setup and PIN screens during testing
+  if (DEV_BYPASS_WALLET) return children
 
   if (!isUnlocked && !isLocked) {
     // No wallet stored on this device → onboarding
@@ -74,6 +81,7 @@ function AppShell() {
               <Route path="/trending"  element={<Trending />} />
               <Route path="/trade"     element={<Trade />} />
               <Route path="/p2p"       element={<P2P />} />
+              <Route path="/assets"    element={<Assets />} />
               <Route path="/profile"   element={<Profile />} />
               <Route path="*"          element={<Navigate to="/" replace />} />
             </Routes>

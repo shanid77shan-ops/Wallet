@@ -10,8 +10,10 @@ import {
   ArrowClockwise, Eye, EyeSlash,
 } from '@phosphor-icons/react'
 import { useXDTWallet } from '../context/XDTWalletContext'
+import { useCoins }      from '../context/CoinContext'
 import { useCurrency, CURRENCIES } from '../context/CurrencyContext'
 import { fmtUSD, fmtToken } from '../services/xdtPriceService'
+import CoinImage from '../components/CoinImage'
 import './Home.css'
 
 // ── Token icons ───────────────────────────────────────────────────────────────
@@ -251,24 +253,24 @@ function ReceiveSheet({ token, onClose, ethAddress, tronAddress }) {
 
 // ── Token Card ────────────────────────────────────────────────────────────────
 function TokenCard({ token, onSend, onReceive }) {
-  const { prices } = useXDTWallet()
-  const { fmt }    = useCurrency()
-  const navigate   = useNavigate()
-  const price  = token.symbol === 'ETH' ? prices.eth : prices.usdt
-  const usdVal = token.balance * price
-  const change = token.symbol === 'ETH' ? prices.ethChange : prices.usdtChange
+  const { fmt } = useCurrency()
+  const navigate = useNavigate()
+
+  const price  = token.price    ?? 0
+  const usdVal = token.balance  * price
+  const change = token.change24h ?? 0
+  const hasWallet = onSend && onReceive  // only ETH + USDT have wallet actions
 
   return (
-    <div className="token-card" onClick={() => navigate(`/coin/${token.id}`)}
-         style={{ cursor: 'pointer' }}>
+    <div className="token-card" onClick={() => navigate(`/coin/${token.id}`)} style={{ cursor: 'pointer' }}>
       <div className="token-left">
-        <TokenIcon id={token.id} />
+        <CoinImage coin={token} size={38} />
         <div className="token-info">
           <div className="token-name-row">
             <span className="token-name">{token.name}</span>
-            {token.id === 'usdt'
+            {token.id === 'tether' || token.id === 'usdt'
               ? <span className="multi-net-badge">ERC-20 · TRC-20</span>
-              : <NetworkBadge network={token.network} />}
+              : token.network ? <NetworkBadge network={token.network} /> : null}
           </div>
           <span className="token-price">
             {fmtUSD(price)}
@@ -281,10 +283,12 @@ function TokenCard({ token, onSend, onReceive }) {
       <div className="token-right">
         <span className="token-balance">{fmtToken(token.balance, token.symbol === 'ETH' ? 6 : 2)}</span>
         <span className="token-usd">{fmt(usdVal)}</span>
-        <div className="token-actions" onClick={e => e.stopPropagation()}>
-          <button className="tok-btn send" onClick={onSend}><ArrowUpRight size={14} weight="bold" /></button>
-          <button className="tok-btn recv" onClick={onReceive}><ArrowDown size={14} weight="bold" /></button>
-        </div>
+        {hasWallet && (
+          <div className="token-actions" onClick={e => e.stopPropagation()}>
+            <button className="tok-btn send" onClick={onSend}><ArrowUpRight size={14} weight="bold" /></button>
+            <button className="tok-btn recv" onClick={onReceive}><ArrowDown size={14} weight="bold" /></button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -293,9 +297,10 @@ function TokenCard({ token, onSend, onReceive }) {
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function Home() {
   const {
-    tokens, totalUSD, balancesLoading, balanceError,
+    tokens, balancesLoading, balanceError,
     txHistory, refreshBalances, keys,
   } = useXDTWallet()
+  const { coins: allCoins } = useCoins()
   const { fmt, currency, setCurrency } = useCurrency()
   const [currencyOpen, setCurrencyOpen] = useState(false)
 
@@ -309,21 +314,30 @@ export default function Home() {
   const shortEth  = ethAddress  ? `${ethAddress.slice(0,6)}…${ethAddress.slice(-4)}`  : ''
   const shortTron = tronAddress ? `${tronAddress.slice(0,6)}…${tronAddress.slice(-4)}` : ''
 
-  // Build display tokens: ETH + one merged USDT
-  const ethToken  = tokens.find(t => t.id === 'eth')
-  const usdtErc   = tokens.find(t => t.id === 'usdt-erc')
-  const usdtTrc   = tokens.find(t => t.id === 'usdt-trc')
+  // Wallet send/receive tokens — ETH + merged USDT (from XDT wallet context)
+  const ethWallet  = tokens.find(t => t.id === 'eth')
+  const usdtErc    = tokens.find(t => t.id === 'usdt-erc')
+  const usdtTrc    = tokens.find(t => t.id === 'usdt-trc')
   const usdtMerged = {
-    id:         'usdt',
+    id:         'tether',
     symbol:     'USDT',
     name:       'Tether USD',
     network:    'Multi-Chain',
     color:      '#26a17b',
+    price:      1,
+    change24h:  0,
     balance:    (usdtErc?.balance ?? 0) + (usdtTrc?.balance ?? 0),
     ercBalance: usdtErc?.balance ?? 0,
     trcBalance: usdtTrc?.balance ?? 0,
+    image:      allCoins.find(c => c.id === 'tether')?.image,
   }
-  const displayTokens = [ethToken, usdtMerged].filter(Boolean)
+
+  // ETH display token — balance from wallet, price/image from CoinContext
+  const ethCoin    = allCoins.find(c => c.id === 'ethereum') ?? {}
+  const ethDisplay = { ...ethCoin, id: 'ethereum', balance: ethWallet?.balance ?? 0 }
+
+  // Total portfolio: ETH + USDT only
+  const totalUSD = (ethDisplay.balance * (ethDisplay.price ?? 0)) + usdtMerged.balance
 
   return (
     <div className="home-page">
@@ -403,11 +417,11 @@ export default function Home() {
 
       {/* ── Quick Actions ──────────────────────────────────────────────────── */}
       <div className="quick-actions">
-        <button className="qa-btn" onClick={() => setSendToken(ethToken)}>
+        <button className="qa-btn" onClick={() => setSendToken(ethWallet ? { ...allCoins.find(c => c.id === 'ethereum'), ...ethWallet, id: 'ethereum' } : usdtMerged)}>
           <div className="qa-icon qa-send"><ArrowUpRight size={20} weight="bold" /></div>
           <span>Send</span>
         </button>
-        <button className="qa-btn" onClick={() => setReceiveToken(ethToken)}>
+        <button className="qa-btn" onClick={() => setReceiveToken(ethWallet ? { ...allCoins.find(c => c.id === 'ethereum'), ...ethWallet, id: 'ethereum' } : usdtMerged)}>
           <div className="qa-icon qa-recv"><ArrowDown size={20} weight="bold" /></div>
           <span>Receive</span>
         </button>
@@ -422,14 +436,16 @@ export default function Home() {
       <div className="section">
         <h3 className="section-title">My Assets</h3>
         <div className="token-list">
-          {displayTokens.map(token => (
-            <TokenCard
-              key={token.id}
-              token={token}
-              onSend={() => setSendToken(token)}
-              onReceive={() => setReceiveToken(token)}
-            />
-          ))}
+          <TokenCard
+            token={ethDisplay}
+            onSend={() => setSendToken(ethWallet ? { ...ethDisplay, ...ethWallet } : ethDisplay)}
+            onReceive={() => setReceiveToken(ethDisplay)}
+          />
+          <TokenCard
+            token={usdtMerged}
+            onSend={() => setSendToken({ ...usdtMerged, id: 'usdt' })}
+            onReceive={() => setReceiveToken({ ...usdtMerged, id: 'usdt' })}
+          />
         </div>
       </div>
 
@@ -451,17 +467,15 @@ export default function Home() {
                   <span className="tx-label">
                     {tx.type === 'send' ? 'Sent' : 'Received'} {tx.symbol}
                   </span>
-                  <span className="tx-network">{tx.network}</span>
+                  <span className="tx-network">
+                    {tx.network}
+                    {tx.timestamp ? ` · ${new Date(tx.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
+                  </span>
                 </div>
                 <div className="tx-amount-wrap">
                   <span className={`tx-amount ${tx.type === 'send' ? 'neg' : 'pos'}`}>
-                    {tx.type === 'send' ? '-' : '+'}{fmtToken(tx.amount, 4)} {tx.symbol}
+                    {tx.type === 'send' ? '−' : '+'}{fmtToken(tx.amount, 4)} {tx.symbol}
                   </span>
-                  {tx.timestamp && (
-                    <span className="tx-date">
-                      {new Date(tx.timestamp).toLocaleDateString()}
-                    </span>
-                  )}
                 </div>
               </div>
             ))}

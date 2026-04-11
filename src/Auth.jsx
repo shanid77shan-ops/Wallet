@@ -1,59 +1,67 @@
 /**
- * Auth.jsx — xdt-wallet email authentication
- * Uses the AuthContext email OTP flow (no MetaMask required).
+ * Auth.jsx — DEV BYPASS MODE
+ * Real auth is commented out below. Tell Claude to restore when ready.
  */
-import { useState } from 'react'
 import { useAuth } from './context/AuthContext'
 import './Auth.css'
 
 export default function Auth() {
+  const { devLogin } = useAuth()
+
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-logo">
+          <img src="/app-icon.jpg" alt="XDT Wallet" className="auth-logo-img" />
+        </div>
+        <h1 className="auth-title">XDT Wallet</h1>
+        <p className="auth-subtitle">Testing mode</p>
+        <button className="auth-btn" onClick={devLogin} style={{ marginTop: 16 }}>
+          Enter App
+        </button>
+        <p className="auth-footnote" style={{ marginTop: 16 }}>
+          Non-custodial · Your keys · Your crypto
+        </p>
+      </div>
+    </div>
+  )
+}
+
+/* ============================================================
+   ORIGINAL AUTH — restore by replacing the export above
+   with this block when testing is done:
+   ============================================================
+
+import { useState } from 'react'
+
+export default function Auth() {
   const { sendOTP, verifyOTP, loginWithPassword, registerWithPassword, isLoading, error } = useAuth()
 
-  const [mode,     setMode]     = useState('login')    // 'login' | 'register' | 'otp'
+  const [mode,     setMode]     = useState('login')
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
   const [otp,      setOtp]      = useState('')
   const [localErr, setLocalErr] = useState('')
 
   async function handleLogin(e) {
-    e.preventDefault()
-    setLocalErr('')
-    try {
-      await loginWithPassword(email.trim(), password)
-    } catch (err) {
-      setLocalErr(err.message || 'Login failed')
-    }
+    e.preventDefault(); setLocalErr('')
+    try { await loginWithPassword(email.trim(), password) }
+    catch (err) { setLocalErr(err.message || 'Login failed') }
   }
-
   async function handleRegister(e) {
-    e.preventDefault()
-    setLocalErr('')
-    try {
-      await registerWithPassword(email.trim(), password)
-    } catch (err) {
-      setLocalErr(err.message || 'Registration failed')
-    }
+    e.preventDefault(); setLocalErr('')
+    try { await registerWithPassword(email.trim(), password) }
+    catch (err) { setLocalErr(err.message || 'Registration failed') }
   }
-
   async function handleSendOTP(e) {
-    e.preventDefault()
-    setLocalErr('')
-    try {
-      await sendOTP(email.trim())
-      setMode('otp')
-    } catch (err) {
-      setLocalErr(err.message || 'Failed to send OTP')
-    }
+    e.preventDefault(); setLocalErr('')
+    try { await sendOTP(email.trim()); setMode('otp') }
+    catch (err) { setLocalErr(err.message || 'Failed to send OTP') }
   }
-
   async function handleVerifyOTP(e) {
-    e.preventDefault()
-    setLocalErr('')
-    try {
-      await verifyOTP(email.trim(), otp.trim())
-    } catch (err) {
-      setLocalErr(err.message || 'Invalid OTP')
-    }
+    e.preventDefault(); setLocalErr('')
+    try { await verifyOTP(email.trim(), otp.trim()) }
+    catch (err) { setLocalErr(err.message || 'Invalid OTP') }
   }
 
   const displayErr = localErr || error
@@ -61,100 +69,61 @@ export default function Auth() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        {/* Logo */}
         <div className="auth-logo">
           <img src="/app-icon.jpg" alt="XDT Wallet" className="auth-logo-img" />
         </div>
-
         <h1 className="auth-title">XDT Wallet</h1>
         <p className="auth-subtitle">
           {mode === 'otp' ? `Enter the code sent to ${email}` : 'Sign in or create an account'}
         </p>
-
-        {/* Mode toggle */}
         {mode !== 'otp' && (
           <div className="auth-tabs">
             {['login', 'register', 'otp_send'].map(m => {
               const labels = { login: 'Password', register: 'Register', otp_send: 'Email OTP' }
               const current = mode === 'otp_send' ? 'otp_send' : mode
               return (
-                <button
-                  key={m}
-                  className={`auth-tab ${current === m ? 'active' : ''}`}
-                  onClick={() => { setMode(m === 'otp_send' ? 'otp_send' : m); setLocalErr('') }}
-                >
+                <button key={m} className={`auth-tab ${current === m ? 'active' : ''}`}
+                  onClick={() => { setMode(m === 'otp_send' ? 'otp_send' : m); setLocalErr('') }}>
                   {labels[m]}
                 </button>
               )
             })}
           </div>
         )}
-
-        {/* Login form */}
         {mode === 'login' && (
           <form className="auth-form" onSubmit={handleLogin}>
-            <input className="auth-input" type="email" placeholder="Email" required
-              value={email} onChange={e => setEmail(e.target.value)} />
-            <input className="auth-input" type="password" placeholder="Password" required
-              value={password} onChange={e => setPassword(e.target.value)} />
+            <input className="auth-input" type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
+            <input className="auth-input" type="password" placeholder="Password" required value={password} onChange={e => setPassword(e.target.value)} />
             {displayErr && <p className="auth-error">{displayErr}</p>}
-            <button className="auth-btn" type="submit" disabled={isLoading}>
-              {isLoading ? <span className="auth-spinner" /> : null}
-              Sign In
-            </button>
+            <button className="auth-btn" type="submit" disabled={isLoading}>{isLoading ? <span className="auth-spinner" /> : null}Sign In</button>
           </form>
         )}
-
-        {/* Register form */}
         {mode === 'register' && (
           <form className="auth-form" onSubmit={handleRegister}>
-            <input className="auth-input" type="email" placeholder="Email" required
-              value={email} onChange={e => setEmail(e.target.value)} />
-            <input className="auth-input" type="password" placeholder="Password (min 6 chars)" required minLength={6}
-              value={password} onChange={e => setPassword(e.target.value)} />
+            <input className="auth-input" type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
+            <input className="auth-input" type="password" placeholder="Password (min 6 chars)" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
             {displayErr && <p className="auth-error">{displayErr}</p>}
-            <button className="auth-btn" type="submit" disabled={isLoading}>
-              {isLoading ? <span className="auth-spinner" /> : null}
-              Create Account
-            </button>
+            <button className="auth-btn" type="submit" disabled={isLoading}>{isLoading ? <span className="auth-spinner" /> : null}Create Account</button>
           </form>
         )}
-
-        {/* OTP send form */}
         {mode === 'otp_send' && (
           <form className="auth-form" onSubmit={handleSendOTP}>
-            <input className="auth-input" type="email" placeholder="Email" required
-              value={email} onChange={e => setEmail(e.target.value)} />
+            <input className="auth-input" type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
             {displayErr && <p className="auth-error">{displayErr}</p>}
-            <button className="auth-btn" type="submit" disabled={isLoading}>
-              {isLoading ? <span className="auth-spinner" /> : null}
-              Send OTP
-            </button>
+            <button className="auth-btn" type="submit" disabled={isLoading}>{isLoading ? <span className="auth-spinner" /> : null}Send OTP</button>
           </form>
         )}
-
-        {/* OTP verify form */}
         {mode === 'otp' && (
           <form className="auth-form" onSubmit={handleVerifyOTP}>
-            <input className="auth-input" type="text" placeholder="6-digit OTP" required
-              inputMode="numeric" maxLength={6}
-              value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ''))} />
+            <input className="auth-input" type="text" placeholder="6-digit OTP" required inputMode="numeric" maxLength={6} value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ''))} />
             {displayErr && <p className="auth-error">{displayErr}</p>}
-            <button className="auth-btn" type="submit" disabled={isLoading}>
-              {isLoading ? <span className="auth-spinner" /> : null}
-              Verify OTP
-            </button>
-            <button type="button" className="auth-back-btn"
-              onClick={() => { setMode('otp_send'); setOtp(''); setLocalErr('') }}>
-              ← Change email
-            </button>
+            <button className="auth-btn" type="submit" disabled={isLoading}>{isLoading ? <span className="auth-spinner" /> : null}Verify OTP</button>
+            <button type="button" className="auth-back-btn" onClick={() => { setMode('otp_send'); setOtp(''); setLocalErr('') }}>← Change email</button>
           </form>
         )}
-
-        <p className="auth-footnote">
-          Non-custodial · Your keys · Your crypto
-        </p>
+        <p className="auth-footnote">Non-custodial · Your keys · Your crypto</p>
       </div>
     </div>
   )
 }
+============================================================ */

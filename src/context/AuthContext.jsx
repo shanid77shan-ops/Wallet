@@ -207,6 +207,15 @@ export function AuthProvider({ children }) {
     setError('')
   }
 
+  // ── DEV BYPASS — remove when auth is re-enabled ───────────────────────────
+  function devLogin() {
+    const userData = { id: 'dev-user', email: 'dev@xdtwallet.app' }
+    localStorage.setItem(STORAGE_KEY, 'dev-token')
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData))
+    setUser(userData)
+    setEmail(userData.email)
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -222,6 +231,7 @@ export function AuthProvider({ children }) {
         logout,
         topMessage,
         isAuthenticated: !!user,
+        devLogin,
       }}
     >
       {children}
