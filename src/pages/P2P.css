@@ -1,21 +1,21 @@
 .p2p-page {
   padding: 0 16px 24px;
-  --p2p-gold: #d6b25f;
-  --p2p-gold-soft: #f4de9c;
-  --p2p-ink: #e7edf8;
-  --p2p-surface: #0f1727;
-  --p2p-surface-2: #111f33;
+  --p2p-gold: #e53535;
+  --p2p-gold-soft: #ff9090;
+  --p2p-ink: #fff5f5;
+  --p2p-surface: #150d0d;
+  --p2p-surface-2: #1c1010;
 }
 
 .p2p-hero {
   margin: 18px 0 12px;
   padding: 18px;
   border-radius: 20px;
-  border: 1px solid rgba(214, 178, 95, 0.28);
+  border: 1px solid rgba(220, 38, 38, 0.28);
   background:
-    radial-gradient(circle at 88% -12%, rgba(214, 178, 95, 0.24), transparent 42%),
-    linear-gradient(145deg, #111b2c 0%, #0a111d 100%);
-  box-shadow: 0 14px 28px rgba(2, 6, 23, 0.45);
+    radial-gradient(circle at 88% -12%, rgba(220, 38, 38, 0.24), transparent 42%),
+    linear-gradient(145deg, #1b0e0e 0%, #100b0b 100%);
+  box-shadow: 0 14px 28px rgba(10, 4, 4, 0.45);
 }
 
 .p2p-header h1 {
@@ -84,11 +84,11 @@
 }
 
 .p2p-card {
-  background: linear-gradient(180deg, var(--p2p-surface) 0%, #0e1828 100%);
+  background: linear-gradient(180deg, var(--p2p-surface) 0%, #150d0d 100%);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 18px;
   padding: 16px;
-  box-shadow: 0 12px 24px rgba(2, 6, 23, 0.35);
+  box-shadow: 0 12px 24px rgba(10, 4, 4, 0.35);
 }
 
 .trade-card {
@@ -130,8 +130,8 @@
 }
 
 .p2p-input:focus {
-  border-color: rgba(214, 178, 95, 0.75);
-  box-shadow: 0 0 0 3px rgba(214, 178, 95, 0.18);
+  border-color: rgba(220, 38, 38, 0.75);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18);
 }
 
 .selected-coin-row {
@@ -139,8 +139,8 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
-  background: rgba(214, 178, 95, 0.09);
-  border: 1px solid rgba(214, 178, 95, 0.3);
+  background: rgba(220, 38, 38, 0.09);
+  border: 1px solid rgba(220, 38, 38, 0.3);
   border-radius: 12px;
   padding: 10px;
 }
@@ -169,9 +169,9 @@
 }
 
 .shortcut-btn {
-  border: 1px solid rgba(214, 178, 95, 0.38);
+  border: 1px solid rgba(220, 38, 38, 0.38);
   border-radius: 8px;
-  background: rgba(214, 178, 95, 0.12);
+  background: rgba(220, 38, 38, 0.12);
   color: var(--p2p-gold-soft);
   font-family: inherit;
   font-size: var(--fs-base);
@@ -185,7 +185,7 @@
   border-radius: 12px;
   padding: 12px;
   margin-bottom: 8px;
-  background: rgba(2, 6, 23, 0.55);
+  background: rgba(10, 4, 4, 0.55);
 }
 
 .quote-row {
@@ -253,13 +253,13 @@
   justify-content: center;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #d6b25f 0%, #f4de9c 50%, #c89b44 100%);
-  color: #1f2937;
+  background: linear-gradient(135deg, #e53535 0%, #dc2626 100%);
+  color: #fff;
   font-family: inherit;
   font-size: var(--fs-lg);
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 10px 18px rgba(146, 114, 37, 0.34);
+  box-shadow: 0 10px 18px rgba(229, 53, 53, 0.30);
   transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
 

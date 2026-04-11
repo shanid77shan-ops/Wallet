@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #090f1a 0%, #0f1727 100%);
+  background: linear-gradient(180deg, #0d0808 0%, #150d0d 100%);
   padding: 0;
   overflow-y: auto;
 }
@@ -75,7 +75,7 @@
 }
 
 .step-title p strong {
-  color: #d6b25f;
+  color: #e53535;
   font-weight: 600;
 }
 
@@ -106,8 +106,8 @@
 }
 
 .toggle-btn.active {
-  background: linear-gradient(135deg, #d6b25f 0%, #f4de9c 50%, #c89b44 100%);
-  border-color: #d6b25f;
+  background: linear-gradient(135deg, #e53535 0%, #fca5a5 50%, #dc2626 100%);
+  border-color: #e53535;
   color: #1f2937;
   font-weight: 700;
 }
@@ -151,8 +151,8 @@
 }
 
 .email-input-wrap:focus-within {
-  border-color: rgba(214, 178, 95, 0.75);
-  box-shadow: 0 0 0 3px rgba(214, 178, 95, 0.18);
+  border-color: rgba(220, 38, 38, 0.75);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18);
 }
 
 .email-icon {
@@ -197,8 +197,8 @@
 }
 
 .otp-input:focus {
-  border-color: rgba(214, 178, 95, 0.75);
-  box-shadow: 0 0 0 3px rgba(214, 178, 95, 0.18);
+  border-color: rgba(220, 38, 38, 0.75);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18);
 }
 
 .otp-input::placeholder {
@@ -244,7 +244,7 @@
   justify-content: center;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #d6b25f 0%, #f4de9c 50%, #c89b44 100%);
+  background: linear-gradient(135deg, #e53535 0%, #fca5a5 50%, #dc2626 100%);
   color: #1f2937;
   font-family: inherit;
   font-size: 15px;
@@ -273,9 +273,9 @@
   width: 100%;
   border-radius: 12px;
   padding: 12px;
-  border: 1px solid rgba(214, 178, 95, 0.5);
-  background: rgba(214, 178, 95, 0.14);
-  color: #f4de9c;
+  border: 1px solid rgba(220, 38, 38, 0.5);
+  background: rgba(220, 38, 38, 0.14);
+  color: #fca5a5;
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
@@ -285,8 +285,8 @@
 }
 
 .enter-code-btn:hover:not(:disabled) {
-  background: rgba(214, 178, 95, 0.2);
-  border-color: rgba(214, 178, 95, 0.75);
+  background: rgba(220, 38, 38, 0.2);
+  border-color: rgba(220, 38, 38, 0.75);
 }
 
 .enter-code-btn:disabled {
@@ -305,8 +305,8 @@
 
 /* Info Box */
 .info-box {
-  background: rgba(124, 58, 237, 0.08);
-  border: 1px solid rgba(124, 58, 237, 0.3);
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.3);
   border-radius: 12px;
   padding: 12px;
   margin-top: 4px;
@@ -337,7 +337,7 @@
 }
 
 .back-btn:hover:not(:disabled) {
-  color: #d6b25f;
+  color: #e53535;
 }
 
 .back-btn:disabled {
@@ -360,7 +360,7 @@
 .resend-btn {
   background: none;
   border: none;
-  color: #d6b25f;
+  color: #e53535;
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
@@ -371,7 +371,7 @@
 }
 
 .resend-btn:hover:not(.disabled) {
-  color: #f4de9c;
+  color: #fca5a5;
 }
 
 .resend-btn.disabled {
@@ -396,12 +396,12 @@
 }
 
 .login-footer span {
-  color: #d6b25f;
+  color: #e53535;
   font-weight: 600;
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .login-footer span:hover {
-  color: #f4de9c;
+  color: #fca5a5;
 }

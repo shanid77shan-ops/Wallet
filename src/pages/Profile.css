@@ -29,7 +29,7 @@
   width: 68px;
   height: 68px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7c3aed, #3b82f6);
+  background: linear-gradient(135deg, #e53535, #b91c1c);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,7 +38,7 @@
   color: white;
   margin-bottom: 10px;
   position: relative;
-  box-shadow: 0 0 0 3px var(--bg-primary), 0 0 0 5px rgba(124,58,237,0.4);
+  box-shadow: 0 0 0 3px var(--bg-primary), 0 0 0 5px rgba(220,38,38,0.4);
 }
 
 .avatar-badge {
@@ -73,8 +73,8 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(59,130,246,0.2));
-  border: 1px solid rgba(124,58,237,0.3);
+  background: linear-gradient(135deg, rgba(229,53,53,0.18), rgba(185,28,28,0.12));
+  border: 1px solid rgba(220,38,38,0.3);
   border-radius: 20px;
   padding: 5px 12px;
   font-size: var(--fs-xs);

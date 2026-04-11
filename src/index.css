@@ -7,21 +7,21 @@
 }
 
 :root {
-  --bg-primary: #090f1a;
-  --bg-secondary: #101a2a;
-  --bg-card: #141f32;
-  --bg-card-hover: #1a2841;
-  --accent-purple: #d6b25f;
-  --accent-purple-light: #f4de9c;
-  --accent-blue: #5f8dd6;
-  --accent-green: #10b981;
-  --accent-red: #ef4444;
+  --bg-primary:    #0d0808;
+  --bg-secondary:  #120d0d;
+  --bg-card:       #1a1010;
+  --bg-card-hover: #211515;
+  --accent-purple:       #e53535;
+  --accent-purple-light: #ff7070;
+  --accent-blue:   #5f8dd6;
+  --accent-green:  #10b981;
+  --accent-red:    #ef4444;
   --accent-yellow: #d9a645;
-  --text-primary: #edf2ff;
-  --text-secondary: #aebdd7;
-  --text-muted: #6c7f9f;
-  --border: #1d2a43;
-  --border-light: #2a3a58;
+  --text-primary:   #fff5f5;
+  --text-secondary: #c9b0b0;
+  --text-muted:     #7d5a5a;
+  --border:         #221313;
+  --border-light:   #2e1b1b;
   --nav-height: 64px;
 
   /* Responsive font scale */
@@ -54,7 +54,8 @@ html, body {
   margin: 0 auto;
   position: relative;
   background:
-    radial-gradient(circle at 82% -10%, rgba(214, 178, 95, 0.16), transparent 38%),
+    radial-gradient(ellipse at 80% -5%, rgba(229, 53, 53, 0.18), transparent 42%),
+    radial-gradient(ellipse at 10% 90%, rgba(229, 53, 53, 0.08), transparent 40%),
     var(--bg-primary);
   min-height: 100vh;
 }

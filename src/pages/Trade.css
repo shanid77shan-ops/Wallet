@@ -113,7 +113,7 @@
 }
 
 .slip-btn.active {
-  background: rgba(214, 178, 95, 0.2);
+  background: rgba(220, 38, 38, 0.2);
   border-color: var(--accent-purple);
   color: var(--accent-purple-light);
 }
@@ -238,8 +238,8 @@
 .pct-btn {
   flex: 1;
   padding: 6px;
-  background: rgba(214, 178, 95, 0.12);
-  border: 1px solid rgba(214, 178, 95, 0.26);
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.26);
   border-radius: 8px;
   color: var(--accent-purple-light);
   font-size: var(--fs-base);
@@ -250,7 +250,7 @@
 }
 
 .pct-btn:hover {
-  background: rgba(214, 178, 95, 0.2);
+  background: rgba(220, 38, 38, 0.2);
 }
 
 /* Swap Arrow */
@@ -322,7 +322,7 @@
 
 .trade-cta-btn.buy { background: linear-gradient(135deg, #10b981, #059669); color: white; }
 .trade-cta-btn.sell { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
-.trade-cta-btn.swap { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; }
+.trade-cta-btn.swap { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; }
 
 /* Market Overview */
 .market-overview h3 {

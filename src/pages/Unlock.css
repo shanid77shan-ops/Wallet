@@ -24,8 +24,8 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(214,178,95,0.1);
-  border: 1.5px solid rgba(214,178,95,0.3);
+  background: rgba(220,38,38,0.1);
+  border: 1.5px solid rgba(220,38,38,0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,7 +34,7 @@
 .unlock-logo-text {
   font-size: var(--fs-2xl);
   font-weight: 900;
-  color: #d6b25f;
+  color: #e53535;
 }
 
 .unlock-brand {
@@ -67,8 +67,8 @@
 }
 
 .pin-dot.filled {
-  background: #d6b25f;
-  border-color: #d6b25f;
+  background: #e53535;
+  border-color: #e53535;
 }
 
 /* Numpad */
@@ -114,7 +114,7 @@
   width: 220px;
   padding: 13px;
   border-radius: 13px;
-  background: linear-gradient(135deg, #d6b25f, #b8902f);
+  background: linear-gradient(135deg, #e53535, #c62828);
   color: #0a0f1a;
   font-size: var(--fs-md);
   font-weight: 700;

@@ -88,7 +88,7 @@
 }
 
 .network-option:hover { background: var(--bg-card-hover); }
-.network-option.active { background: rgba(124,58,237,0.06); }
+.network-option.active { background: rgba(220,38,38,0.06); }
 
 .net-left {
   display: flex;
@@ -178,7 +178,7 @@
 }
 
 .max-btn {
-  background: rgba(124, 58, 237, 0.15);
+  background: rgba(220, 38, 38, 0.15);
   border: none;
   border-left: 1px solid var(--border-light);
   padding: 0 14px;
@@ -193,7 +193,7 @@
   flex-shrink: 0;
 }
 
-.max-btn:hover { background: rgba(124, 58, 237, 0.25); }
+.max-btn:hover { background: rgba(220, 38, 38, 0.25); }
 
 .amount-usd {
   font-size: 12px;
@@ -366,8 +366,8 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(124, 58, 237, 0.12);
-  border: 1px solid rgba(124, 58, 237, 0.25);
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.25);
   border-radius: 8px;
   padding: 5px 12px;
   font-size: 12px;

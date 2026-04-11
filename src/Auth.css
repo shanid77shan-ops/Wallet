@@ -5,9 +5,9 @@
   align-items: center;
   min-height: 100vh;
   background:
-    radial-gradient(ellipse at 60% 0%,  rgba(214, 178, 95, 0.08) 0%, transparent 55%),
-    radial-gradient(ellipse at 20% 80%, rgba(99, 102, 241, 0.07) 0%, transparent 50%),
-    #09101c;
+    radial-gradient(ellipse at 60% 0%,  rgba(220, 38, 38, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(220, 38, 38, 0.07) 0%, transparent 50%),
+    #0d0808;
   padding: 24px;
   box-sizing: border-box;
 }
@@ -16,8 +16,8 @@
 .auth-card {
   width: 100%;
   max-width: 360px;
-  background: linear-gradient(160deg, #111d2f 0%, #0d1626 100%);
-  border: 1px solid rgba(214, 178, 95, 0.18);
+  background: linear-gradient(160deg, #1a0e0e 0%, #140c0c 100%);
+  border: 1px solid rgba(220, 38, 38, 0.18);
   border-radius: 22px;
   padding: 28px 22px 24px;
   display: flex;
@@ -36,8 +36,8 @@
   width: 58px;
   height: 58px;
   border-radius: 50%;
-  background: rgba(214, 178, 95, 0.08);
-  border: 1px solid rgba(214, 178, 95, 0.2);
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,7 +74,7 @@
 }
 
 .auth-link {
-  color: #d6b25f;
+  color: #e53535;
   text-decoration: none;
   font-weight: 600;
 }
@@ -102,7 +102,7 @@
   transition: color 0.2s;
 }
 
-.auth-step.active  { color: #d6b25f; }
+.auth-step.active  { color: #e53535; }
 .auth-step.done    { color: #10b981; }
 
 .auth-step-dot {
@@ -114,7 +114,7 @@
 }
 
 .auth-step.active .auth-step-dot {
-  box-shadow: 0 0 0 3px rgba(214, 178, 95, 0.2);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
   animation: auth-pulse 1.2s ease-in-out infinite;
 }
 
@@ -131,7 +131,7 @@
   justify-content: center;
   gap: 10px;
   padding: 15px 20px;
-  background: linear-gradient(135deg, #d6b25f 0%, #b8922a 100%);
+  background: linear-gradient(135deg, #e53535 0%, #c62828 100%);
   color: #0d1117;
   border: none;
   border-radius: 16px;
@@ -226,8 +226,8 @@
   transition: background 0.15s, color 0.15s;
 }
 .auth-tab.active {
-  background: rgba(214,178,95,0.14);
-  color: #d6b25f;
+  background: rgba(220,38,38,0.14);
+  color: #e53535;
 }
 
 /* ── Form ───────────────────────────────────────────────────────────────────── */
@@ -251,7 +251,7 @@
   box-sizing: border-box;
   transition: border-color 0.15s;
 }
-.auth-input:focus { border-color: rgba(214,178,95,0.5); }
+.auth-input:focus { border-color: rgba(220,38,38,0.5); }
 
 /* ── Submit button ──────────────────────────────────────────────────────────── */
 .auth-btn {
@@ -261,7 +261,7 @@
   justify-content: center;
   gap: 10px;
   padding: 14px;
-  background: linear-gradient(135deg, #d6b25f, #b8922a);
+  background: linear-gradient(135deg, #e53535, #c62828);
   color: #0d1117;
   border: none;
   border-radius: 14px;
@@ -284,4 +284,4 @@
   text-align: center;
   padding: 4px;
 }
-.auth-back-btn:hover { color: #d6b25f; }
+.auth-back-btn:hover { color: #e53535; }

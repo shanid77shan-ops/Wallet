@@ -209,7 +209,7 @@
 .cd-action-btn:active { transform: scale(0.97); }
 
 .cd-send {
-  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
   color: #fff;
 }
 .cd-recv {
@@ -349,8 +349,8 @@
 .input-group input:focus { border-color: var(--accent-purple); }
 
 .max-btn {
-  background: rgba(124,58,237,0.15);
-  border: 1px solid rgba(124,58,237,0.3);
+  background: rgba(220,38,38,0.15);
+  border: 1px solid rgba(220,38,38,0.3);
   border-radius: 6px;
   padding: 2px 8px;
   font-size: var(--fs-xs);
@@ -367,7 +367,7 @@
 .sheet-submit-btn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
   border: none;
   border-radius: 14px;
   font-size: var(--fs-md);

@@ -98,12 +98,12 @@
 }
 
 .copy-btn {
-  background: rgba(124, 58, 237, 0.15);
-  border: 1px solid rgba(124, 58, 237, 0.3);
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.3);
   color: var(--accent-purple-light);
 }
 
-.copy-btn:hover { background: rgba(124, 58, 237, 0.25); }
+.copy-btn:hover { background: rgba(220, 38, 38, 0.25); }
 
 .share-btn {
   background: var(--bg-secondary);
