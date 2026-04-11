@@ -317,6 +317,42 @@
   margin-top: 1px;
 }
 
+/* Currency Picker */
+.currency-picker {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.currency-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  touch-action: manipulation;
+}
+
+.currency-chip.active {
+  background: rgba(229, 53, 53, 0.15);
+  border-color: rgba(229, 53, 53, 0.5);
+  color: var(--accent-purple-light);
+}
+
+.currency-chip:hover:not(.active) {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
 /* Sign Out */
 .signout-btn {
   display: flex;

@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { XDTWalletProvider, useXDTWallet } from './context/XDTWalletContext'
 import { CoinProvider } from './context/CoinContext'
 
+import { CurrencyProvider } from './context/CurrencyContext'
 import BottomNav  from './components/BottomNav'
 import Setup      from './pages/Setup'
 import Unlock     from './pages/Unlock'
@@ -64,6 +65,7 @@ function AppShell() {
   return (
     <WalletGate>
       <CoinProvider>
+      <CurrencyProvider>
         <div className="app-shell">
           <main className="app-content">
             <Routes>
@@ -78,6 +80,7 @@ function AppShell() {
           </main>
           <BottomNav />
         </div>
+      </CurrencyProvider>
       </CoinProvider>
     </WalletGate>
   )

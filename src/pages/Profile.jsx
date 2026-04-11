@@ -7,41 +7,27 @@ import {
 import BackButton from '../components/BackButton'
 import { useAuth }      from '../context/AuthContext'
 import { useXDTWallet } from '../context/XDTWalletContext'
+import { useCurrency, CURRENCIES } from '../context/CurrencyContext'
 import { clearWalletData } from '../services/walletKeyService'
-import { fmtUSD }       from '../services/xdtPriceService'
 import './Profile.css'
 
-const menuSections = [
-  {
-    title: 'Security',
-    items: [
-      { icon: Shield,      label: 'Backup Phrase',    sub: 'Store safely',  color: '#10b981' },
-      { icon: Fingerprint, label: 'PIN / Biometrics', sub: 'Enabled',       color: '#3b82f6' },
-      { icon: Wallet,      label: 'Connected dApps',  sub: 'None',          color: '#7c3aed' },
-    ],
-  },
-  {
-    title: 'Preferences',
-    items: [
-      { icon: Globe,   label: 'Currency',      sub: 'USD',          color: '#f59e0b' },
-      { icon: Palette, label: 'Appearance',    sub: 'Dark Mode',    color: '#8b5cf6' },
-      { icon: Bell,    label: 'Notifications', sub: 'All enabled',  color: '#ec4899' },
-    ],
-  },
-  {
-    title: 'Support',
-    items: [
-      { icon: Gift,     label: 'Refer & Earn',    sub: 'Invite friends', color: '#10b981' },
-      { icon: FileText, label: 'Terms & Privacy', sub: '',               color: '#64748b' },
-      { icon: HelpCircle, label: 'Help Center',   sub: '',               color: '#64748b' },
-    ],
-  },
+const securityItems = [
+  { icon: Shield,      label: 'Backup Phrase',    sub: 'Store safely',  color: '#10b981' },
+  { icon: Fingerprint, label: 'PIN / Biometrics', sub: 'Enabled',       color: '#3b82f6' },
+  { icon: Wallet,      label: 'Connected dApps',  sub: 'None',          color: '#7c3aed' },
+]
+
+const supportItems = [
+  { icon: Gift,       label: 'Refer & Earn',    sub: 'Invite friends', color: '#10b981' },
+  { icon: FileText,   label: 'Terms & Privacy', sub: '',               color: '#64748b' },
+  { icon: HelpCircle, label: 'Help Center',     sub: '',               color: '#64748b' },
 ]
 
 export default function Profile() {
   const navigate  = useNavigate()
   const { user, email, logout } = useAuth()
   const { keys, tokens, totalUSD, prices } = useXDTWallet()
+  const { currency, setCurrency, fmt } = useCurrency()
 
   const [copiedEth,  setCopiedEth]  = useState(false)
   const [copiedTron, setCopiedTron] = useState(false)
@@ -134,15 +120,15 @@ export default function Profile() {
       {/* Stats */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-value">{fmtUSD(totalUSD)}</div>
+          <div className="stat-value">{fmt(totalUSD)}</div>
           <div className="stat-label">Portfolio Value</div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">{fmtUSD(ethUSD)}</div>
+          <div className="stat-value">{fmt(ethUSD)}</div>
           <div className="stat-label">ETH Value</div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">{fmtUSD(ercUSD + trcUSD)}</div>
+          <div className="stat-value">{fmt(ercUSD + trcUSD)}</div>
           <div className="stat-label">USDT Total</div>
         </div>
       </div>
@@ -169,26 +155,92 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Menu Sections */}
-      {menuSections.map(section => (
-        <div key={section.title} className="menu-section">
-          <div className="menu-section-title">{section.title}</div>
-          <div className="menu-section-card">
-            {section.items.map(({ icon: Icon, label, sub, color }, i, arr) => (
-              <button key={label} className={`menu-item${i < arr.length - 1 ? ' bordered' : ''}`}>
-                <div className="menu-icon" style={{ background: `${color}20`, color }}>
-                  <Icon size={17} />
-                </div>
-                <div className="menu-item-text">
-                  <span className="menu-label">{label}</span>
-                  {sub && <span className="menu-sub">{sub}</span>}
-                </div>
-                <ChevronRight size={16} color="var(--text-muted)" />
-              </button>
-            ))}
-          </div>
+      {/* Security */}
+      <div className="menu-section">
+        <div className="menu-section-title">Security</div>
+        <div className="menu-section-card">
+          {securityItems.map(({ icon: Icon, label, sub, color }, i, arr) => (
+            <button key={label} className={`menu-item${i < arr.length - 1 ? ' bordered' : ''}`}>
+              <div className="menu-icon" style={{ background: `${color}20`, color }}>
+                <Icon size={17} />
+              </div>
+              <div className="menu-item-text">
+                <span className="menu-label">{label}</span>
+                {sub && <span className="menu-sub">{sub}</span>}
+              </div>
+              <ChevronRight size={16} color="var(--text-muted)" />
+            </button>
+          ))}
         </div>
-      ))}
+      </div>
+
+      {/* Preferences — currency picker inline */}
+      <div className="menu-section">
+        <div className="menu-section-title">Preferences</div>
+        <div className="menu-section-card">
+          {/* Currency */}
+          <div className="menu-item bordered">
+            <div className="menu-icon" style={{ background: '#f59e0b20', color: '#f59e0b' }}>
+              <Globe size={17} />
+            </div>
+            <div className="menu-item-text">
+              <span className="menu-label">Currency</span>
+              <div className="currency-picker">
+                {CURRENCIES.map(c => (
+                  <button
+                    key={c.code}
+                    className={`currency-chip${currency === c.code ? ' active' : ''}`}
+                    onClick={() => setCurrency(c.code)}
+                  >
+                    {c.flag} {c.code}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Appearance */}
+          <button className="menu-item bordered">
+            <div className="menu-icon" style={{ background: '#8b5cf620', color: '#8b5cf6' }}>
+              <Palette size={17} />
+            </div>
+            <div className="menu-item-text">
+              <span className="menu-label">Appearance</span>
+              <span className="menu-sub">Dark Mode</span>
+            </div>
+            <ChevronRight size={16} color="var(--text-muted)" />
+          </button>
+          {/* Notifications */}
+          <button className="menu-item">
+            <div className="menu-icon" style={{ background: '#ec489920', color: '#ec4899' }}>
+              <Bell size={17} />
+            </div>
+            <div className="menu-item-text">
+              <span className="menu-label">Notifications</span>
+              <span className="menu-sub">All enabled</span>
+            </div>
+            <ChevronRight size={16} color="var(--text-muted)" />
+          </button>
+        </div>
+      </div>
+
+      {/* Support */}
+      <div className="menu-section">
+        <div className="menu-section-title">Support</div>
+        <div className="menu-section-card">
+          {supportItems.map(({ icon: Icon, label, sub, color }, i, arr) => (
+            <button key={label} className={`menu-item${i < arr.length - 1 ? ' bordered' : ''}`}>
+              <div className="menu-icon" style={{ background: `${color}20`, color }}>
+                <Icon size={17} />
+              </div>
+              <div className="menu-item-text">
+                <span className="menu-label">{label}</span>
+                {sub && <span className="menu-sub">{sub}</span>}
+              </div>
+              <ChevronRight size={16} color="var(--text-muted)" />
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Danger Zone */}
       <div className="menu-section">

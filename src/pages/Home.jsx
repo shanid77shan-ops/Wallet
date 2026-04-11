@@ -10,6 +10,7 @@ import {
   ArrowClockwise, Eye, EyeSlash,
 } from '@phosphor-icons/react'
 import { useXDTWallet } from '../context/XDTWalletContext'
+import { useCurrency } from '../context/CurrencyContext'
 import { fmtUSD, fmtToken } from '../services/xdtPriceService'
 import './Home.css'
 
@@ -251,6 +252,7 @@ function ReceiveSheet({ token, onClose, ethAddress, tronAddress }) {
 // ── Token Card ────────────────────────────────────────────────────────────────
 function TokenCard({ token, onSend, onReceive }) {
   const { prices } = useXDTWallet()
+  const { fmt }    = useCurrency()
   const navigate   = useNavigate()
   const price  = token.symbol === 'ETH' ? prices.eth : prices.usdt
   const usdVal = token.balance * price
@@ -278,7 +280,7 @@ function TokenCard({ token, onSend, onReceive }) {
       </div>
       <div className="token-right">
         <span className="token-balance">{fmtToken(token.balance, token.symbol === 'ETH' ? 6 : 2)}</span>
-        <span className="token-usd">{fmtUSD(usdVal)}</span>
+        <span className="token-usd">{fmt(usdVal)}</span>
         <div className="token-actions" onClick={e => e.stopPropagation()}>
           <button className="tok-btn send" onClick={onSend}><ArrowUpRight size={14} weight="bold" /></button>
           <button className="tok-btn recv" onClick={onReceive}><ArrowDown size={14} weight="bold" /></button>
@@ -294,6 +296,7 @@ export default function Home() {
     tokens, totalUSD, balancesLoading, balanceError,
     txHistory, refreshBalances, keys,
   } = useXDTWallet()
+  const { fmt } = useCurrency()
 
   const [sendToken,    setSendToken]    = useState(null)
   const [receiveToken, setReceiveToken] = useState(null)
@@ -349,7 +352,7 @@ export default function Home() {
           </button>
         </div>
         <h2 className="balance-amount-new">
-          {hideBalance ? '••••••' : fmtUSD(totalUSD)}
+          {hideBalance ? '••••••' : fmt(totalUSD)}
         </h2>
         <div className="address-pills">
           {ethAddress && (
