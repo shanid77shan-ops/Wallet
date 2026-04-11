@@ -19,6 +19,7 @@ import Trending   from './pages/Trending'
 import Trade      from './pages/Trade'
 import Profile    from './pages/Profile'
 import P2P        from './pages/P2P'
+import CoinDetail from './pages/CoinDetail'
 
 import './App.css'
 
@@ -66,12 +67,13 @@ function AppShell() {
         <div className="app-shell">
           <main className="app-content">
             <Routes>
-              <Route path="/"         element={<Home />} />
-              <Route path="/trending" element={<Trending />} />
-              <Route path="/trade"    element={<Trade />} />
-              <Route path="/p2p"      element={<P2P />} />
-              <Route path="/profile"  element={<Profile />} />
-              <Route path="*"         element={<Navigate to="/" replace />} />
+              <Route path="/"          element={<Home />} />
+              <Route path="/coin/:id"  element={<CoinDetail />} />
+              <Route path="/trending"  element={<Trending />} />
+              <Route path="/trade"     element={<Trade />} />
+              <Route path="/p2p"       element={<P2P />} />
+              <Route path="/profile"   element={<Profile />} />
+              <Route path="*"          element={<Navigate to="/" replace />} />
             </Routes>
           </main>
           <BottomNav />

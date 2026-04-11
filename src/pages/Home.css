@@ -416,6 +416,46 @@
   color: var(--text-muted);
 }
 
+/* ── Multi-network badge ─────────────────────────────────────────────────────── */
+.multi-net-badge {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(214,178,95,0.12);
+  color: #d6b25f;
+}
+
+/* ── Network Selector (USDT send/receive) ────────────────────────────────────── */
+.net-selector {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.net-sel-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.net-sel-btn.active.erc { background: rgba(38,161,123,0.12); border-color: #26a17b; color: #26a17b; }
+.net-sel-btn.active.trc { background: rgba(235,0,41,0.10);   border-color: #eb0029; color: #eb0029; }
+
+.net-dot     { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.erc-dot     { background: #26a17b; }
+.trc-dot     { background: #eb0029; }
+
 /* ── Bottom Sheet ────────────────────────────────────────────────────────────── */
 .sheet-overlay {
   position: fixed;
