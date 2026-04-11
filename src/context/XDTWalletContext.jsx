@@ -5,11 +5,13 @@
  */
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { loadWalletData, unlockWallet } from '../services/walletKeyService'
-import { getETHBalance, getUSDTERC20Balance, sendETH, sendUSDTERC20 } from '../services/ethChainService'
+import { getETHBalance, getUSDTERC20Balance, sendETH, sendUSDTERC20, getRecentETHTxs, getRecentUSDTERC20Txs } from '../services/ethChainService'
 import { getUSDTTRC20Balance, getTRXBalance, sendUSDTTRC20, getRecentTRC20Txs } from '../services/tronChainService'
 import { fetchPrices } from '../services/xdtPriceService'
 
 const XDTWalletContext = createContext(null)
+
+const TX_STORAGE_KEY = 'xdt_tx_history'
 
 // Initial token list — balances filled in after unlock
 const TOKEN_DEFAULTS = [
@@ -17,6 +19,17 @@ const TOKEN_DEFAULTS = [
   { id: 'usdt-erc',  symbol: 'USDT', name: 'Tether USD', network: 'ERC-20',   color: '#26a17b', balance: 0 },
   { id: 'usdt-trc',  symbol: 'USDT', name: 'Tether USD', network: 'TRC-20',   color: '#eb0029', balance: 0 },
 ]
+
+function loadStoredTxHistory() {
+  try {
+    const raw = localStorage.getItem(TX_STORAGE_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch { return [] }
+}
+
+function saveTxHistory(txs) {
+  try { localStorage.setItem(TX_STORAGE_KEY, JSON.stringify(txs.slice(0, 100))) } catch {}
+}
 
 export function XDTWalletProvider({ children }) {
   // ── Wallet key state (in-memory only, never persisted post-setup) ────────────
@@ -34,8 +47,8 @@ export function XDTWalletProvider({ children }) {
   const [balancesLoading, setBalancesLoading] = useState(false)
   const [balanceError,    setBalanceError]   = useState('')
 
-  // ── Transaction history ───────────────────────────────────────────────────────
-  const [txHistory, setTxHistory] = useState([])
+  // ── Transaction history (persisted to localStorage) ──────────────────────────
+  const [txHistory, setTxHistory] = useState(() => loadStoredTxHistory())
 
   const refreshIntervalRef = useRef(null)
 
@@ -59,31 +72,41 @@ export function XDTWalletProvider({ children }) {
     setBalanceError('')
 
     try {
-      const [ethBal, usdtErc, usdtTrc, trx, trc20Txs] = await Promise.allSettled([
+      const [ethBal, usdtErc, usdtTrc, trx, trc20Txs, ethTxs, usdtErcTxs] = await Promise.allSettled([
         getETHBalance(keys.ethAddress),
         getUSDTERC20Balance(keys.ethAddress),
         getUSDTTRC20Balance(keys.tronAddress),
         getTRXBalance(keys.tronAddress),
-        getRecentTRC20Txs(keys.tronAddress, 20),
+        getRecentTRC20Txs(keys.tronAddress, 25),
+        getRecentETHTxs(keys.ethAddress, 25),
+        getRecentUSDTERC20Txs(keys.ethAddress, 25),
       ])
 
       setTokens(prev => prev.map(t => {
-        if (t.id === 'eth')      return { ...t, balance: ethBal.value      ?? 0 }
-        if (t.id === 'usdt-erc') return { ...t, balance: usdtErc.value     ?? 0 }
-        if (t.id === 'usdt-trc') return { ...t, balance: usdtTrc.value     ?? 0 }
+        if (t.id === 'eth')      return { ...t, balance: ethBal.value  ?? 0 }
+        if (t.id === 'usdt-erc') return { ...t, balance: usdtErc.value ?? 0 }
+        if (t.id === 'usdt-trc') return { ...t, balance: usdtTrc.value ?? 0 }
         return t
       }))
 
       setTrxBalance(trx.value ?? 0)
 
-      if (trc20Txs.status === 'fulfilled') {
+      // Merge all three sources: TRC-20, ETH, USDT ERC-20
+      const incoming = [
+        ...(trc20Txs.status   === 'fulfilled' ? trc20Txs.value   : []),
+        ...(ethTxs.status     === 'fulfilled' ? ethTxs.value     : []),
+        ...(usdtErcTxs.status === 'fulfilled' ? usdtErcTxs.value : []),
+      ]
+
+      if (incoming.length > 0) {
         setTxHistory(prev => {
-          const newIds = new Set(trc20Txs.value.map(t => t.txID))
+          const seen = new Set(incoming.map(t => t.txID))
           const merged = [
-            ...trc20Txs.value,
-            ...prev.filter(t => !newIds.has(t.txID)),
-          ]
-          return merged.sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0)).slice(0, 50)
+            ...incoming,
+            ...prev.filter(t => !seen.has(t.txID)),
+          ].sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0)).slice(0, 100)
+          saveTxHistory(merged)
+          return merged
         })
       }
     } catch (err) {
@@ -144,17 +167,21 @@ export function XDTWalletProvider({ children }) {
       throw new Error('Unknown token')
     }
 
-    // Optimistically update history
+    // Optimistically update history and persist
     const token = tokens.find(t => t.id === tokenId)
-    setTxHistory(prev => [{
-      txID:      txHash,
-      type:      'send',
-      amount:    parseFloat(amount),
-      symbol:    token?.symbol ?? '?',
-      network:   token?.network ?? '?',
-      to:        toAddress,
-      timestamp: Date.now(),
-    }, ...prev])
+    setTxHistory(prev => {
+      const updated = [{
+        txID:      txHash,
+        type:      'send',
+        amount:    parseFloat(amount),
+        symbol:    token?.symbol ?? '?',
+        network:   token?.network ?? '?',
+        to:        toAddress,
+        timestamp: Date.now(),
+      }, ...prev].slice(0, 100)
+      saveTxHistory(updated)
+      return updated
+    })
 
     // Optimistically reduce balance
     setTokens(prev => prev.map(t =>

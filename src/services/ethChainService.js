@@ -86,6 +86,82 @@ export async function sendUSDTERC20(privateKey, toAddress, amount) {
   return tx
 }
 
+// ── Transaction History (Etherscan API v2) ───────────────────────────────────
+const ETHERSCAN_BASE = 'https://api.etherscan.io/v2/api?chainid=1'
+
+function etherscanKey() {
+  return import.meta.env.VITE_ETHERSCAN_KEY ?? ''
+}
+
+function etherscanUrl(params) {
+  const key = etherscanKey()
+  const qs  = new URLSearchParams({ ...params, ...(key ? { apikey: key } : {}) })
+  return `${ETHERSCAN_BASE}&${qs}`
+}
+
+/**
+ * Fetch recent normal ETH transactions for an address.
+ * Returns array normalised to the app's txHistory shape.
+ */
+export async function getRecentETHTxs(address, limit = 20) {
+  const url = etherscanUrl({
+    module:  'account',
+    action:  'txlist',
+    address,
+    sort:    'desc',
+    page:    1,
+    offset:  limit,
+  })
+  const res  = await fetch(url)
+  const json = await res.json()
+  if (json.status !== '1' || !Array.isArray(json.result)) return []
+
+  const myAddr = address.toLowerCase()
+  return json.result
+    .filter(tx => tx.isError === '0' && parseFloat(tx.value) > 0)
+    .map(tx => ({
+      txID:      tx.hash,
+      type:      tx.from.toLowerCase() === myAddr ? 'send' : 'receive',
+      amount:    parseFloat(ethers.formatEther(tx.value)),
+      symbol:    'ETH',
+      network:   'Ethereum',
+      to:        tx.to,
+      from:      tx.from,
+      timestamp: parseInt(tx.timeStamp) * 1000,
+    }))
+}
+
+/**
+ * Fetch recent USDT ERC-20 token transfers for an address.
+ * Returns array normalised to the app's txHistory shape.
+ */
+export async function getRecentUSDTERC20Txs(address, limit = 20) {
+  const url = etherscanUrl({
+    module:          'account',
+    action:          'tokentx',
+    address,
+    contractaddress: USDT_ERC20_ADDRESS,
+    sort:            'desc',
+    page:            1,
+    offset:          limit,
+  })
+  const res  = await fetch(url)
+  const json = await res.json()
+  if (json.status !== '1' || !Array.isArray(json.result)) return []
+
+  const myAddr = address.toLowerCase()
+  return json.result.map(tx => ({
+    txID:      tx.hash,
+    type:      tx.from.toLowerCase() === myAddr ? 'send' : 'receive',
+    amount:    parseFloat(tx.value) / Math.pow(10, parseInt(tx.tokenDecimal || 6)),
+    symbol:    'USDT',
+    network:   'ERC-20',
+    to:        tx.to,
+    from:      tx.from,
+    timestamp: parseInt(tx.timeStamp) * 1000,
+  }))
+}
+
 // ── Gas Estimate ──────────────────────────────────────────────────────────────
 /** Returns estimated gas fee in ETH for a USDT ERC-20 transfer. */
 export async function estimateUSDTGas(fromAddress) {
