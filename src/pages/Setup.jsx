@@ -115,9 +115,7 @@ export default function Setup() {
   return (
     <div className="setup-page">
       <div className="setup-logo">
-        <div className="setup-logo-ring">
-          <span className="setup-logo-text">X</span>
-        </div>
+        <img src="/app-icon.jpg" alt="XDT Wallet" className="setup-logo-img" />
         <h1 className="setup-brand">XDT Wallet</h1>
         <p className="setup-tagline">Your crypto. Your keys.</p>
       </div>

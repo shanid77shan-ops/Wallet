@@ -20,21 +20,12 @@
   margin-bottom: 4px;
 }
 
-.unlock-logo-ring {
-  width: 56px;
-  height: 56px;
+.unlock-logo-img {
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: rgba(220,38,38,0.1);
-  border: 1.5px solid rgba(220,38,38,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.unlock-logo-text {
-  font-size: var(--fs-2xl);
-  font-weight: 900;
-  color: #e53535;
+  object-fit: cover;
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.25), 0 8px 24px rgba(0,0,0,0.5);
 }
 
 .unlock-brand {

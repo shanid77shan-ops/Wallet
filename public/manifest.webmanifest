@@ -1,17 +1,24 @@
 {
-  "name": "Crypto Wallet",
-  "short_name": "Wallet",
+  "name": "XDT Wallet",
+  "short_name": "XDT",
   "description": "Multi-chain non-custodial crypto wallet",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#0d0808",
+  "theme_color": "#0d0808",
   "icons": [
     {
       "src": "/app-icon.jpg",
       "sizes": "any",
-      "type": "image/jpeg"
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icon.jpg",
+      "sizes": "any",
+      "type": "image/jpeg",
+      "purpose": "maskable"
     }
   ]
 }

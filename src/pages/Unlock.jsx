@@ -31,9 +31,7 @@ export default function Unlock() {
   return (
     <div className="unlock-page">
       <div className="unlock-logo">
-        <div className="unlock-logo-ring">
-          <span className="unlock-logo-text">X</span>
-        </div>
+        <img src="/app-icon.jpg" alt="XDT Wallet" className="unlock-logo-img" />
         <h1 className="unlock-brand">XDT Wallet</h1>
       </div>
 

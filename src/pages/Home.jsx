@@ -326,7 +326,7 @@ export default function Home() {
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="home-header">
         <div className="home-header-left">
-          <div className="home-logo-small">X</div>
+          <img src="/app-icon.jpg" alt="XDT" className="home-logo-small" />
           <span className="home-title">XDT Wallet</span>
         </div>
         <button

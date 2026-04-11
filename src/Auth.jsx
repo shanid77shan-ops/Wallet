@@ -63,9 +63,7 @@ export default function Auth() {
       <div className="auth-card">
         {/* Logo */}
         <div className="auth-logo">
-          <div className="auth-logo-ring">
-            <span style={{ fontSize: 28, fontWeight: 900, color: '#d6b25f' }}>X</span>
-          </div>
+          <img src="/app-icon.jpg" alt="XDT Wallet" className="auth-logo-img" />
         </div>
 
         <h1 className="auth-title">XDT Wallet</h1>
