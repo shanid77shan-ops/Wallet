@@ -1,6 +1,6 @@
 import { randomBytes, scryptSync, timingSafeEqual } from 'crypto'
-import { connectDB } from '../lib/db.js'
-import User from '../models/User.js'
+import { connectDB } from '../_lib/db.js'
+import User from '../_models/User.js'
 
 export function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)

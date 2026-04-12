@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
-import { connectDB } from './api/lib/db.js'
+import { connectDB } from './api/_lib/db.js'
 
 const app  = express()
 const PORT = 3001
