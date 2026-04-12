@@ -1,7 +1,8 @@
 /**
  * Setup.jsx
- * Wallet onboarding: create a new wallet or import an existing seed phrase,
- * set a PIN, and persist the encrypted wallet to localStorage.
+ * Wallet onboarding — new flow:
+ *   LANDING → SET_PIN → (create) SHOW_PHRASE → CONFIRM_PHRASE → done
+ *                     → (import) IMPORT_PHRASE → done
  */
 import { useState, useRef } from 'react'
 import {
@@ -10,45 +11,77 @@ import {
   setupWallet,
 } from '../services/walletKeyService'
 import { useXDTWallet } from '../context/XDTWalletContext'
-import { useAuth } from '../context/AuthContext'
 import './Setup.css'
 
-// Steps in the flow
 const STEP = {
   LANDING:        'landing',
+  SET_PIN:        'set_pin',
   SHOW_PHRASE:    'show_phrase',
   CONFIRM_PHRASE: 'confirm_phrase',
   IMPORT_PHRASE:  'import_phrase',
-  SET_PIN:        'set_pin',
 }
 
 export default function Setup() {
-  const { setWalletAfterSetup } = useXDTWallet()
-  const { user } = useAuth()
-  const userId = user?.id ?? null
+  const { setWalletAfterSetup, userId } = useXDTWallet()
 
   const [step,        setStep]        = useState(STEP.LANDING)
+  const [walletType,  setWalletType]  = useState('create') // 'create' | 'import'
   const [mnemonic,    setMnemonic]    = useState('')
   const [importText,  setImportText]  = useState('')
-  const [confirmWord, setConfirmWord] = useState('') // spot-check one word
+  const [confirmWord, setConfirmWord] = useState('')
   const [checkIndex,  setCheckIndex]  = useState(0)
   const [pin,         setPin]         = useState('')
   const [pinConfirm,  setPinConfirm]  = useState('')
   const [error,       setError]       = useState('')
-  const pinConfirmRef = useRef(null)
   const [loading,     setLoading]     = useState(false)
   const [copied,      setCopied]      = useState(false)
+  const pinConfirmRef = useRef(null)
 
-  // ── Create new wallet ────────────────────────────────────────────────────────
-  function handleCreateNew() {
-    const phrase = generateMnemonic()
-    setMnemonic(phrase)
-    const words = phrase.split(' ')
-    // Pick a random word index for confirmation
-    setCheckIndex(Math.floor(Math.random() * words.length))
-    setStep(STEP.SHOW_PHRASE)
+  // ── Landing selection ─────────────────────────────────────────────────────────
+  function selectCreate() {
+    setWalletType('create')
+    setPin('')
+    setPinConfirm('')
+    setError('')
+    setStep(STEP.SET_PIN)
   }
 
+  function selectImport() {
+    setWalletType('import')
+    setPin('')
+    setPinConfirm('')
+    setError('')
+    setStep(STEP.SET_PIN)
+  }
+
+  // ── PIN step ──────────────────────────────────────────────────────────────────
+  function handlePinSubmit(confirmOverride) {
+    const confirmedPin = confirmOverride !== undefined ? confirmOverride : pinConfirm
+    if (pin.length !== 4) {
+      setError('PIN must be exactly 4 digits.')
+      setPin('')
+      setPinConfirm('')
+      return
+    }
+    if (pin !== confirmedPin) {
+      setError('PINs do not match.')
+      setPin('')
+      setPinConfirm('')
+      return
+    }
+    setError('')
+    if (walletType === 'create') {
+      const phrase = generateMnemonic()
+      const words  = phrase.split(' ')
+      setMnemonic(phrase)
+      setCheckIndex(Math.floor(Math.random() * words.length))
+      setStep(STEP.SHOW_PHRASE)
+    } else {
+      setStep(STEP.IMPORT_PHRASE)
+    }
+  }
+
+  // ── Show phrase ───────────────────────────────────────────────────────────────
   function handleCopyPhrase() {
     navigator.clipboard.writeText(mnemonic).catch(() => {})
     setCopied(true)
@@ -61,53 +94,40 @@ export default function Setup() {
     setStep(STEP.CONFIRM_PHRASE)
   }
 
-  function handleConfirmWord() {
+  // ── Confirm one word ──────────────────────────────────────────────────────────
+  async function handleConfirmWord() {
     const words = mnemonic.split(' ')
     if (confirmWord.trim().toLowerCase() !== words[checkIndex].toLowerCase()) {
       setError(`Word #${checkIndex + 1} doesn't match. Please check your phrase.`)
       return
     }
     setError('')
-    setStep(STEP.SET_PIN)
+    await doSetup(mnemonic)
   }
 
-  // ── Import existing wallet ───────────────────────────────────────────────────
-  function handleImportContinue() {
+  // ── Import phrase ─────────────────────────────────────────────────────────────
+  async function handleImportContinue() {
     const phrase = importText.trim().replace(/\s+/g, ' ')
     if (!validateMnemonic(phrase)) {
       setError('Invalid seed phrase. Please check and try again.')
       return
     }
-    setMnemonic(phrase)
     setError('')
-    setStep(STEP.SET_PIN)
+    await doSetup(phrase)
   }
 
-  // ── Set PIN and finish ────────────────────────────────────────────────────────
-  async function handleFinish() {
-    if (pin.length !== 4) {
-      setError('PIN must be exactly 4 digits.')
-      setPin('')
-      setPinConfirm('')
-      return
-    }
-    if (pin !== pinConfirm) {
-      setError('PINs do not match.')
-      setPin('')
-      setPinConfirm('')
-      return
-    }
-    setError('')
+  // ── Final setup ───────────────────────────────────────────────────────────────
+  async function doSetup(finalMnemonic) {
     setLoading(true)
     try {
-      const { ethAddress, tronAddress } = await setupWallet(mnemonic, pin, userId)
-      const eth  = deriveETHWallet(mnemonic)
-      const tron = deriveTRONWallet(mnemonic)
+      const { ethAddress, tronAddress } = await setupWallet(finalMnemonic, pin, userId)
+      const eth  = deriveETHWallet(finalMnemonic)
+      const tron = deriveTRONWallet(finalMnemonic)
       setWalletAfterSetup({
         ethAddress,
-        ethPrivateKey:      eth.privateKey,
+        ethPrivateKey:       eth.privateKey,
         tronAddress,
-        tronPrivateKey:     tron.privateKey,
+        tronPrivateKey:      tron.privateKey,
         tronEthStyleAddress: tron.ethStyleAddress,
       })
     } catch (err) {
@@ -133,17 +153,58 @@ export default function Setup() {
         <div className="setup-card">
           <h2 className="setup-card-title">Get Started</h2>
           <p className="setup-card-sub">
-            xdt-wallet is a non-custodial wallet. Only you hold your keys.
+            A non-custodial wallet. Only you hold your keys.
           </p>
-          <button className="setup-btn primary" onClick={handleCreateNew}>
+          <button className="setup-btn primary" onClick={selectCreate}>
             Create New Wallet
           </button>
-          <button className="setup-btn secondary" onClick={() => { setError(''); setStep(STEP.IMPORT_PHRASE) }}>
-            Import Existing Wallet
+          <button className="setup-btn secondary" onClick={selectImport}>
+            I Already Have a Wallet
           </button>
-          <p className="setup-notice">
-            Supports ETH · USDT ERC-20 · USDT TRC-20
-          </p>
+          <p className="setup-notice">Supports ETH · USDT ERC-20 · USDT TRC-20</p>
+        </div>
+      )}
+
+      {/* ── SET PIN ─────────────────────────────────────────────────────────── */}
+      {step === STEP.SET_PIN && (
+        <div className="setup-card">
+          <h2 className="setup-card-title">Create Passcode</h2>
+          <input
+            className="setup-input"
+            type="password"
+            inputMode="numeric"
+            maxLength={4}
+            placeholder="Enter PIN (4 digits)"
+            value={pin}
+            onChange={e => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+              setPin(val)
+              setError('')
+              if (val.length === 4) pinConfirmRef.current?.focus()
+            }}
+          />
+          <input
+            ref={pinConfirmRef}
+            className="setup-input"
+            type="password"
+            inputMode="numeric"
+            maxLength={4}
+            placeholder="Confirm PIN"
+            value={pinConfirm}
+            onChange={e => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+              setPinConfirm(val)
+              setError('')
+              if (val.length === 4) handlePinSubmit(val)
+            }}
+          />
+          {error && <p className="setup-error">{error}</p>}
+          <button className="setup-btn primary" onClick={() => handlePinSubmit()}>
+            Continue
+          </button>
+          <button className="setup-btn ghost" onClick={() => { setError(''); setStep(STEP.LANDING) }}>
+            ← Back
+          </button>
         </div>
       )}
 
@@ -190,8 +251,8 @@ export default function Setup() {
             onKeyDown={e => e.key === 'Enter' && handleConfirmWord()}
           />
           {error && <p className="setup-error">{error}</p>}
-          <button className="setup-btn primary" onClick={handleConfirmWord}>
-            Verify
+          <button className="setup-btn primary" onClick={handleConfirmWord} disabled={loading}>
+            {loading ? 'Creating wallet…' : 'Verify & Finish'}
           </button>
         </div>
       )}
@@ -214,55 +275,11 @@ export default function Setup() {
             spellCheck={false}
           />
           {error && <p className="setup-error">{error}</p>}
-          <button className="setup-btn primary" onClick={handleImportContinue}>
-            Continue
+          <button className="setup-btn primary" onClick={handleImportContinue} disabled={loading}>
+            {loading ? 'Importing…' : 'Import Wallet'}
           </button>
-          <button className="setup-btn ghost" onClick={() => setStep(STEP.LANDING)}>
+          <button className="setup-btn ghost" onClick={() => { setError(''); setStep(STEP.LANDING) }}>
             ← Back
-          </button>
-        </div>
-      )}
-
-      {/* ── SET PIN ─────────────────────────────────────────────────────────── */}
-      {step === STEP.SET_PIN && (
-        <div className="setup-card">
-          <h2 className="setup-card-title">Set Your PIN</h2>
-          <input
-            className="setup-input"
-            type="password"
-            inputMode="numeric"
-            maxLength={4}
-            placeholder="Enter PIN (4 digits)"
-            value={pin}
-            onChange={e => {
-              const val = e.target.value.replace(/\D/g, '').slice(0, 4)
-              setPin(val)
-              setError('')
-              if (val.length === 4) pinConfirmRef.current?.focus()
-            }}
-          />
-          <input
-            ref={pinConfirmRef}
-            className="setup-input"
-            type="password"
-            inputMode="numeric"
-            maxLength={4}
-            placeholder="Confirm PIN"
-            value={pinConfirm}
-            onChange={e => {
-              const val = e.target.value.replace(/\D/g, '').slice(0, 4)
-              setPinConfirm(val)
-              setError('')
-              if (val.length === 4) handleFinish()
-            }}
-          />
-          {error && <p className="setup-error">{error}</p>}
-          <button
-            className="setup-btn primary"
-            onClick={handleFinish}
-            disabled={loading}
-          >
-            {loading ? 'Setting up…' : 'Create Wallet'}
           </button>
         </div>
       )}

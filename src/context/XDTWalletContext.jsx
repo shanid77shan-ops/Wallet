@@ -5,7 +5,19 @@
  */
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { loadWalletData, unlockWallet } from '../services/walletKeyService'
-import { useAuth } from './AuthContext'
+
+/** Stable per-device ID — scopes wallet storage without requiring email auth */
+function getOrCreateDeviceId() {
+  try {
+    let id = localStorage.getItem('xdt_device_id')
+    if (!id) {
+      id = 'dev_' + (crypto.randomUUID?.().replace(/-/g, '') ??
+        Math.random().toString(36).slice(2) + Date.now().toString(36))
+      localStorage.setItem('xdt_device_id', id)
+    }
+    return id
+  } catch { return 'dev_default' }
+}
 import { getETHBalance, getUSDTERC20Balance, sendETH, sendUSDTERC20, getRecentETHTxs, getRecentUSDTERC20Txs } from '../services/ethChainService'
 import { getUSDTTRC20Balance, getTRXBalance, sendUSDTTRC20, getRecentTRC20Txs } from '../services/tronChainService'
 import { fetchPrices } from '../services/xdtPriceService'
@@ -36,8 +48,7 @@ function saveTxHistory(txs, userId) {
 }
 
 export function XDTWalletProvider({ children }) {
-  const { user } = useAuth()
-  const userId = user?.id ?? null
+  const userId = getOrCreateDeviceId()
 
   // ── Wallet key state (in-memory only, never persisted post-setup) ────────────
   const [isUnlocked,    setIsUnlocked]    = useState(false)
@@ -59,27 +70,12 @@ export function XDTWalletProvider({ children }) {
 
   const refreshIntervalRef = useRef(null)
 
-  // ── React to auth user changes: load or reset wallet state per user ──────────
+  // ── On mount: check whether a wallet exists for this device ─────────────────
   useEffect(() => {
-    // Reset in-memory state whenever the user changes
-    setIsUnlocked(false)
-    setKeys(null)
-    setUnlockError('')
-    setTokens(TOKEN_DEFAULTS)
-    setTrxBalance(0)
-
-    if (!userId) {
-      // Logged out — no wallet to show
-      setIsLocked(false)
-      setTxHistory([])
-      return
-    }
-
-    // Load this user's wallet and tx history
     const stored = loadWalletData(userId)
     setIsLocked(!!stored)
     setTxHistory(loadStoredTxHistory(userId))
-  }, [userId])
+  }, [])
 
   // ── Price polling (every 60 s) ────────────────────────────────────────────────
   useEffect(() => {
@@ -90,7 +86,7 @@ export function XDTWalletProvider({ children }) {
 
   // ── Refresh balances whenever the wallet is unlocked ─────────────────────────
   const refreshBalances = useCallback(async () => {
-    if (!keys || !userId) return
+    if (!keys) return
     setBalancesLoading(true)
     setBalanceError('')
 
@@ -254,6 +250,7 @@ export function XDTWalletProvider({ children }) {
       unlock,
       setWalletAfterSetup,
       keys,
+      userId,
 
       // Market
       prices,

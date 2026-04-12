@@ -51,7 +51,7 @@ export default function Auth() {
     }
   }
 
-  const displayErr = localErr || error
+  const displayErr = localErr
 
   return (
     <div className="auth-page">

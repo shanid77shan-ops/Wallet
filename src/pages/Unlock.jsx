@@ -5,7 +5,6 @@
  */
 import { useState, useEffect } from 'react'
 import { useXDTWallet } from '../context/XDTWalletContext'
-import { useAuth } from '../context/AuthContext'
 import {
   validateMnemonic,
   setupWallet,
@@ -22,9 +21,7 @@ const MODE = {
 }
 
 export default function Unlock() {
-  const { unlock, unlockError, setWalletAfterSetup } = useXDTWallet()
-  const { user } = useAuth()
-  const userId = user?.id ?? null
+  const { unlock, unlockError, setWalletAfterSetup, userId } = useXDTWallet()
 
   // ── Unlock state ─────────────────────────────────────────────────────────────
   const [pin,     setPin]     = useState('')

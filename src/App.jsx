@@ -1,14 +1,13 @@
 /**
  * App.jsx — xdt-wallet root
  * Routing:
- *   • No wallet on device → Setup
+ *   • No wallet on device → Setup (create or import)
  *   • Wallet exists, session cold → Unlock (PIN)
- *   • Wallet unlocked + auth session → Main app shell
- *   • Not authenticated → Auth (email OTP)
+ *   • Wallet unlocked → Main app shell
  */
 import { useRef } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './context/AuthContext'
+import { AuthProvider } from './context/AuthContext'
 import { XDTWalletProvider, useXDTWallet } from './context/XDTWalletContext'
 import { CoinProvider, useCoins } from './context/CoinContext'
 
@@ -28,43 +27,12 @@ import ResetPassword from './pages/ResetPassword'
 
 import './App.css'
 
-// ── Auth gate ─────────────────────────────────────────────────────────────────
-import Auth from './Auth'
-
-function AuthGate({ children }) {
-  const { isAuthenticated, isInitializing } = useAuth()
-
-  if (isInitializing) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-spinner" />
-        <p>Loading…</p>
-      </div>
-    )
-  }
-
-  if (!isAuthenticated) return <Auth />
-  return children
-}
-
-const DEV_BYPASS_WALLET = false
-
-// ── Wallet gate (inside AuthGate) ─────────────────────────────────────────────
+// ── Wallet gate ───────────────────────────────────────────────────────────────
 function WalletGate({ children }) {
   const { isUnlocked, isLocked } = useXDTWallet()
 
-  // DEV: skip wallet setup and PIN screens during testing
-  if (DEV_BYPASS_WALLET) return children
-
-  if (!isUnlocked && !isLocked) {
-    // No wallet stored on this device → onboarding
-    return <Setup />
-  }
-
-  if (!isUnlocked && isLocked) {
-    // Wallet exists but PIN not entered this session
-    return <Unlock />
-  }
+  if (!isUnlocked && !isLocked) return <Setup />   // no wallet → onboarding
+  if (!isUnlocked && isLocked)  return <Unlock />  // wallet locked → PIN screen
 
   return children
 }
@@ -124,9 +92,7 @@ export default function App() {
           {/* All other routes go through auth + wallet gate */}
           <Route path="*" element={
             <XDTWalletProvider>
-              <AuthGate>
-                <AppShell />
-              </AuthGate>
+              <AppShell />
             </XDTWalletProvider>
           } />
         </Routes>
