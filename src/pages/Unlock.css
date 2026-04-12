@@ -1,4 +1,4 @@
-/* Unlock.css */
+/* Unlock.css — neumorphic pastel */
 
 .unlock-page {
   min-height: 100vh;
@@ -6,116 +6,127 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px 20px;
+  padding: 28px 22px;
   background: var(--bg-primary);
   box-sizing: border-box;
-  gap: 18px;
+  gap: 20px;
 }
 
 .unlock-logo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   margin-bottom: 4px;
 }
 
 .unlock-logo-img {
-  width: 72px;
-  height: 72px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 0 0 3px rgba(220,38,38,0.25), 0 8px 24px rgba(0,0,0,0.5);
+  box-shadow: var(--shadow-lg);
 }
 
 .unlock-brand {
-  font-size: var(--fs-xl);
-  font-weight: 800;
+  font-size: var(--fs-2xl);
+  font-weight: 900;
   color: var(--text-primary);
   margin: 0;
+  letter-spacing: -0.4px;
 }
 
 .unlock-label {
   font-size: var(--fs-md);
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-weight: 600;
+  color: var(--text-muted);
   margin: 0;
 }
 
 /* PIN dots */
 .pin-dots {
   display: flex;
-  gap: 12px;
+  gap: 14px;
 }
 
 .pin-dot {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  border: 2px solid var(--border-light);
-  background: transparent;
-  transition: all 0.15s;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.18s;
 }
 
 .pin-dot.filled {
-  background: #e53535;
-  border-color: #e53535;
+  background: var(--accent-primary);
+  box-shadow: 3px 3px 8px rgba(123,159,232,0.45), -2px -2px 6px rgba(255,255,255,0.8);
 }
 
 /* Numpad */
 .numpad {
   display: grid;
-  grid-template-columns: repeat(3, 64px);
-  gap: 10px;
+  grid-template-columns: repeat(3, 68px);
+  gap: 12px;
 }
 
 .num-key {
-  width: 64px;
-  height: 64px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  border: none;
+  box-shadow: var(--shadow-raised);
   color: var(--text-primary);
   font-size: var(--fs-xl);
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.1s;
+  transition: box-shadow 0.12s, transform 0.1s;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.num-key:active { background: var(--bg-card-hover); }
-.num-key.empty  { background: transparent; border-color: transparent; cursor: default; }
+.num-key:active {
+  box-shadow: var(--shadow-pressed);
+  transform: scale(0.95);
+}
+
+.num-key.empty {
+  background: transparent;
+  box-shadow: none;
+  cursor: default;
+}
 
 .unlock-error {
   font-size: var(--fs-base);
   color: var(--accent-red);
   margin: 0;
-  padding: 9px 14px;
-  background: rgba(239,68,68,0.08);
-  border-radius: 9px;
-  border: 1px solid rgba(239,68,68,0.18);
+  padding: 10px 16px;
+  background: rgba(224,120,120,0.1);
+  border-radius: 12px;
   text-align: center;
-  max-width: 240px;
+  max-width: 250px;
 }
 
 .unlock-submit-btn {
-  width: 220px;
-  padding: 13px;
-  border-radius: 13px;
-  background: linear-gradient(135deg, #e53535, #c62828);
-  color: #0a0f1a;
+  width: 230px;
+  padding: 14px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #7b9fe8, #5b82d4);
+  color: #fff;
   font-size: var(--fs-md);
-  font-weight: 700;
+  font-weight: 800;
   border: none;
   cursor: pointer;
   font-family: inherit;
-  transition: opacity 0.15s;
-  margin-top: 2px;
+  box-shadow: 4px 4px 12px rgba(91,130,212,0.4), -2px -2px 8px rgba(255,255,255,0.7);
+  transition: box-shadow 0.15s, transform 0.1s;
+  margin-top: 4px;
 }
-.unlock-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.unlock-submit-btn:active { transform: scale(0.97); }
+.unlock-submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .forgot-pin-btn {
   background: transparent;
@@ -125,20 +136,20 @@
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 6px 14px;
+  border-radius: 50px;
   transition: color 0.15s;
-  margin-top: -4px;
+  margin-top: -6px;
 }
-.forgot-pin-btn:hover { color: #e53535; }
+.forgot-pin-btn:hover { color: var(--accent-primary); }
 
-/* ── Recovery card ───────────────────────────────────────────────────────────── */
+/* ── Recovery card ────────────────────────────────────────────────────────── */
 .recover-card {
   width: 100%;
-  max-width: 320px;
+  max-width: 330px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 13px;
 }
 
 .recover-title {
@@ -161,75 +172,79 @@
   width: 100%;
   box-sizing: border-box;
   background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 14px;
-  padding: 13px 14px;
+  border: none;
+  box-shadow: var(--shadow-pressed);
+  border-radius: 16px;
+  padding: 14px 15px;
   font-size: var(--fs-sm);
   color: var(--text-primary);
   font-family: inherit;
   resize: none;
   line-height: 1.6;
+  outline: none;
 }
 .recover-phrase-input:focus {
-  outline: none;
-  border-color: rgba(220,38,38,0.5);
+  box-shadow: inset 4px 4px 9px #c5cfe0, inset -4px -4px 9px #ffffff,
+              0 0 0 2px rgba(123,159,232,0.3);
 }
 
 .recover-pin-input {
   width: 100%;
   box-sizing: border-box;
   background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 14px;
-  padding: 14px;
-  font-size: var(--fs-lg);
+  border: none;
+  box-shadow: var(--shadow-pressed);
+  border-radius: 16px;
+  padding: 15px;
+  font-size: var(--fs-xl);
   color: var(--text-primary);
   font-family: inherit;
-  letter-spacing: 4px;
+  letter-spacing: 8px;
   text-align: center;
+  outline: none;
 }
 .recover-pin-input:focus {
-  outline: none;
-  border-color: rgba(220,38,38,0.5);
+  box-shadow: inset 4px 4px 9px #c5cfe0, inset -4px -4px 9px #ffffff,
+              0 0 0 2px rgba(123,159,232,0.3);
 }
 
 .recover-error {
   font-size: var(--fs-sm);
   color: var(--accent-red);
   margin: 0;
-  padding: 9px 12px;
-  background: rgba(239,68,68,0.08);
-  border: 1px solid rgba(239,68,68,0.18);
-  border-radius: 9px;
+  padding: 10px 13px;
+  background: rgba(224,120,120,0.1);
+  border-radius: 11px;
   text-align: center;
 }
 
 .recover-btn {
   width: 100%;
-  padding: 13px;
-  border-radius: 13px;
+  padding: 14px;
+  border-radius: 50px;
   font-size: var(--fs-md);
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
   border: none;
-  transition: opacity 0.15s;
+  transition: box-shadow 0.15s, transform 0.1s;
 }
+.recover-btn:active { transform: scale(0.97); }
 .recover-btn.primary {
-  background: linear-gradient(135deg, #e53535, #c62828);
+  background: linear-gradient(135deg, #7b9fe8, #5b82d4);
   color: #fff;
+  box-shadow: 4px 4px 12px rgba(91,130,212,0.4), -2px -2px 8px rgba(255,255,255,0.7);
 }
 .recover-btn.primary:disabled { opacity: 0.45; cursor: not-allowed; }
 .recover-btn.ghost {
-  background: transparent;
-  border: 1px solid var(--border-light);
+  background: var(--bg-card);
   color: var(--text-muted);
+  box-shadow: var(--shadow-sm);
 }
-.recover-btn.ghost:hover { color: var(--text-primary); }
+.recover-btn.ghost:hover { color: var(--text-secondary); }
 
-/* ── Responsive ─────────────────────────────────────────────────────────────── */
 @media (max-width: 360px) {
-  .numpad       { grid-template-columns: repeat(3, 58px); gap: 8px; }
-  .num-key      { width: 58px; height: 58px; font-size: var(--fs-lg); }
-  .unlock-page  { gap: 14px; }
+  .numpad      { grid-template-columns: repeat(3, 60px); gap: 10px; }
+  .num-key     { width: 60px; height: 60px; }
+  .unlock-page { gap: 16px; }
 }

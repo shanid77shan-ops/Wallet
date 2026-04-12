@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -7,24 +7,48 @@
 }
 
 :root {
-  --bg-primary:    #0d0808;
-  --bg-secondary:  #120d0d;
-  --bg-card:       #1a1010;
-  --bg-card-hover: #211515;
-  --accent-purple:       #e53535;
-  --accent-purple-light: #ff7070;
-  --accent-blue:   #5f8dd6;
-  --accent-green:  #10b981;
-  --accent-red:    #ef4444;
-  --accent-yellow: #d9a645;
-  --text-primary:   #fff5f5;
-  --text-secondary: #c9b0b0;
-  --text-muted:     #7d5a5a;
-  --border:         #221313;
-  --border-light:   #2e1b1b;
-  --nav-height: 64px;
+  /* ── Neumorphic base ────────────────────────────────────────────────────── */
+  --bg-primary:    #e8edf5;
+  --bg-secondary:  #e2e8f2;
+  --bg-card:       #e8edf5;
+  --bg-card-hover: #edf1f9;
+  --bg-input:      #e0e5ef;
 
-  /* Responsive font scale */
+  /* Neumorphic shadows (raised & pressed) */
+  --neu-light:  #ffffff;
+  --neu-dark:   #c5cfe0;
+  --shadow-raised:  6px 6px 14px #c5cfe0, -6px -6px 14px #ffffff;
+  --shadow-sm:      3px 3px 8px  #c5cfe0, -3px -3px 8px  #ffffff;
+  --shadow-lg:      10px 10px 24px #bac4d6, -10px -10px 24px #ffffff;
+  --shadow-pressed: inset 4px 4px 9px #c5cfe0, inset -4px -4px 9px #ffffff;
+  --shadow-inset-sm:inset 2px 2px 5px #c5cfe0, inset -2px -2px 5px #ffffff;
+
+  /* ── Pastel accent palette ──────────────────────────────────────────────── */
+  --accent-primary:      #7b9fe8;   /* periwinkle blue  */
+  --accent-primary-soft: #a8c0f3;
+  --accent-purple:       #9b88e0;   /* soft violet      */
+  --accent-purple-light: #b8a9ee;
+  --accent-green:        #5dbfa4;   /* sage / seafoam   */
+  --accent-green-soft:   #a0d9cc;
+  --accent-red:          #e07878;   /* dusty rose       */
+  --accent-red-soft:     #f0b0b0;
+  --accent-yellow:       #e8c56a;   /* soft amber       */
+  --accent-teal:         #5bb8d4;
+  --accent-pink:         #e89bb8;
+
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+  --text-primary:   #2e3d62;
+  --text-secondary: #6b7db3;
+  --text-muted:     #9aaac8;
+
+  /* ── Borders ─────────────────────────────────────────────────────────────── */
+  --border:       rgba(163,177,210,0.35);
+  --border-light: rgba(163,177,210,0.20);
+
+  /* ── Nav ──────────────────────────────────────────────────────────────────── */
+  --nav-height: 68px;
+
+  /* ── Font scale ──────────────────────────────────────────────────────────── */
   --fs-xs:   10px;
   --fs-sm:   11px;
   --fs-base: 12px;
@@ -35,15 +59,13 @@
   --fs-3xl:  26px;
 }
 
-html {
-  font-size: 14px;
-}
+html { font-size: 14px; }
 
 html, body {
   height: 100%;
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -53,14 +75,10 @@ html, body {
   max-width: 480px;
   margin: 0 auto;
   position: relative;
-  background:
-    radial-gradient(ellipse at 80% -5%, rgba(229, 53, 53, 0.18), transparent 42%),
-    radial-gradient(ellipse at 10% 90%, rgba(229, 53, 53, 0.08), transparent 40%),
-    var(--bg-primary);
+  background: var(--bg-primary);
   min-height: 100vh;
 }
 
-/* On narrow screens tighten up spacing slightly */
 @media (max-width: 360px) {
   :root {
     --fs-xs:   9px;
@@ -74,23 +92,16 @@ html, body {
   }
 }
 
-/* ── Prevent iOS auto-zoom on input focus (font-size must be ≥ 16px) ─────────── */
-input, textarea, select {
-  font-size: 16px !important;
-  touch-action: manipulation;
-}
+/* iOS auto-zoom prevention */
+input, textarea, select { font-size: 16px !important; touch-action: manipulation; }
 
-/* ── Prevent double-tap zoom on buttons/links ────────────────────────────────── */
-button, a, [role="button"] {
-  touch-action: manipulation;
-}
+button, a, [role="button"] { touch-action: manipulation; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: var(--neu-dark); border-radius: 2px; }
 
-/* Utility */
 .sr-only {
   position: absolute;
   width: 1px;

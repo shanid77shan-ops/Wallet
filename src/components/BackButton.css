@@ -1,24 +1,23 @@
 .back-btn {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 1px solid var(--border-light);
+  border: none;
   background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s, color 0.15s;
+  transition: box-shadow 0.15s, color 0.15s;
   touch-action: manipulation;
 }
 
-.back-btn:hover {
-  background: var(--bg-card-hover);
-  color: var(--text-primary);
-}
+.back-btn:hover { color: var(--accent-primary); }
 
 .back-btn:active {
-  transform: scale(0.93);
+  box-shadow: var(--shadow-pressed);
+  transform: scale(0.95);
 }

@@ -1,14 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { House, ChartLine, ArrowsLeftRight, Users, Coins, User } from '@phosphor-icons/react'
+import { House, Coins, User } from '@phosphor-icons/react'
 import './BottomNav.css'
 
 const navItems = [
-  { to: '/',         icon: House,           label: 'Wallet'  },
-  { to: '/trending', icon: ChartLine,       label: 'Market'  },
-  { to: '/trade',    icon: ArrowsLeftRight,  label: 'Trade'   },
-  { to: '/p2p',      icon: Users,           label: 'P2P'     },
-  { to: '/assets',   icon: Coins,           label: 'Assets'  },
-  { to: '/profile',  icon: User,            label: 'Profile' },
+  { to: '/',        icon: House,  label: 'Home'    },
+  { to: '/assets',  icon: Coins,  label: 'Assets'  },
+  { to: '/profile', icon: User,   label: 'Profile' },
 ]
 
 export default function BottomNav() {

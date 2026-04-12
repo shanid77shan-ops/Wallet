@@ -17,11 +17,8 @@ import PullToRefresh from './components/PullToRefresh'
 import Setup      from './pages/Setup'
 import Unlock     from './pages/Unlock'
 import Home       from './pages/Home'
-import Trending   from './pages/Trending'
-import Trade      from './pages/Trade'
 import Profile    from './pages/Profile'
-import P2P          from './pages/P2P'
-import Assets       from './pages/Assets'
+import Assets     from './pages/Assets'
 import CoinDetail   from './pages/CoinDetail'
 import ResetPassword from './pages/ResetPassword'
 
@@ -54,9 +51,6 @@ function InnerShell() {
           <Routes>
             <Route path="/"          element={<Home />} />
             <Route path="/coin/:id"  element={<CoinDetail />} />
-            <Route path="/trending"  element={<Trending />} />
-            <Route path="/trade"     element={<Trade />} />
-            <Route path="/p2p"       element={<P2P />} />
             <Route path="/assets"    element={<Assets />} />
             <Route path="/profile"   element={<Profile />} />
             <Route path="*"          element={<Navigate to="/" replace />} />
