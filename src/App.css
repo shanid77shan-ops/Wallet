@@ -1,4 +1,4 @@
-/* App.css */
+/* App.css — Midnight Pro */
 
 .loading-screen {
   min-height: 100vh;
@@ -13,13 +13,13 @@
 }
 
 .loading-spinner {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  box-shadow: var(--shadow-raised);
-  border: 3px solid transparent;
+  width: 34px;
+  height: 34px;
+  border: 2.5px solid var(--border);
   border-top-color: var(--accent-primary);
-  animation: spin 0.9s linear infinite;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  box-shadow: 0 0 12px var(--accent-primary-glow);
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -39,11 +39,7 @@
   padding-bottom: var(--nav-height);
 }
 
-.qr-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 16px;
-}
+.qr-container { display: flex; justify-content: center; margin-bottom: 16px; }
 
 .receive-label-small {
   font-size: var(--fs-md);

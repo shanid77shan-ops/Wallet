@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -7,46 +7,46 @@
 }
 
 :root {
-  /* ── Neumorphic base ────────────────────────────────────────────────────── */
-  --bg-primary:    #e8edf5;
-  --bg-secondary:  #e2e8f2;
-  --bg-card:       #e8edf5;
-  --bg-card-hover: #edf1f9;
-  --bg-input:      #e0e5ef;
+  /* ── Midnight Pro surfaces ──────────────────────────────────────────────── */
+  --bg-primary:    #080c14;
+  --bg-secondary:  #0c1120;
+  --bg-card:       #0f1520;
+  --bg-card-hover: #141c2a;
+  --bg-elevated:   #161e2e;
+  --bg-input:      #070b12;
 
-  /* Neumorphic shadows (raised & pressed) */
-  --neu-light:  #ffffff;
-  --neu-dark:   #c5cfe0;
-  --shadow-raised:  6px 6px 14px #c5cfe0, -6px -6px 14px #ffffff;
-  --shadow-sm:      3px 3px 8px  #c5cfe0, -3px -3px 8px  #ffffff;
-  --shadow-lg:      10px 10px 24px #bac4d6, -10px -10px 24px #ffffff;
-  --shadow-pressed: inset 4px 4px 9px #c5cfe0, inset -4px -4px 9px #ffffff;
-  --shadow-inset-sm:inset 2px 2px 5px #c5cfe0, inset -2px -2px 5px #ffffff;
+  /* ── Electric blue accent ────────────────────────────────────────────────── */
+  --accent-primary:       #4f8ef7;
+  --accent-primary-dim:   #2d62c4;
+  --accent-primary-glow:  rgba(79,142,247,0.18);
+  --accent-purple:        #a78bfa;
+  --accent-purple-light:  #c4b5fd;
+  --accent-green:         #00d4a0;
+  --accent-green-dim:     rgba(0,212,160,0.12);
+  --accent-red:           #ff6b6b;
+  --accent-red-dim:       rgba(255,107,107,0.12);
+  --accent-yellow:        #f9c74f;
+  --accent-teal:          #22d3ee;
 
-  /* ── Pastel accent palette ──────────────────────────────────────────────── */
-  --accent-primary:      #7b9fe8;   /* periwinkle blue  */
-  --accent-primary-soft: #a8c0f3;
-  --accent-purple:       #9b88e0;   /* soft violet      */
-  --accent-purple-light: #b8a9ee;
-  --accent-green:        #5dbfa4;   /* sage / seafoam   */
-  --accent-green-soft:   #a0d9cc;
-  --accent-red:          #e07878;   /* dusty rose       */
-  --accent-red-soft:     #f0b0b0;
-  --accent-yellow:       #e8c56a;   /* soft amber       */
-  --accent-teal:         #5bb8d4;
-  --accent-pink:         #e89bb8;
+  /* ── Typography ──────────────────────────────────────────────────────────── */
+  --text-primary:   #edf2ff;
+  --text-secondary: #8b9cc4;
+  --text-muted:     #445070;
 
-  /* ── Typography ─────────────────────────────────────────────────────────── */
-  --text-primary:   #2e3d62;
-  --text-secondary: #6b7db3;
-  --text-muted:     #9aaac8;
+  /* ── Borders & separators ────────────────────────────────────────────────── */
+  --border:         rgba(255,255,255,0.065);
+  --border-light:   rgba(255,255,255,0.04);
+  --border-accent:  rgba(79,142,247,0.35);
 
-  /* ── Borders ─────────────────────────────────────────────────────────────── */
-  --border:       rgba(163,177,210,0.35);
-  --border-light: rgba(163,177,210,0.20);
+  /* ── Elevation shadows ───────────────────────────────────────────────────── */
+  --shadow-card:    0 2px 16px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.04) inset;
+  --shadow-float:   0 8px 32px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.05) inset;
+  --shadow-sheet:   0 -4px 40px rgba(0,0,0,0.7), 0 -1px 0 rgba(255,255,255,0.06);
+  --shadow-btn:     0 4px 16px rgba(79,142,247,0.35);
+  --shadow-btn-sm:  0 2px 8px  rgba(79,142,247,0.25);
 
   /* ── Nav ──────────────────────────────────────────────────────────────────── */
-  --nav-height: 68px;
+  --nav-height: 66px;
 
   /* ── Font scale ──────────────────────────────────────────────────────────── */
   --fs-xs:   10px;
@@ -56,7 +56,7 @@
   --fs-lg:   14px;
   --fs-xl:   16px;
   --fs-2xl:  20px;
-  --fs-3xl:  26px;
+  --fs-3xl:  28px;
 }
 
 html { font-size: 14px; }
@@ -65,7 +65,7 @@ html, body {
   height: 100%;
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -75,7 +75,10 @@ html, body {
   max-width: 480px;
   margin: 0 auto;
   position: relative;
-  background: var(--bg-primary);
+  background:
+    radial-gradient(ellipse at 75% -8%,  rgba(79,142,247,0.09), transparent 48%),
+    radial-gradient(ellipse at 15% 88%,  rgba(79,142,247,0.05), transparent 44%),
+    var(--bg-primary);
   min-height: 100vh;
 }
 
@@ -88,24 +91,20 @@ html, body {
     --fs-lg:   13px;
     --fs-xl:   14px;
     --fs-2xl:  17px;
-    --fs-3xl:  22px;
+    --fs-3xl:  23px;
   }
 }
 
-/* iOS auto-zoom prevention */
 input, textarea, select { font-size: 16px !important; touch-action: manipulation; }
-
 button, a, [role="button"] { touch-action: manipulation; }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--neu-dark); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: rgba(79,142,247,0.25); border-radius: 2px; }
 
 .sr-only {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  width: 1px; height: 1px;
   overflow: hidden;
   clip: rect(0,0,0,0);
 }

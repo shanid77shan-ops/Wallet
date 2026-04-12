@@ -1,4 +1,4 @@
-/* Setup.css — neumorphic pastel */
+/* Setup.css — Midnight Pro */
 
 .setup-page {
   min-height: 100vh;
@@ -6,7 +6,9 @@
   flex-direction: column;
   align-items: center;
   padding: 32px 18px 48px;
-  background: var(--bg-primary);
+  background:
+    radial-gradient(ellipse at 70% -5%, rgba(79,142,247,0.1), transparent 48%),
+    var(--bg-primary);
   box-sizing: border-box;
 }
 
@@ -15,25 +17,26 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   margin-bottom: 28px;
 }
 
 .setup-logo-img {
   width: 76px;
   height: 76px;
-  border-radius: 50%;
+  border-radius: 22px;
   object-fit: cover;
   margin-bottom: 6px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 0 0 1px var(--border), 0 8px 32px rgba(0,0,0,0.6),
+              0 0 40px rgba(79,142,247,0.15);
 }
 
 .setup-brand {
   font-size: var(--fs-2xl);
-  font-weight: 900;
+  font-weight: 800;
   color: var(--text-primary);
-  margin: 0;
   letter-spacing: -0.5px;
+  margin: 0;
 }
 
 .setup-tagline {
@@ -47,12 +50,13 @@
   width: 100%;
   max-width: 400px;
   background: var(--bg-card);
-  border-radius: 24px;
-  box-shadow: var(--shadow-raised);
+  border: 1px solid var(--border);
+  border-radius: 20px;
   padding: 24px 20px 22px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  box-shadow: var(--shadow-card);
 }
 
 .setup-card-title {
@@ -70,49 +74,48 @@
 }
 
 .warning-text {
-  color: #d4962a;
+  color: var(--accent-yellow);
   font-size: var(--fs-sm);
-  background: rgba(212,150,42,0.08);
+  background: rgba(249,199,79,0.07);
+  border: 1px solid rgba(249,199,79,0.15);
   border-radius: 10px;
   padding: 10px 12px;
+  line-height: 1.5;
 }
 
 /* Buttons */
 .setup-btn {
   width: 100%;
   padding: 14px;
-  border-radius: 16px;
+  border-radius: 13px;
   font-size: var(--fs-lg);
   font-weight: 700;
   cursor: pointer;
   border: none;
   font-family: inherit;
-  transition: box-shadow 0.15s, transform 0.1s;
+  transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
 }
 .setup-btn:active { transform: scale(0.98); }
-.setup-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.setup-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .setup-btn.primary {
-  background: linear-gradient(135deg, #7b9fe8, #5b82d4);
+  background: linear-gradient(135deg, #4f8ef7, #2563eb);
   color: #fff;
-  box-shadow: 4px 4px 12px rgba(91,130,212,0.4), -2px -2px 8px rgba(255,255,255,0.7);
+  box-shadow: var(--shadow-btn);
 }
-.setup-btn.primary:hover {
-  box-shadow: 6px 6px 16px rgba(91,130,212,0.45), -3px -3px 10px rgba(255,255,255,0.8);
-}
+.setup-btn.primary:hover { box-shadow: 0 6px 24px rgba(79,142,247,0.45); }
 
 .setup-btn.secondary {
-  background: var(--bg-card);
+  background: var(--bg-elevated);
   color: var(--text-secondary);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
 }
-.setup-btn.secondary:hover { box-shadow: var(--shadow-raised); }
+.setup-btn.secondary:hover { border-color: var(--border-accent); color: var(--text-primary); }
 
 .setup-btn.ghost {
   background: transparent;
   color: var(--text-muted);
   font-size: var(--fs-md);
-  box-shadow: none;
 }
 .setup-btn.ghost:hover { color: var(--text-secondary); }
 
@@ -120,13 +123,13 @@
 .phrase-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 7px;
+  gap: 6px;
 }
 
 .phrase-word {
-  background: var(--bg-card);
-  box-shadow: var(--shadow-inset-sm);
-  border-radius: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 9px;
   padding: 7px 9px;
   display: flex;
   align-items: center;
@@ -136,7 +139,7 @@
 .word-num {
   font-size: var(--fs-xs);
   color: var(--text-muted);
-  min-width: 13px;
+  min-width: 14px;
   font-weight: 700;
 }
 
@@ -149,29 +152,28 @@
 /* Inputs */
 .setup-input {
   width: 100%;
-  background: var(--bg-card);
-  border: none;
-  box-shadow: var(--shadow-pressed);
-  border-radius: 13px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 13px 15px;
   font-size: var(--fs-md);
   color: var(--text-primary);
   font-family: inherit;
   outline: none;
   box-sizing: border-box;
-  transition: box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
+.setup-input::placeholder { color: var(--text-muted); }
 .setup-input:focus {
-  box-shadow: inset 4px 4px 9px #c5cfe0, inset -4px -4px 9px #ffffff,
-              0 0 0 2px rgba(123,159,232,0.35);
+  border-color: var(--border-accent);
+  box-shadow: 0 0 0 3px rgba(79,142,247,0.1);
 }
 
 .setup-textarea {
   width: 100%;
-  background: var(--bg-card);
-  border: none;
-  box-shadow: var(--shadow-pressed);
-  border-radius: 13px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 13px 15px;
   font-size: var(--fs-md);
   color: var(--text-primary);
@@ -180,24 +182,25 @@
   box-sizing: border-box;
   resize: none;
   line-height: 1.6;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
+.setup-textarea::placeholder { color: var(--text-muted); }
 .setup-textarea:focus {
-  box-shadow: inset 4px 4px 9px #c5cfe0, inset -4px -4px 9px #ffffff,
-              0 0 0 2px rgba(123,159,232,0.35);
+  border-color: var(--border-accent);
+  box-shadow: 0 0 0 3px rgba(79,142,247,0.1);
 }
 
-/* Error */
 .setup-error {
   font-size: var(--fs-base);
   color: var(--accent-red);
   margin: 0;
   padding: 10px 13px;
-  background: rgba(224,120,120,0.1);
-  border-radius: 11px;
-  box-shadow: inset 2px 2px 5px rgba(224,120,120,0.1);
+  background: var(--accent-red-dim);
+  border: 1px solid rgba(255,107,107,0.2);
+  border-radius: 10px;
 }
 
-/* Terms checkbox */
+/* Terms */
 .setup-terms-row {
   display: flex;
   align-items: flex-start;
@@ -207,33 +210,31 @@
 }
 
 .setup-terms-checkbox {
-  width: 20px;
-  height: 20px;
-  min-width: 20px;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
   accent-color: var(--accent-primary);
   cursor: pointer;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 .setup-terms-text {
   font-size: var(--fs-base);
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .setup-terms-link {
-  color: var(--accent-green);
+  color: var(--accent-primary);
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 600;
 }
 .setup-terms-link:hover { text-decoration: underline; }
 
-/* Notice */
 .setup-notice {
   font-size: var(--fs-xs);
   color: var(--text-muted);
   text-align: center;
-  margin: 0;
   padding-top: 2px;
 }
 

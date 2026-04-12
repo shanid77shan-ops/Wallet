@@ -1,4 +1,4 @@
-/* BottomNav.css — neumorphic pastel */
+/* BottomNav.css — Midnight Pro */
 
 .bottom-nav {
   position: fixed;
@@ -8,12 +8,14 @@
   width: 100%;
   max-width: 480px;
   height: var(--nav-height);
-  background: var(--bg-primary);
-  box-shadow: 0 -4px 16px rgba(163,177,210,0.45), 0 -1px 0 rgba(255,255,255,0.8);
+  background: rgba(8,12,20,0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 12px;
+  padding: 0 8px;
   z-index: 100;
 }
 
@@ -40,21 +42,20 @@
   width: 36px;
   height: 36px;
   border-radius: 12px;
-  transition: box-shadow 0.2s, background 0.2s;
+  transition: background 0.2s;
 }
 
 .nav-item.active .nav-icon-wrap {
-  background: var(--bg-card);
-  box-shadow: var(--shadow-raised);
+  background: var(--accent-primary-glow);
 }
 
 .nav-label {
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.3px;
 }
 
 @media (max-width: 360px) {
   .nav-icon-wrap { width: 30px; height: 30px; }
-  .nav-label     { font-size: 8px; }
+  .nav-label { font-size: 8px; }
 }
