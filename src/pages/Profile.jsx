@@ -26,7 +26,7 @@ const supportItems = [
 export default function Profile() {
   const navigate  = useNavigate()
   const { user, email } = useAuth()
-  const { keys, tokens, totalUSD, prices, lockWallet, userId } = useXDTWallet()
+  const { keys, tokens, totalUSD, prices, lockWallet, resetWallet, userId } = useXDTWallet()
   const { currency, setCurrency, fmt } = useCurrency()
 
   const [copiedEth,  setCopiedEth]  = useState(false)
@@ -84,7 +84,7 @@ export default function Profile() {
   }
 
   function handleLogout() {
-    lockWallet()
+    resetWallet()
     navigate('/')
   }
 

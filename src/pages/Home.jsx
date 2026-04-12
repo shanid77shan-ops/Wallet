@@ -323,80 +323,170 @@ const acctColor = i => ACCT_COLORS[i % ACCT_COLORS.length]
 
 // ── Account Selector ──────────────────────────────────────────────────────────
 function AccountSelector() {
-  const { accounts, activeAccountIndex, addAccount, deleteAccount, switchAccount, totalUSD } = useXDTWallet()
+  const { accounts, activeAccountIndex, addAccount, deleteAccount, switchAccount, totalUSD, confirmMnemonic } = useXDTWallet()
   const { fmt } = useCurrency()
-  const [open, setOpen] = useState(false)
-  const ref  = useRef(null)
+  const [open,        setOpen]        = useState(false)
+  const [addOpen,     setAddOpen]     = useState(false)   // name-input modal
+  const [newName,     setNewName]     = useState('')
+  const [delTarget,   setDelTarget]   = useState(null)    // account index to delete
+  const [delPhrase,   setDelPhrase]   = useState('')
+  const [delErr,      setDelErr]      = useState('')
+  const ref = useRef(null)
 
   const active = accounts.find(a => a.index === activeAccountIndex) ?? accounts[0]
 
-  // close on outside click
+  // close dropdown on outside click
   useEffect(() => {
-    function onOut(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    function onOut(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
     if (open) document.addEventListener('mousedown', onOut)
     return () => document.removeEventListener('mousedown', onOut)
   }, [open])
 
+  function openAddModal() {
+    setNewName(`Account ${accounts.length + 1}`)
+    setAddOpen(true)
+    setOpen(false)
+  }
+
+  function handleAddConfirm() {
+    const name = newName.trim() || `Account ${accounts.length + 1}`
+    addAccount(name)
+    setAddOpen(false)
+    setNewName('')
+  }
+
+  function openDeleteModal(index) {
+    setDelTarget(index)
+    setDelPhrase('')
+    setDelErr('')
+    setOpen(false)
+  }
+
+  function handleDeleteConfirm() {
+    if (!confirmMnemonic(delPhrase)) {
+      setDelErr('Seed phrase does not match. Please try again.')
+      setDelPhrase('')
+      return
+    }
+    deleteAccount(delTarget)
+    setDelTarget(null)
+    setDelPhrase('')
+    setDelErr('')
+  }
+
   return (
-    <div className="acct-selector-wrap" ref={ref}>
-      <button className="acct-selector-btn" onClick={() => setOpen(o => !o)}>
-        <div className="acct-sel-left">
-          <img src="/app-icon.jpg" alt="" className="acct-sel-logo" />
-          <div className="acct-sel-text">
-            <span className="acct-sel-wallet">Seed Phrase 1</span>
-            <span className="acct-sel-name">{active?.name ?? 'Account 1'}</span>
-          </div>
-        </div>
-        <svg className={`acct-sel-arrow${open ? ' open' : ''}`} width="10" height="6" viewBox="0 0 10 6" fill="none">
-          <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-
-      {open && (
-        <div className="acct-dropdown">
-          <div className="acct-dropdown-header">
-            <span className="acct-dh-name">Seed Phrase 1</span>
-            <span className="acct-dh-val">{fmt(totalUSD)}</span>
-          </div>
-
-          {accounts.map(acct => (
-            <div key={acct.index} className={`acct-row${acct.index === activeAccountIndex ? ' active' : ''}`}>
-              <button
-                className="acct-row-main"
-                onClick={() => { switchAccount(acct.index); setOpen(false) }}
-              >
-                <div className="acct-row-icon" style={{ background: acctColor(acct.index) }}>
-                  {acct.index + 1}
-                </div>
-                <div className="acct-row-info">
-                  <span className="acct-row-name">{acct.name}</span>
-                  <span className="acct-row-addr">
-                    {acct.ethAddress ? `${acct.ethAddress.slice(0,8)}…${acct.ethAddress.slice(-4)}` : ''}
-                  </span>
-                </div>
-                {acct.index === activeAccountIndex && <div className="acct-active-dot" />}
-              </button>
-              {acct.index > 0 && (
-                <button
-                  className="acct-delete-btn"
-                  onClick={() => deleteAccount(acct.index)}
-                  title="Remove account"
-                >✕</button>
-              )}
+    <>
+      <div className="acct-selector-wrap" ref={ref}>
+        <button className="acct-selector-btn" onClick={() => setOpen(o => !o)}>
+          <div className="acct-sel-left">
+            <img src="/app-icon.jpg" alt="" className="acct-sel-logo" />
+            <div className="acct-sel-text">
+              <span className="acct-sel-wallet">Seed Phrase 1</span>
+              <span className="acct-sel-name">{active?.name ?? 'Account 1'}</span>
             </div>
-          ))}
+          </div>
+          <svg className={`acct-sel-arrow${open ? ' open' : ''}`} width="10" height="6" viewBox="0 0 10 6" fill="none">
+            <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
 
-          <button className="acct-add-btn" onClick={() => { addAccount(); setOpen(false) }}>
-            Add account <span className="acct-add-plus">+</span>
-          </button>
+        {open && (
+          <div className="acct-dropdown">
+            <div className="acct-dropdown-header">
+              <span className="acct-dh-name">Seed Phrase 1</span>
+              <span className="acct-dh-val">{fmt(totalUSD)}</span>
+            </div>
 
-          <div className="acct-footer-btns">
-            <button className="acct-footer-btn" onClick={() => setOpen(false)}>Add new wallet →</button>
-            <button className="acct-footer-btn" onClick={() => setOpen(false)}>Manage wallets →</button>
+            {accounts.map(acct => (
+              <div key={acct.index} className={`acct-row${acct.index === activeAccountIndex ? ' active' : ''}`}>
+                <button
+                  className="acct-row-main"
+                  onClick={() => { switchAccount(acct.index); setOpen(false) }}
+                >
+                  <div className="acct-row-icon" style={{ background: acctColor(acct.index) }}>
+                    {acct.index + 1}
+                  </div>
+                  <div className="acct-row-info">
+                    <span className="acct-row-name">{acct.name}</span>
+                    <span className="acct-row-addr">
+                      {acct.ethAddress ? `${acct.ethAddress.slice(0,8)}…${acct.ethAddress.slice(-4)}` : ''}
+                    </span>
+                  </div>
+                  {acct.index === activeAccountIndex && <div className="acct-active-dot" />}
+                </button>
+                {acct.index > 0 && (
+                  <button
+                    className="acct-delete-btn"
+                    onClick={() => openDeleteModal(acct.index)}
+                    title="Remove account"
+                  >✕</button>
+                )}
+              </div>
+            ))}
+
+            <button className="acct-add-btn" onClick={openAddModal}>
+              Add account <span className="acct-add-plus">+</span>
+            </button>
+
+            <div className="acct-footer-btns">
+              <button className="acct-footer-btn" onClick={() => setOpen(false)}>Add new wallet →</button>
+              <button className="acct-footer-btn" onClick={() => setOpen(false)}>Manage wallets →</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Add account modal ──────────────────────────────────────────────── */}
+      {addOpen && (
+        <div className="acct-modal-overlay" onClick={() => setAddOpen(false)}>
+          <div className="acct-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="acct-modal-title">Name your account</h3>
+            <input
+              className="acct-modal-input"
+              type="text"
+              placeholder="e.g. Trading, Savings…"
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleAddConfirm()}
+              autoFocus
+              maxLength={32}
+            />
+            <div className="acct-modal-btns">
+              <button className="acct-modal-btn ghost" onClick={() => setAddOpen(false)}>Cancel</button>
+              <button className="acct-modal-btn primary" onClick={handleAddConfirm}>Create</button>
+            </div>
           </div>
         </div>
       )}
-    </div>
+
+      {/* ── Delete confirmation modal ──────────────────────────────────────── */}
+      {delTarget !== null && (
+        <div className="acct-modal-overlay" onClick={() => setDelTarget(null)}>
+          <div className="acct-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="acct-modal-title">Confirm deletion</h3>
+            <p className="acct-modal-sub">Enter your seed phrase to remove this account.</p>
+            <textarea
+              className="acct-modal-textarea"
+              placeholder="word1 word2 word3 … word12"
+              value={delPhrase}
+              onChange={e => { setDelPhrase(e.target.value); setDelErr('') }}
+              rows={3}
+              autoComplete="off"
+              autoCapitalize="none"
+              spellCheck={false}
+            />
+            {delErr && <p className="acct-modal-err">{delErr}</p>}
+            <div className="acct-modal-btns">
+              <button className="acct-modal-btn ghost" onClick={() => setDelTarget(null)}>Cancel</button>
+              <button className="acct-modal-btn danger" onClick={handleDeleteConfirm}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+
   )
 }
 

@@ -223,12 +223,12 @@ export function XDTWalletProvider({ children }) {
   }
 
   // ── Multi-account management ──────────────────────────────────────────────────
-  function addAccount() {
+  function addAccount(name) {
     if (!mnemonic) return
     const nextIndex = accounts.length
     const eth  = deriveETHWalletAtIndex(mnemonic, nextIndex)
     const tron = deriveTRONWalletAtIndex(mnemonic, nextIndex)
-    const newAcct = { index: nextIndex, name: `Account ${nextIndex + 1}`, ethAddress: eth.address, tronAddress: tron.address }
+    const newAcct = { index: nextIndex, name: name || `Account ${nextIndex + 1}`, ethAddress: eth.address, tronAddress: tron.address }
     const updated = [...accounts, newAcct]
     setAccounts(updated)
     saveAccounts(userId, updated)
