@@ -4,7 +4,8 @@
       "Bash(npx create-vite@latest --template react --name wallet-app .)",
       "Bash(node -e ':*)",
       "Bash(npx vite:*)",
-      "Bash(node -e \"const icons = require\\('@phosphor-icons/react'\\); const names = Object.keys\\(icons\\).filter\\(k => k.includes\\('Arrow'\\) || k.includes\\('Swap'\\) || k.includes\\('Exchange'\\)\\).slice\\(0,20\\); console.log\\(names.join\\('\\\\n'\\)\\)\")"
+      "Bash(node -e \"const icons = require\\('@phosphor-icons/react'\\); const names = Object.keys\\(icons\\).filter\\(k => k.includes\\('Arrow'\\) || k.includes\\('Swap'\\) || k.includes\\('Exchange'\\)\\).slice\\(0,20\\); console.log\\(names.join\\('\\\\n'\\)\\)\")",
+      "Bash(npm install:*)"
     ]
   }
 }

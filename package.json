@@ -20,6 +20,7 @@
     "dotenv": "^17.4.1",
     "ethers": "^6.16.0",
     "express": "^4.22.1",
+    "jsqr": "^1.4.0",
     "lucide-react": "^0.344.0",
     "mongoose": "^9.4.1",
     "qrcode.react": "^4.2.0",
