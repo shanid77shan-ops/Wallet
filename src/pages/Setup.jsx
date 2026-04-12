@@ -35,6 +35,7 @@ export default function Setup() {
   const [error,       setError]       = useState('')
   const [loading,     setLoading]     = useState(false)
   const [copied,      setCopied]      = useState(false)
+  const [agreed,      setAgreed]      = useState(false)
   const pinConfirmRef = useRef(null)
 
   // ── Landing selection ─────────────────────────────────────────────────────────
@@ -129,7 +130,7 @@ export default function Setup() {
         tronAddress,
         tronPrivateKey:      tron.privateKey,
         tronEthStyleAddress: tron.ethStyleAddress,
-      })
+      }, finalMnemonic)
     } catch (err) {
       setError(err.message || 'Setup failed')
     } finally {
@@ -155,12 +156,33 @@ export default function Setup() {
           <p className="setup-card-sub">
             A non-custodial wallet. Only you hold your keys.
           </p>
-          <button className="setup-btn primary" onClick={selectCreate}>
-            Create New Wallet
-          </button>
-          <button className="setup-btn secondary" onClick={selectImport}>
-            I Already Have a Wallet
-          </button>
+
+          <label className="setup-terms-row">
+            <input
+              type="checkbox"
+              className="setup-terms-checkbox"
+              checked={agreed}
+              onChange={e => setAgreed(e.target.checked)}
+            />
+            <span className="setup-terms-text">
+              I have read and agree to the{' '}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="setup-terms-link">Terms of Use</a>
+              {' '}and{' '}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="setup-terms-link">Privacy Policy</a>
+            </span>
+          </label>
+
+          {agreed && (
+            <>
+              <button className="setup-btn primary" onClick={selectCreate}>
+                Create New Wallet
+              </button>
+              <button className="setup-btn secondary" onClick={selectImport}>
+                I Already Have a Wallet
+              </button>
+            </>
+          )}
+
           <p className="setup-notice">Supports ETH · USDT ERC-20 · USDT TRC-20</p>
         </div>
       )}

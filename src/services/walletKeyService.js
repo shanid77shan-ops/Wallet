@@ -30,21 +30,27 @@ export function validateMnemonic(phrase) {
 // ── ETH Wallet Derivation ────────────────────────────────────────────────────
 export function deriveETHWallet(mnemonic) {
   const hd = ethers.HDNodeWallet.fromPhrase(mnemonic.trim(), undefined, ETH_PATH)
-  return {
-    address:    hd.address,          // checksummed 0x…
-    privateKey: hd.privateKey,       // 0x…
-  }
+  return { address: hd.address, privateKey: hd.privateKey }
+}
+
+export function deriveETHWalletAtIndex(mnemonic, index) {
+  const path = `m/44'/60'/0'/0/${index}`
+  const hd = ethers.HDNodeWallet.fromPhrase(mnemonic.trim(), undefined, path)
+  return { address: hd.address, privateKey: hd.privateKey }
 }
 
 // ── TRON Wallet Derivation ───────────────────────────────────────────────────
 export function deriveTRONWallet(mnemonic) {
   const hd = ethers.HDNodeWallet.fromPhrase(mnemonic.trim(), undefined, TRON_PATH)
   const tronAddress = ethAddressToTron(hd.address)
-  return {
-    address:          tronAddress,     // Base58Check T…
-    privateKey:       hd.privateKey,   // 0x…
-    ethStyleAddress:  hd.address,      // underlying 20-byte ETH-style hex
-  }
+  return { address: tronAddress, privateKey: hd.privateKey, ethStyleAddress: hd.address }
+}
+
+export function deriveTRONWalletAtIndex(mnemonic, index) {
+  const path = `m/44'/195'/0'/0/${index}`
+  const hd = ethers.HDNodeWallet.fromPhrase(mnemonic.trim(), undefined, path)
+  const tronAddress = ethAddressToTron(hd.address)
+  return { address: tronAddress, privateKey: hd.privateKey, ethStyleAddress: hd.address }
 }
 
 /**
@@ -187,9 +193,23 @@ export async function setupWallet(mnemonic, pin, userId) {
   return { ethAddress: eth.address, tronAddress: tron.address }
 }
 
+// ── Accounts list storage (public addresses only — safe to store) ─────────────
+export function saveAccounts(userId, accounts) {
+  try { localStorage.setItem(`xdt_accounts_${userId}`, JSON.stringify(accounts)) } catch {}
+}
+export function loadAccounts(userId) {
+  try {
+    const raw = localStorage.getItem(`xdt_accounts_${userId}`)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+export function clearAccounts(userId) {
+  try { localStorage.removeItem(`xdt_accounts_${userId}`) } catch {}
+}
+
 /**
  * Unlock an existing wallet: decrypts the mnemonic and re-derives keys.
- * Returns { ethAddress, ethPrivateKey, tronAddress, tronPrivateKey, tronEthStyleAddress }
+ * Returns { mnemonic, ethAddress, ethPrivateKey, tronAddress, tronPrivateKey, tronEthStyleAddress }
  */
 export async function unlockWallet(pin, userId) {
   const stored = loadWalletData(userId)
@@ -200,10 +220,11 @@ export async function unlockWallet(pin, userId) {
   const tron     = deriveTRONWallet(mnemonic)
 
   return {
-    ethAddress:        eth.address,
-    ethPrivateKey:     eth.privateKey,
-    tronAddress:       tron.address,
-    tronPrivateKey:    tron.privateKey,
+    mnemonic,
+    ethAddress:          eth.address,
+    ethPrivateKey:       eth.privateKey,
+    tronAddress:         tron.address,
+    tronPrivateKey:      tron.privateKey,
     tronEthStyleAddress: tron.ethStyleAddress,
   }
 }

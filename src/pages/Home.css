@@ -56,6 +56,193 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 1s linear infinite; }
 
+/* ── Account Selector ────────────────────────────────────────────────────────── */
+.acct-selector-wrap {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.acct-selector-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+.acct-selector-btn:hover { border-color: rgba(220,38,38,0.35); }
+
+.acct-sel-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.acct-sel-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 2px rgba(220,38,38,0.25);
+}
+.acct-sel-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+.acct-sel-wallet {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.acct-sel-name {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.acct-sel-arrow {
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.acct-sel-arrow.open { transform: rotate(180deg); }
+
+/* Dropdown */
+.acct-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  z-index: 200;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+}
+.acct-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.acct-dh-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.acct-dh-val  { font-size: 13px; color: var(--text-secondary); }
+
+/* Account rows */
+.acct-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.acct-row.active { background: rgba(220,38,38,0.06); }
+
+.acct-row-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  border-radius: 10px;
+  transition: background 0.15s;
+  text-align: left;
+}
+.acct-row-main:hover { background: rgba(255,255,255,0.04); }
+
+.acct-row-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+.acct-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+}
+.acct-row-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.acct-row-addr { font-size: 11px; color: var(--text-muted); font-family: monospace; }
+
+.acct-active-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid rgba(16,185,129,0.3);
+  box-shadow: 0 0 6px rgba(16,185,129,0.5);
+  flex-shrink: 0;
+}
+
+.acct-delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.acct-delete-btn:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
+
+.acct-add-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.03);
+  border: none;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.15s;
+}
+.acct-add-btn:hover { background: rgba(255,255,255,0.06); }
+.acct-add-plus { font-size: 18px; color: #e53535; font-weight: 700; }
+
+.acct-footer-btns {
+  display: flex;
+  gap: 1px;
+  border-top: 1px solid var(--border);
+}
+.acct-footer-btn {
+  flex: 1;
+  padding: 12px 10px;
+  background: rgba(255,255,255,0.02);
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+}
+.acct-footer-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-secondary); }
+.acct-footer-btn:first-child { border-right: 1px solid var(--border); }
+
 /* ── Balance Card ────────────────────────────────────────────────────────────── */
 .balance-card-new {
   position: relative;

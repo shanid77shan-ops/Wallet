@@ -179,6 +179,37 @@
   border: 1px solid rgba(239,68,68,0.2);
 }
 
+/* Terms checkbox */
+.setup-terms-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.setup-terms-checkbox {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  accent-color: #e53535;
+  cursor: pointer;
+  margin-top: 1px;
+}
+
+.setup-terms-text {
+  font-size: var(--fs-base);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.setup-terms-link {
+  color: #10b981;
+  text-decoration: none;
+  font-weight: 600;
+}
+.setup-terms-link:hover { text-decoration: underline; }
+
 /* Notice */
 .setup-notice {
   font-size: var(--fs-xs);

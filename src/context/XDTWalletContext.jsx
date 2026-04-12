@@ -4,7 +4,11 @@
  * Manages wallet keys (in-memory only), balances, prices and transaction history.
  */
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
-import { loadWalletData, unlockWallet } from '../services/walletKeyService'
+import {
+  loadWalletData, unlockWallet, clearWalletData,
+  saveAccounts, loadAccounts, clearAccounts,
+  deriveETHWalletAtIndex, deriveTRONWalletAtIndex,
+} from '../services/walletKeyService'
 
 /** Stable per-device ID — scopes wallet storage without requiring email auth */
 function getOrCreateDeviceId() {
@@ -51,10 +55,13 @@ export function XDTWalletProvider({ children }) {
   const userId = getOrCreateDeviceId()
 
   // ── Wallet key state (in-memory only, never persisted post-setup) ────────────
-  const [isUnlocked,    setIsUnlocked]    = useState(false)
-  const [isLocked,      setIsLocked]      = useState(false) // wallet exists but needs PIN
-  const [keys,          setKeys]          = useState(null)  // { ethAddress, ethPrivateKey, tronAddress, … }
-  const [unlockError,   setUnlockError]   = useState('')
+  const [isUnlocked,         setIsUnlocked]         = useState(false)
+  const [isLocked,           setIsLocked]           = useState(false)
+  const [keys,               setKeys]               = useState(null)
+  const [unlockError,        setUnlockError]        = useState('')
+  const [mnemonic,           setMnemonic]           = useState(null)   // in-memory only
+  const [accounts,           setAccounts]           = useState([])     // [{ index, name, ethAddress, tronAddress }]
+  const [activeAccountIndex, setActiveAccountIndex] = useState(0)
 
   // ── Market data ──────────────────────────────────────────────────────────────
   const [prices, setPrices] = useState({ eth: 0, ethChange: 0, usdt: 1, usdtChange: 0 })
@@ -146,7 +153,16 @@ export function XDTWalletProvider({ children }) {
   async function unlock(pin) {
     setUnlockError('')
     try {
-      const walletKeys = await unlockWallet(pin, userId)
+      const { mnemonic: mn, ...walletKeys } = await unlockWallet(pin, userId)
+      // Load or initialise accounts list
+      let stored = loadAccounts(userId)
+      if (!stored || stored.length === 0) {
+        stored = [{ index: 0, name: 'Account 1', ethAddress: walletKeys.ethAddress, tronAddress: walletKeys.tronAddress }]
+        saveAccounts(userId, stored)
+      }
+      setMnemonic(mn)
+      setAccounts(stored)
+      setActiveAccountIndex(0)
       setKeys(walletKeys)
       setIsUnlocked(true)
       setIsLocked(false)
@@ -157,11 +173,97 @@ export function XDTWalletProvider({ children }) {
     }
   }
 
-  // Called after Setup completes — walletKeys already derived there
-  function setWalletAfterSetup(walletKeys) {
+  // Called after Setup completes — walletKeys + mnemonic already derived there
+  function setWalletAfterSetup(walletKeys, mn) {
+    const initialAccounts = [{ index: 0, name: 'Account 1', ethAddress: walletKeys.ethAddress, tronAddress: walletKeys.tronAddress }]
+    saveAccounts(userId, initialAccounts)
+    setMnemonic(mn ?? null)
+    setAccounts(initialAccounts)
+    setActiveAccountIndex(0)
     setKeys(walletKeys)
     setIsUnlocked(true)
     setIsLocked(false)
+  }
+
+  // Lock wallet — clears in-memory keys + mnemonic, returns to PIN screen
+  function lockWallet() {
+    setKeys(null)
+    setMnemonic(null)
+    setAccounts([])
+    setActiveAccountIndex(0)
+    setIsUnlocked(false)
+    setIsLocked(true)
+    setUnlockError('')
+    setTokens(TOKEN_DEFAULTS)
+    setTrxBalance(0)
+    clearInterval(refreshIntervalRef.current)
+  }
+
+  // Full logout — removes wallet from device, returns to onboarding landing
+  function resetWallet() {
+    clearWalletData(userId)
+    clearAccounts(userId)
+    setKeys(null)
+    setMnemonic(null)
+    setAccounts([])
+    setActiveAccountIndex(0)
+    setIsUnlocked(false)
+    setIsLocked(false)   // ← false so WalletGate shows Setup landing
+    setUnlockError('')
+    setTokens(TOKEN_DEFAULTS)
+    setTrxBalance(0)
+    setTxHistory([])
+    clearInterval(refreshIntervalRef.current)
+  }
+
+  // Returns true if the supplied phrase matches the in-memory mnemonic
+  function confirmMnemonic(phrase) {
+    if (!mnemonic) return false
+    return phrase.trim().replace(/\s+/g, ' ').toLowerCase() === mnemonic.trim().toLowerCase()
+  }
+
+  // ── Multi-account management ──────────────────────────────────────────────────
+  function addAccount() {
+    if (!mnemonic) return
+    const nextIndex = accounts.length
+    const eth  = deriveETHWalletAtIndex(mnemonic, nextIndex)
+    const tron = deriveTRONWalletAtIndex(mnemonic, nextIndex)
+    const newAcct = { index: nextIndex, name: `Account ${nextIndex + 1}`, ethAddress: eth.address, tronAddress: tron.address }
+    const updated = [...accounts, newAcct]
+    setAccounts(updated)
+    saveAccounts(userId, updated)
+    _applyAccount(nextIndex, updated)
+  }
+
+  function deleteAccount(accountIndex) {
+    if (accountIndex === 0) return  // primary account cannot be deleted
+    const updated = accounts.filter(a => a.index !== accountIndex)
+    setAccounts(updated)
+    saveAccounts(userId, updated)
+    if (activeAccountIndex === accountIndex) _applyAccount(0, updated)
+  }
+
+  function switchAccount(accountIndex) {
+    if (!mnemonic) return
+    _applyAccount(accountIndex, accounts)
+  }
+
+  function _applyAccount(index, list) {
+    if (!mnemonic) return
+    const acct = list.find(a => a.index === index)
+    if (!acct) return
+    const eth  = deriveETHWalletAtIndex(mnemonic, index)
+    const tron = deriveTRONWalletAtIndex(mnemonic, index)
+    setActiveAccountIndex(index)
+    setKeys({
+      ethAddress:          acct.ethAddress,
+      ethPrivateKey:       eth.privateKey,
+      tronAddress:         acct.tronAddress,
+      tronPrivateKey:      tron.privateKey,
+      tronEthStyleAddress: tron.ethStyleAddress,
+    })
+    setTokens(TOKEN_DEFAULTS)
+    setTrxBalance(0)
   }
 
   // ── Send functions ────────────────────────────────────────────────────────────
@@ -248,9 +350,17 @@ export function XDTWalletProvider({ children }) {
       isLocked,
       unlockError,
       unlock,
+      lockWallet,
       setWalletAfterSetup,
       keys,
       userId,
+      accounts,
+      activeAccountIndex,
+      addAccount,
+      deleteAccount,
+      switchAccount,
+      confirmMnemonic,
+      resetWallet,
 
       // Market
       prices,

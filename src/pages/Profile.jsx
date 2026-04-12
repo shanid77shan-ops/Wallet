@@ -8,7 +8,7 @@ import BackButton from '../components/BackButton'
 import { useAuth }      from '../context/AuthContext'
 import { useXDTWallet } from '../context/XDTWalletContext'
 import { useCurrency, CURRENCIES } from '../context/CurrencyContext'
-import { clearWalletData, loadWalletData, decryptMnemonic } from '../services/walletKeyService'
+import { clearWalletData, clearAccounts, loadWalletData, decryptMnemonic } from '../services/walletKeyService'
 import './Profile.css'
 
 const securityItems = [
@@ -25,8 +25,8 @@ const supportItems = [
 
 export default function Profile() {
   const navigate  = useNavigate()
-  const { user, email, logout } = useAuth()
-  const { keys, tokens, totalUSD, prices } = useXDTWallet()
+  const { user, email } = useAuth()
+  const { keys, tokens, totalUSD, prices, lockWallet, userId } = useXDTWallet()
   const { currency, setCurrency, fmt } = useCurrency()
 
   const [copiedEth,  setCopiedEth]  = useState(false)
@@ -48,7 +48,7 @@ export default function Profile() {
     setBackupErr('')
     setBackupLoading(true)
     try {
-      const stored = loadWalletData()
+      const stored = loadWalletData(userId)
       if (!stored) throw new Error('No wallet found on this device')
       const phrase = await decryptMnemonic(stored.encryptedMnemonic, backupPin)
       setBackupPhrase(phrase)
@@ -84,14 +84,15 @@ export default function Profile() {
   }
 
   function handleLogout() {
-    logout()
+    lockWallet()
     navigate('/')
   }
 
   function handleResetWallet() {
     if (window.confirm('Delete wallet from this device? Make sure you have your seed phrase saved!')) {
-      clearWalletData()
-      logout()
+      clearWalletData(userId)
+      clearAccounts(userId)
+      lockWallet()
       navigate('/')
     }
   }

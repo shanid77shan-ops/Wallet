@@ -104,7 +104,7 @@ export default function Unlock() {
         tronAddress,
         tronPrivateKey:      tron.privateKey,
         tronEthStyleAddress: tron.ethStyleAddress,
-      })
+      }, phrase)
       setMode(MODE.RECOVER_SUCCESS)
     } catch (err) {
       setRecoverErr(err.message || 'Recovery failed. Try again.')

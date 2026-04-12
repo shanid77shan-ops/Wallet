@@ -2,7 +2,7 @@
  * Home.jsx — xdt-wallet main screen
  * ETH + single merged USDT card (ERC-20 & TRC-20 network selection in sheets).
  */
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
 import {
@@ -317,11 +317,94 @@ function TokenCard({ token, onSend, onReceive }) {
   )
 }
 
+// ── Account colour palette ────────────────────────────────────────────────────
+const ACCT_COLORS = ['#627eea','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4']
+const acctColor = i => ACCT_COLORS[i % ACCT_COLORS.length]
+
+// ── Account Selector ──────────────────────────────────────────────────────────
+function AccountSelector() {
+  const { accounts, activeAccountIndex, addAccount, deleteAccount, switchAccount, totalUSD } = useXDTWallet()
+  const { fmt } = useCurrency()
+  const [open, setOpen] = useState(false)
+  const ref  = useRef(null)
+
+  const active = accounts.find(a => a.index === activeAccountIndex) ?? accounts[0]
+
+  // close on outside click
+  useEffect(() => {
+    function onOut(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    if (open) document.addEventListener('mousedown', onOut)
+    return () => document.removeEventListener('mousedown', onOut)
+  }, [open])
+
+  return (
+    <div className="acct-selector-wrap" ref={ref}>
+      <button className="acct-selector-btn" onClick={() => setOpen(o => !o)}>
+        <div className="acct-sel-left">
+          <img src="/app-icon.jpg" alt="" className="acct-sel-logo" />
+          <div className="acct-sel-text">
+            <span className="acct-sel-wallet">Seed Phrase 1</span>
+            <span className="acct-sel-name">{active?.name ?? 'Account 1'}</span>
+          </div>
+        </div>
+        <svg className={`acct-sel-arrow${open ? ' open' : ''}`} width="10" height="6" viewBox="0 0 10 6" fill="none">
+          <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div className="acct-dropdown">
+          <div className="acct-dropdown-header">
+            <span className="acct-dh-name">Seed Phrase 1</span>
+            <span className="acct-dh-val">{fmt(totalUSD)}</span>
+          </div>
+
+          {accounts.map(acct => (
+            <div key={acct.index} className={`acct-row${acct.index === activeAccountIndex ? ' active' : ''}`}>
+              <button
+                className="acct-row-main"
+                onClick={() => { switchAccount(acct.index); setOpen(false) }}
+              >
+                <div className="acct-row-icon" style={{ background: acctColor(acct.index) }}>
+                  {acct.index + 1}
+                </div>
+                <div className="acct-row-info">
+                  <span className="acct-row-name">{acct.name}</span>
+                  <span className="acct-row-addr">
+                    {acct.ethAddress ? `${acct.ethAddress.slice(0,8)}…${acct.ethAddress.slice(-4)}` : ''}
+                  </span>
+                </div>
+                {acct.index === activeAccountIndex && <div className="acct-active-dot" />}
+              </button>
+              {acct.index > 0 && (
+                <button
+                  className="acct-delete-btn"
+                  onClick={() => deleteAccount(acct.index)}
+                  title="Remove account"
+                >✕</button>
+              )}
+            </div>
+          ))}
+
+          <button className="acct-add-btn" onClick={() => { addAccount(); setOpen(false) }}>
+            Add account <span className="acct-add-plus">+</span>
+          </button>
+
+          <div className="acct-footer-btns">
+            <button className="acct-footer-btn" onClick={() => setOpen(false)}>Add new wallet →</button>
+            <button className="acct-footer-btn" onClick={() => setOpen(false)}>Manage wallets →</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function Home() {
   const {
     tokens, balancesLoading, balanceError,
-    txHistory, refreshBalances, keys,
+    txHistory, refreshBalances, keys, totalUSD: walletTotalUSD,
   } = useXDTWallet()
   const { coins: allCoins } = useCoins()
   const { fmt, currency, setCurrency } = useCurrency()
@@ -379,6 +462,9 @@ export default function Home() {
           <ArrowClockwise size={18} className={balancesLoading ? 'spin' : ''} />
         </button>
       </div>
+
+      {/* ── Account Selector ──────────────────────────────────────────────── */}
+      <AccountSelector />
 
       {/* ── Balance Card ───────────────────────────────────────────────────── */}
       <div className="balance-card-new">
@@ -457,7 +543,7 @@ export default function Home() {
 
       {/* ── Token List ─────────────────────────────────────────────────────── */}
       <div className="section">
-        <h3 className="section-title">My Assets</h3>
+        <h3 className="section-title">Crypto</h3>
         <div className="token-list">
           <TokenCard
             token={ethDisplay}
