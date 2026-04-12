@@ -7,9 +7,9 @@ import { ethers } from 'ethers'
 
 // ── RPC endpoints (tried in order) ───────────────────────────────────────────
 const ETH_RPC_URLS = [
-  'https://eth.drpc.org',
+  'https://cloudflare-eth.com',
   'https://ethereum.publicnode.com',
-  'https://1rpc.io/eth',
+  'https://rpc.ankr.com/eth',
 ]
 
 // ── USDT ERC-20 contract (Ethereum Mainnet) ───────────────────────────────────
@@ -23,12 +23,17 @@ const USDT_DECIMALS = 6
 
 // ── Provider Factory ──────────────────────────────────────────────────────────
 function getProvider() {
-  // Use Alchemy if configured, otherwise fall back to public RPC
   const alchemyKey = import.meta.env.VITE_ALCHEMY_KEY
-  if (alchemyKey) {
-    return new ethers.AlchemyProvider('mainnet', alchemyKey)
-  }
-  return new ethers.JsonRpcProvider(ETH_RPC_URLS[0])
+  if (alchemyKey) return new ethers.AlchemyProvider('mainnet', alchemyKey)
+
+  // FallbackProvider tries each URL in order, uses quorum=1 (first success wins)
+  const providers = ETH_RPC_URLS.map((url, i) => ({
+    provider: new ethers.JsonRpcProvider(url, 1, { staticNetwork: ethers.Network.from(1) }),
+    priority: i,
+    weight:   1,
+    stallTimeout: 2000,
+  }))
+  return new ethers.FallbackProvider(providers, 1, { quorum: 1 })
 }
 
 // ── Balance Queries ───────────────────────────────────────────────────────────

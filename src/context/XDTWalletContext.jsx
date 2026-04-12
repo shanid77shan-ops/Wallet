@@ -8,6 +8,7 @@ import { loadWalletData, unlockWallet } from '../services/walletKeyService'
 import { getETHBalance, getUSDTERC20Balance, sendETH, sendUSDTERC20, getRecentETHTxs, getRecentUSDTERC20Txs } from '../services/ethChainService'
 import { getUSDTTRC20Balance, getTRXBalance, sendUSDTTRC20, getRecentTRC20Txs } from '../services/tronChainService'
 import { fetchPrices } from '../services/xdtPriceService'
+import { saveWalletAddresses, syncTransactions, fetchTransactions, saveBalances } from '../services/mongoService'
 
 const XDTWalletContext = createContext(null)
 
@@ -146,25 +147,45 @@ export function XDTWalletProvider({ children }) {
   }
 
   // ── Send functions ────────────────────────────────────────────────────────────
+  function friendlyTxError(err) {
+    const code = err?.code ?? ''
+    const msg  = (err?.message ?? '').toLowerCase()
+    if (code === 'INSUFFICIENT_FUNDS' || msg.includes('insufficient funds'))
+      return 'Insufficient balance to cover amount + gas fees.'
+    if (code === 'UNPREDICTABLE_GAS_LIMIT' || msg.includes('gas'))
+      return 'Gas estimation failed. The transaction may not be possible.'
+    if (code === 'NONCE_EXPIRED' || msg.includes('nonce'))
+      return 'Transaction nonce error. Please try again.'
+    if (code === 'NETWORK_ERROR' || msg.includes('network'))
+      return 'Network error. Check your connection and try again.'
+    if (msg.includes('rejected') || msg.includes('denied'))
+      return 'Transaction was rejected.'
+    return 'Transaction failed. Please try again.'
+  }
+
   async function sendToken({ tokenId, toAddress, amount }) {
     if (!keys) throw new Error('Wallet not unlocked')
 
     let txHash
     const date = new Date().toISOString()
 
-    if (tokenId === 'eth') {
-      const tx = await sendETH(keys.ethPrivateKey, toAddress, amount)
-      txHash = tx.hash
-    } else if (tokenId === 'usdt-erc') {
-      const tx = await sendUSDTERC20(keys.ethPrivateKey, toAddress, amount)
-      txHash = tx.hash
-    } else if (tokenId === 'usdt-trc') {
-      const { txID } = await sendUSDTTRC20(
-        keys.tronPrivateKey, keys.tronAddress, toAddress, amount
-      )
-      txHash = txID
-    } else {
-      throw new Error('Unknown token')
+    try {
+      if (tokenId === 'eth') {
+        const tx = await sendETH(keys.ethPrivateKey, toAddress, amount)
+        txHash = tx.hash
+      } else if (tokenId === 'usdt-erc') {
+        const tx = await sendUSDTERC20(keys.ethPrivateKey, toAddress, amount)
+        txHash = tx.hash
+      } else if (tokenId === 'usdt-trc') {
+        const { txID } = await sendUSDTTRC20(
+          keys.tronPrivateKey, keys.tronAddress, toAddress, amount
+        )
+        txHash = txID
+      } else {
+        throw new Error('Unknown token')
+      }
+    } catch (err) {
+      throw new Error(friendlyTxError(err))
     }
 
     // Optimistically update history and persist
