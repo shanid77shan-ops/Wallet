@@ -703,90 +703,45 @@
 }
 .input-group input:focus { border-color: #e53535; }
 
-.addr-input-row {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-}
-.addr-input-row input {
-  flex: 1;
-  min-width: 0;
-}
-.scan-qr-btn {
-  background: rgba(220,38,38,0.12);
-  border: 1px solid rgba(220,38,38,0.22);
-  color: #e53535;
-  border-radius: 11px;
-  padding: 0 13px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  transition: background 0.15s;
-}
-.scan-qr-btn:hover { background: rgba(220,38,38,0.22); }
-
-/* QR Scanner overlay */
-.qr-scanner-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.82);
-  z-index: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-.qr-scanner-modal {
-  background: var(--bg-card);
-  border-radius: 20px;
-  padding: 16px;
-  width: min(340px, 100%);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.qr-scanner-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: var(--fs-lg);
-  font-weight: 700;
-  color: var(--text-primary);
-}
-.qr-scanner-viewport {
+.addr-input-wrap {
   position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #000;
-  aspect-ratio: 1 / 1;
 }
-.qr-scanner-viewport video {
+.addr-input-wrap input {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  box-sizing: border-box;
+  padding-right: 88px;
 }
-.qr-scanner-frame {
+.addr-input-actions {
   position: absolute;
-  inset: 18%;
-  border: 2px solid #e53535;
-  border-radius: 10px;
-  box-shadow: 0 0 0 999px rgba(0,0,0,0.45);
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
-.qr-scanner-hint {
-  text-align: center;
-  font-size: var(--fs-xs);
+.addr-action-btn {
+  background: none;
+  border: none;
   color: var(--text-muted);
-  margin: 0;
+  cursor: pointer;
+  padding: 5px 6px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, background 0.15s;
 }
-.qr-scanner-error {
-  font-size: var(--fs-base);
-  color: var(--accent-red);
-  text-align: center;
-  padding: 20px 0;
-  margin: 0;
+.addr-action-btn:hover {
+  color: #e53535;
+  background: rgba(220,38,38,0.10);
 }
+.addr-action-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-light);
+  margin: 0 2px;
+}
+
 
 .max-btn {
   background: rgba(220,38,38,0.12);

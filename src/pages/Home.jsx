@@ -2,14 +2,14 @@
  * Home.jsx — xdt-wallet main screen
  * ETH + single merged USDT card (ERC-20 & TRC-20 network selection in sheets).
  */
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
-import jsQR from 'jsqr'
 import {
   ArrowUpRight, ArrowDown, Copy, X,
-  ArrowClockwise, Eye, EyeSlash, QrCode,
+  ArrowClockwise, Eye, EyeSlash, QrCode, ClipboardText,
 } from '@phosphor-icons/react'
+import QRScanner from '../components/QRScanner'
 import { useXDTWallet } from '../context/XDTWalletContext'
 import { useCoins }      from '../context/CoinContext'
 import { useCurrency, CURRENCIES } from '../context/CurrencyContext'
@@ -51,75 +51,6 @@ function NetSelector({ value, onChange }) {
   )
 }
 
-// ── QR Scanner ────────────────────────────────────────────────────────────────
-function QRScanner({ onScan, onClose }) {
-  const videoRef  = useRef(null)
-  const canvasRef = useRef(null)
-  const streamRef = useRef(null)
-  const rafRef    = useRef(null)
-  const [camError, setCamError] = useState('')
-
-  useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: 'environment' }, audio: false })
-      .then(stream => {
-        streamRef.current = stream
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-          videoRef.current.play().then(tick)
-        }
-      })
-      .catch(() => setCamError('Camera access denied. Please allow camera permission.'))
-
-    return () => {
-      cancelAnimationFrame(rafRef.current)
-      streamRef.current?.getTracks().forEach(t => t.stop())
-    }
-  }, [])
-
-  function tick() {
-    rafRef.current = requestAnimationFrame(() => {
-      const video  = videoRef.current
-      const canvas = canvasRef.current
-      if (!video || !canvas) return
-      if (video.readyState < 2) { tick(); return }
-      canvas.width  = video.videoWidth
-      canvas.height = video.videoHeight
-      const ctx  = canvas.getContext('2d', { willReadFrequently: true })
-      ctx.drawImage(video, 0, 0)
-      const img  = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' })
-      if (code?.data) {
-        streamRef.current?.getTracks().forEach(t => t.stop())
-        onScan(code.data)
-      } else {
-        tick()
-      }
-    })
-  }
-
-  return (
-    <div className="qr-scanner-overlay" onClick={onClose}>
-      <div className="qr-scanner-modal" onClick={e => e.stopPropagation()}>
-        <div className="qr-scanner-header">
-          <span>Scan Address QR</span>
-          <button className="sheet-close" onClick={onClose}><X size={20} /></button>
-        </div>
-        {camError ? (
-          <p className="qr-scanner-error">{camError}</p>
-        ) : (
-          <div className="qr-scanner-viewport">
-            <video ref={videoRef} playsInline muted />
-            <div className="qr-scanner-frame" />
-          </div>
-        )}
-        <canvas ref={canvasRef} style={{ display: 'none' }} />
-        {!camError && <p className="qr-scanner-hint">Align QR code within the frame</p>}
-      </div>
-    </div>
-  )
-}
-
 // ── Send Sheet ────────────────────────────────────────────────────────────────
 function SendSheet({ token, onClose, ethAddress, tronAddress }) {
   const { sendToken, prices } = useXDTWallet()
@@ -148,6 +79,14 @@ function SendSheet({ token, onClose, ethAddress, tronAddress }) {
     setSelNet(net)
     setTo('')
     setError('')
+  }
+
+  async function handlePaste() {
+    try {
+      const text = await navigator.clipboard.readText()
+      setTo(text.trim())
+      setError('')
+    } catch { /* clipboard denied */ }
   }
 
   async function handleSend(e) {
@@ -220,27 +159,23 @@ function SendSheet({ token, onClose, ethAddress, tronAddress }) {
           </div>
 
           <div className="input-group">
-            <label>
-              Recipient Address
-              <span className="input-hint">
-                ({isTRC ? 'TRON T… address' : 'Ethereum 0x… address'})
-              </span>
-            </label>
-            <div className="addr-input-row">
+            <label>Recipient Address</label>
+            <div className="addr-input-wrap">
               <input
                 type="text" autoComplete="off" autoCapitalize="none"
                 placeholder={isTRC ? 'TXxx…' : '0x…'}
                 value={to}
                 onChange={e => { setTo(e.target.value); setError('') }}
               />
-              <button
-                type="button"
-                className="scan-qr-btn"
-                onClick={() => setScanning(true)}
-                title="Scan QR code"
-              >
-                <QrCode size={20} />
-              </button>
+              <div className="addr-input-actions">
+                <button type="button" className="addr-action-btn" onClick={handlePaste} title="Paste">
+                  <ClipboardText size={19} weight="bold" />
+                </button>
+                <div className="addr-action-divider" />
+                <button type="button" className="addr-action-btn" onClick={() => setScanning(true)} title="Scan QR">
+                  <QrCode size={19} weight="bold" />
+                </button>
+              </div>
             </div>
           </div>
 

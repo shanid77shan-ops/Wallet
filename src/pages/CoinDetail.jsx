@@ -8,11 +8,12 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import {
-  ArrowLeft, ArrowUpRight, ArrowDown, Copy, X,
+  ArrowLeft, ArrowUpRight, ArrowDown, Copy, X, QrCode, ClipboardText,
 } from '@phosphor-icons/react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useXDTWallet } from '../context/XDTWalletContext'
 import { fmtUSD, fmtToken } from '../services/xdtPriceService'
+import QRScanner from '../components/QRScanner'
 import './CoinDetail.css'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -107,12 +108,13 @@ function SendSheet({ token, onClose, ethAddress, tronAddress }) {
   const { sendToken, prices } = useXDTWallet()
 
   const isUSDT = token.id === 'usdt'
-  const [selNet,  setSelNet]  = useState('erc')
-  const [to,      setTo]      = useState('')
-  const [amount,  setAmount]  = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState('')
-  const [txHash,  setTxHash]  = useState('')
+  const [selNet,   setSelNet]   = useState('erc')
+  const [to,       setTo]       = useState('')
+  const [amount,   setAmount]   = useState('')
+  const [loading,  setLoading]  = useState(false)
+  const [error,    setError]    = useState('')
+  const [txHash,   setTxHash]   = useState('')
+  const [scanning, setScanning] = useState(false)
 
   const tokenId = isUSDT ? (selNet === 'erc' ? 'usdt-erc' : 'usdt-trc') : token.id
   const isTRC   = tokenId === 'usdt-trc'
@@ -124,6 +126,14 @@ function SendSheet({ token, onClose, ethAddress, tronAddress }) {
   const usdVal  = amount ? (parseFloat(amount) * price).toFixed(2) : '0.00'
 
   function handleNetChange(net) { setSelNet(net); setTo(''); setError('') }
+
+  async function handlePaste() {
+    try {
+      const text = await navigator.clipboard.readText()
+      setTo(text.trim())
+      setError('')
+    } catch { /* clipboard denied */ }
+  }
 
   async function handleSend(e) {
     e.preventDefault()
@@ -192,17 +202,32 @@ function SendSheet({ token, onClose, ethAddress, tronAddress }) {
             {isUSDT && <NetworkBadge network={network} />}
           </div>
           <div className="input-group">
-            <label>
-              Recipient Address
-              <span className="input-hint">({isTRC ? 'TRON T… address' : 'Ethereum 0x… address'})</span>
-            </label>
-            <input
-              type="text" autoComplete="off" autoCapitalize="none"
-              placeholder={isTRC ? 'TXxx…' : '0x…'}
-              value={to}
-              onChange={e => { setTo(e.target.value); setError('') }}
-            />
+            <label>Recipient Address</label>
+            <div className="addr-input-wrap">
+              <input
+                type="text" autoComplete="off" autoCapitalize="none"
+                placeholder={isTRC ? 'TXxx…' : '0x…'}
+                value={to}
+                onChange={e => { setTo(e.target.value); setError('') }}
+              />
+              <div className="addr-input-actions">
+                <button type="button" className="addr-action-btn" onClick={handlePaste} title="Paste">
+                  <ClipboardText size={19} weight="bold" />
+                </button>
+                <div className="addr-action-divider" />
+                <button type="button" className="addr-action-btn" onClick={() => setScanning(true)} title="Scan QR">
+                  <QrCode size={19} weight="bold" />
+                </button>
+              </div>
+            </div>
           </div>
+
+          {scanning && (
+            <QRScanner
+              onScan={addr => { setTo(addr.trim()); setError(''); setScanning(false) }}
+              onClose={() => setScanning(false)}
+            />
+          )}
           <div className="input-group">
             <label>
               Amount ({token.symbol})
