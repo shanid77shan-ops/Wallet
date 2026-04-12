@@ -51,12 +51,82 @@ function NetSelector({ value, onChange }) {
   )
 }
 
+// ── Coin Picker ───────────────────────────────────────────────────────────────
+function CoinPicker({ mode, ethDisplay, usdtMerged, onPick, onClose }) {
+  const [step, setStep] = useState('coin') // 'coin' | 'network'
+
+  function chooseCoin(id) {
+    if (id === 'eth') { onPick(ethDisplay, null) }
+    else              { setStep('network') }
+  }
+
+  const title = step === 'coin'
+    ? `${mode === 'send' ? 'Send' : 'Receive'} — Choose Asset`
+    : 'Choose Network'
+
+  return (
+    <div className="sheet-overlay" onClick={onClose}>
+      <div className="bottom-sheet" onClick={e => e.stopPropagation()}>
+        <div className="sheet-header">
+          <h3>{title}</h3>
+          <button className="sheet-close"
+            onClick={step === 'network' ? () => setStep('coin') : onClose}>
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="coin-picker-list">
+          {step === 'coin' ? (
+            <>
+              <button className="coin-picker-item" onClick={() => chooseCoin('eth')}>
+                <div className="cp-icon cp-eth">Ξ</div>
+                <div className="cp-info">
+                  <span className="cp-name">Ethereum</span>
+                  <span className="cp-bal">{fmtToken(ethDisplay.balance, 6)} ETH</span>
+                </div>
+                <span className="net-badge badge-eth">Ethereum</span>
+              </button>
+              <button className="coin-picker-item" onClick={() => chooseCoin('usdt')}>
+                <div className="cp-icon cp-usdt">₮</div>
+                <div className="cp-info">
+                  <span className="cp-name">Tether USD</span>
+                  <span className="cp-bal">{fmtToken(usdtMerged.balance, 2)} USDT</span>
+                </div>
+                <span className="multi-net-badge">ERC-20 · TRC-20</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="coin-picker-item" onClick={() => onPick({ ...usdtMerged, id: 'usdt' }, 'erc')}>
+                <div className="cp-icon cp-usdt">₮</div>
+                <div className="cp-info">
+                  <span className="cp-name">USDT ERC-20</span>
+                  <span className="cp-bal">{fmtToken(usdtMerged.ercBalance, 2)} USDT</span>
+                </div>
+                <span className="net-badge badge-erc">ERC-20</span>
+              </button>
+              <button className="coin-picker-item" onClick={() => onPick({ ...usdtMerged, id: 'usdt' }, 'trc')}>
+                <div className="cp-icon cp-usdt">₮</div>
+                <div className="cp-info">
+                  <span className="cp-name">USDT TRC-20</span>
+                  <span className="cp-bal">{fmtToken(usdtMerged.trcBalance, 2)} USDT</span>
+                </div>
+                <span className="net-badge badge-trc">TRC-20</span>
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Send Sheet ────────────────────────────────────────────────────────────────
-function SendSheet({ token, onClose, ethAddress, tronAddress }) {
+function SendSheet({ token, onClose, ethAddress, tronAddress, defaultNet }) {
   const { sendToken, prices } = useXDTWallet()
 
   // For USDT: default to ERC-20; ETH has no selector
-  const [selNet,    setSelNet]    = useState('erc')
+  const [selNet,    setSelNet]    = useState(defaultNet || 'erc')
   const [to,        setTo]        = useState('')
   const [amount,    setAmount]    = useState('')
   const [loading,   setLoading]   = useState(false)
@@ -216,8 +286,8 @@ function SendSheet({ token, onClose, ethAddress, tronAddress }) {
 }
 
 // ── Receive Sheet ─────────────────────────────────────────────────────────────
-function ReceiveSheet({ token, onClose, ethAddress, tronAddress }) {
-  const [selNet, setSelNet] = useState('erc')
+function ReceiveSheet({ token, onClose, ethAddress, tronAddress, defaultNet }) {
+  const [selNet, setSelNet] = useState(defaultNet || 'erc')
   const [copied, setCopied] = useState(false)
 
   const isUSDT  = token.id === 'usdt'
@@ -503,6 +573,7 @@ export default function Home() {
   const [sendToken,    setSendToken]    = useState(null)
   const [receiveToken, setReceiveToken] = useState(null)
   const [hideBalance,  setHideBalance]  = useState(false)
+  const [pickerMode,   setPickerMode]   = useState(null) // 'send' | 'receive' | null
 
   const ethAddress  = keys?.ethAddress  ?? ''
   const tronAddress = keys?.tronAddress ?? ''
@@ -616,11 +687,11 @@ export default function Home() {
 
       {/* ── Quick Actions ──────────────────────────────────────────────────── */}
       <div className="quick-actions">
-        <button className="qa-btn" onClick={() => setSendToken(ethWallet ? { ...allCoins.find(c => c.id === 'ethereum'), ...ethWallet, id: 'ethereum' } : usdtMerged)}>
+        <button className="qa-btn" onClick={() => setPickerMode('send')}>
           <div className="qa-icon qa-send"><ArrowUpRight size={20} weight="bold" /></div>
           <span>Send</span>
         </button>
-        <button className="qa-btn" onClick={() => setReceiveToken(ethWallet ? { ...allCoins.find(c => c.id === 'ethereum'), ...ethWallet, id: 'ethereum' } : usdtMerged)}>
+        <button className="qa-btn" onClick={() => setPickerMode('receive')}>
           <div className="qa-icon qa-recv"><ArrowDown size={20} weight="bold" /></div>
           <span>Receive</span>
         </button>
@@ -655,32 +726,65 @@ export default function Home() {
           <div className="empty-tx"><p>No transactions yet</p></div>
         ) : (
           <div className="tx-list">
-            {txHistory.slice(0, 15).map(tx => (
-              <div key={tx.txID || tx.id} className="tx-item">
-                <div className={`tx-icon-wrap ${tx.type}`}>
-                  {tx.type === 'send'
-                    ? <ArrowUpRight size={16} weight="bold" />
-                    : <ArrowDown size={16} weight="bold" />}
-                </div>
-                <div className="tx-info">
-                  <span className="tx-label">
-                    {tx.type === 'send' ? 'Sent' : 'Received'} {tx.symbol}
-                  </span>
-                  <span className="tx-network">
-                    {tx.network}
-                    {tx.timestamp ? ` · ${new Date(tx.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
-                  </span>
-                </div>
-                <div className="tx-amount-wrap">
-                  <span className={`tx-amount ${tx.type === 'send' ? 'neg' : 'pos'}`}>
-                    {tx.type === 'send' ? '−' : '+'}{fmtToken(tx.amount, 4)} {tx.symbol}
-                  </span>
-                </div>
-              </div>
-            ))}
+            {txHistory.slice(0, 20).map(tx => {
+              const network  = tx.network === 'TRC20' ? 'TRC-20' : tx.network
+              const isTRC    = network === 'TRC-20'
+              const explorer = isTRC
+                ? `https://tronscan.org/#/transaction/${tx.txID}`
+                : `https://etherscan.io/tx/${tx.txID}`
+              const peer     = tx.type === 'send' ? tx.to : tx.from
+              const peerShort = peer ? `${peer.slice(0, 8)}…${peer.slice(-4)}` : ''
+              return (
+                <a
+                  key={tx.txID || tx.id}
+                  className="tx-item tx-item-link"
+                  href={tx.txID ? explorer : undefined}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={e => { if (!tx.txID) e.preventDefault() }}
+                >
+                  <div className={`tx-icon-wrap ${tx.type}`}>
+                    {tx.type === 'send'
+                      ? <ArrowUpRight size={16} weight="bold" />
+                      : <ArrowDown size={16} weight="bold" />}
+                  </div>
+                  <div className="tx-info">
+                    <span className="tx-label">
+                      {tx.type === 'send' ? 'Sent' : 'Received'} {tx.symbol}
+                      <span className="tx-net-tag">{network}</span>
+                    </span>
+                    <span className="tx-network">
+                      {peerShort && (tx.type === 'send' ? `To: ${peerShort}` : `From: ${peerShort}`)}
+                      {tx.timestamp ? `  ·  ${new Date(tx.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
+                    </span>
+                  </div>
+                  <div className="tx-amount-wrap">
+                    <span className={`tx-amount ${tx.type === 'send' ? 'neg' : 'pos'}`}>
+                      {tx.type === 'send' ? '−' : '+'}{fmtToken(tx.amount, 4)} {tx.symbol}
+                    </span>
+                    {tx.txID && <span className="tx-explorer-hint">↗</span>}
+                  </div>
+                </a>
+              )
+            })}
           </div>
         )}
       </div>
+
+      {/* ── Coin Picker ────────────────────────────────────────────────────── */}
+      {pickerMode && (
+        <CoinPicker
+          mode={pickerMode}
+          ethDisplay={ethDisplay}
+          usdtMerged={usdtMerged}
+          onPick={(token, net) => {
+            if (pickerMode === 'send')    setSendToken({ ...token, _defaultNet: net })
+            else                          setReceiveToken({ ...token, _defaultNet: net })
+            setPickerMode(null)
+          }}
+          onClose={() => setPickerMode(null)}
+        />
+      )}
 
       {/* ── Sheets ─────────────────────────────────────────────────────────── */}
       {sendToken && (
@@ -689,6 +793,7 @@ export default function Home() {
           onClose={() => setSendToken(null)}
           ethAddress={ethAddress}
           tronAddress={tronAddress}
+          defaultNet={sendToken._defaultNet}
         />
       )}
       {receiveToken && (
@@ -697,6 +802,7 @@ export default function Home() {
           onClose={() => setReceiveToken(null)}
           ethAddress={ethAddress}
           tronAddress={tronAddress}
+          defaultNet={receiveToken._defaultNet}
         />
       )}
     </div>

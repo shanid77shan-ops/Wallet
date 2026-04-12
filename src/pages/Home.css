@@ -851,6 +851,91 @@
   color: var(--text-muted);
 }
 
+/* Link variant of tx-item */
+.tx-item-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.tx-item-link:hover { background: var(--bg-card-hover); }
+
+.tx-net-tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.07);
+  color: var(--text-muted);
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+.tx-explorer-hint {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* ── Coin Picker ─────────────────────────────────────────────────────────────── */
+.coin-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0 8px;
+}
+
+.coin-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-align: left;
+  width: 100%;
+}
+.coin-picker-item:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(220,38,38,0.35);
+}
+
+.cp-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.cp-eth  { background: rgba(98,126,234,0.18); color: #627eea; }
+.cp-usdt { background: rgba(38,161,123,0.18); color: #26a17b; }
+
+.cp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cp-name {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cp-bal {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
 /* ── Multi-network badge ─────────────────────────────────────────────────────── */
 .multi-net-badge {
   font-size: var(--fs-xs);
