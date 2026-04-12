@@ -5,7 +5,9 @@
  */
 import { ethers } from 'ethers'
 
-const STORAGE_KEY = 'xdt_wallet_v1'
+function walletKey(userId) {
+  return userId ? `xdt_wallet_v1_${userId}` : 'xdt_wallet_v1'
+}
 
 // ── BIP44 Derivation Paths ───────────────────────────────────────────────────
 const ETH_PATH  = "m/44'/60'/0'/0/0"
@@ -145,8 +147,8 @@ export async function decryptMnemonic(base64Blob, pin) {
  * @param {string} ethAddress         checksummed ETH address
  * @param {string} tronAddress        Base58Check TRON address
  */
-export function saveWalletData(encryptedMnemonic, ethAddress, tronAddress) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+export function saveWalletData(encryptedMnemonic, ethAddress, tronAddress, userId) {
+  localStorage.setItem(walletKey(userId), JSON.stringify({
     encryptedMnemonic,
     ethAddress,
     tronAddress,
@@ -154,10 +156,10 @@ export function saveWalletData(encryptedMnemonic, ethAddress, tronAddress) {
   }))
 }
 
-/** Returns the stored wallet record or null if none exists. */
-export function loadWalletData() {
+/** Returns the stored wallet record for the given user, or null if none exists. */
+export function loadWalletData(userId) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(walletKey(userId))
     return raw ? JSON.parse(raw) : null
   } catch {
     return null
@@ -165,8 +167,8 @@ export function loadWalletData() {
 }
 
 /** Wipes the wallet from localStorage (used on "Delete Wallet" / reset). */
-export function clearWalletData() {
-  localStorage.removeItem(STORAGE_KEY)
+export function clearWalletData(userId) {
+  localStorage.removeItem(walletKey(userId))
 }
 
 // ── One-shot Setup Helper ─────────────────────────────────────────────────────
@@ -177,11 +179,11 @@ export function clearWalletData() {
  *   3. Persists to localStorage
  * Returns { ethAddress, tronAddress }
  */
-export async function setupWallet(mnemonic, pin) {
+export async function setupWallet(mnemonic, pin, userId) {
   const eth  = deriveETHWallet(mnemonic)
   const tron = deriveTRONWallet(mnemonic)
   const enc  = await encryptMnemonic(mnemonic, pin)
-  saveWalletData(enc, eth.address, tron.address)
+  saveWalletData(enc, eth.address, tron.address, userId)
   return { ethAddress: eth.address, tronAddress: tron.address }
 }
 
@@ -189,8 +191,8 @@ export async function setupWallet(mnemonic, pin) {
  * Unlock an existing wallet: decrypts the mnemonic and re-derives keys.
  * Returns { ethAddress, ethPrivateKey, tronAddress, tronPrivateKey, tronEthStyleAddress }
  */
-export async function unlockWallet(pin) {
-  const stored = loadWalletData()
+export async function unlockWallet(pin, userId) {
+  const stored = loadWalletData(userId)
   if (!stored) throw new Error('No wallet found')
 
   const mnemonic = await decryptMnemonic(stored.encryptedMnemonic, pin)

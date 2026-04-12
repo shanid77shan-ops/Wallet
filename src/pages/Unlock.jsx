@@ -5,6 +5,7 @@
  */
 import { useState, useEffect } from 'react'
 import { useXDTWallet } from '../context/XDTWalletContext'
+import { useAuth } from '../context/AuthContext'
 import {
   validateMnemonic,
   setupWallet,
@@ -22,6 +23,8 @@ const MODE = {
 
 export default function Unlock() {
   const { unlock, unlockError, setWalletAfterSetup } = useXDTWallet()
+  const { user } = useAuth()
+  const userId = user?.id ?? null
 
   // ── Unlock state ─────────────────────────────────────────────────────────────
   const [pin,     setPin]     = useState('')
@@ -95,7 +98,7 @@ export default function Unlock() {
 
     setRecoverBusy(true)
     try {
-      const { ethAddress, tronAddress } = await setupWallet(phrase, newPin)
+      const { ethAddress, tronAddress } = await setupWallet(phrase, newPin, userId)
       const eth  = deriveETHWallet(phrase)
       const tron = deriveTRONWallet(phrase)
       setWalletAfterSetup({

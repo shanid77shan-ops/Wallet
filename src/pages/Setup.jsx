@@ -10,6 +10,7 @@ import {
   setupWallet,
 } from '../services/walletKeyService'
 import { useXDTWallet } from '../context/XDTWalletContext'
+import { useAuth } from '../context/AuthContext'
 import './Setup.css'
 
 // Steps in the flow
@@ -23,6 +24,8 @@ const STEP = {
 
 export default function Setup() {
   const { setWalletAfterSetup } = useXDTWallet()
+  const { user } = useAuth()
+  const userId = user?.id ?? null
 
   const [step,        setStep]        = useState(STEP.LANDING)
   const [mnemonic,    setMnemonic]    = useState('')
@@ -97,7 +100,7 @@ export default function Setup() {
     setError('')
     setLoading(true)
     try {
-      const { ethAddress, tronAddress } = await setupWallet(mnemonic, pin)
+      const { ethAddress, tronAddress } = await setupWallet(mnemonic, pin, userId)
       const eth  = deriveETHWallet(mnemonic)
       const tron = deriveTRONWallet(mnemonic)
       setWalletAfterSetup({
