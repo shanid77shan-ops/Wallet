@@ -3,7 +3,7 @@
  * Wallet onboarding: create a new wallet or import an existing seed phrase,
  * set a PIN, and persist the encrypted wallet to localStorage.
  */
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import {
   generateMnemonic, validateMnemonic,
   deriveETHWallet, deriveTRONWallet,
@@ -32,6 +32,7 @@ export default function Setup() {
   const [pin,         setPin]         = useState('')
   const [pinConfirm,  setPinConfirm]  = useState('')
   const [error,       setError]       = useState('')
+  const pinConfirmRef = useRef(null)
   const [loading,     setLoading]     = useState(false)
   const [copied,      setCopied]      = useState(false)
 
@@ -81,12 +82,16 @@ export default function Setup() {
 
   // ── Set PIN and finish ────────────────────────────────────────────────────────
   async function handleFinish() {
-    if (pin.length < 4) {
-      setError('PIN must be at least 4 digits.')
+    if (pin.length !== 4) {
+      setError('PIN must be exactly 4 digits.')
+      setPin('')
+      setPinConfirm('')
       return
     }
     if (pin !== pinConfirm) {
       setError('PINs do not match.')
+      setPin('')
+      setPinConfirm('')
       return
     }
     setError('')
@@ -226,20 +231,30 @@ export default function Setup() {
             className="setup-input"
             type="password"
             inputMode="numeric"
-            maxLength={8}
-            placeholder="Enter PIN (4–8 digits)"
+            maxLength={4}
+            placeholder="Enter PIN (4 digits)"
             value={pin}
-            onChange={e => { setPin(e.target.value.replace(/\D/g, '')); setError('') }}
+            onChange={e => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+              setPin(val)
+              setError('')
+              if (val.length === 4) pinConfirmRef.current?.focus()
+            }}
           />
           <input
+            ref={pinConfirmRef}
             className="setup-input"
             type="password"
             inputMode="numeric"
-            maxLength={8}
+            maxLength={4}
             placeholder="Confirm PIN"
             value={pinConfirm}
-            onChange={e => { setPinConfirm(e.target.value.replace(/\D/g, '')); setError('') }}
-            onKeyDown={e => e.key === 'Enter' && handleFinish()}
+            onChange={e => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+              setPinConfirm(val)
+              setError('')
+              if (val.length === 4) handleFinish()
+            }}
           />
           {error && <p className="setup-error">{error}</p>}
           <button

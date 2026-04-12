@@ -3,7 +3,7 @@
  * PIN unlock screen — shown when a wallet exists but the session is fresh.
  * Also handles "Forgot PIN" recovery via seed phrase re-entry.
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useXDTWallet } from '../context/XDTWalletContext'
 import {
   validateMnemonic,
@@ -44,9 +44,22 @@ export default function Unlock() {
     setLoading(false)
   }
 
+  // Auto-clear PIN when wrong PIN error appears
+  useEffect(() => {
+    if (unlockError) {
+      const t = setTimeout(() => setPin(''), 400)
+      return () => clearTimeout(t)
+    }
+  }, [unlockError])
+
   function pressDigit(d) {
-    if (pin.length >= 8) return
-    setPin(p => p + d)
+    if (pin.length >= 4) return
+    const newPin = pin + d
+    setPin(newPin)
+    if (newPin.length === 4) {
+      setLoading(true)
+      unlock(newPin).finally(() => setLoading(false))
+    }
   }
   function backspace() { setPin(p => p.slice(0, -1)) }
 
@@ -67,8 +80,18 @@ export default function Unlock() {
   // ── Recovery: set new PIN ────────────────────────────────────────────────────
   async function handleRecoverFinish() {
     setRecoverErr('')
-    if (newPin.length < 4) { setRecoverErr('PIN must be at least 4 digits.'); return }
-    if (newPin !== pinConfirm) { setRecoverErr('PINs do not match.'); return }
+    if (newPin.length !== 4) {
+      setRecoverErr('PIN must be exactly 4 digits.')
+      setNewPin('')
+      setPinConfirm('')
+      return
+    }
+    if (newPin !== pinConfirm) {
+      setRecoverErr('PINs do not match.')
+      setNewPin('')
+      setPinConfirm('')
+      return
+    }
 
     setRecoverBusy(true)
     try {
@@ -151,19 +174,19 @@ export default function Unlock() {
             className="recover-pin-input"
             type="password"
             inputMode="numeric"
-            maxLength={8}
-            placeholder="New PIN (4–8 digits)"
+            maxLength={4}
+            placeholder="New PIN (4 digits)"
             value={newPin}
-            onChange={e => { setNewPin(e.target.value.replace(/\D/g, '')); setRecoverErr('') }}
+            onChange={e => { setNewPin(e.target.value.replace(/\D/g, '').slice(0, 4)); setRecoverErr('') }}
           />
           <input
             className="recover-pin-input"
             type="password"
             inputMode="numeric"
-            maxLength={8}
+            maxLength={4}
             placeholder="Confirm new PIN"
             value={pinConfirm}
-            onChange={e => { setPinConfirm(e.target.value.replace(/\D/g, '')); setRecoverErr('') }}
+            onChange={e => { setPinConfirm(e.target.value.replace(/\D/g, '').slice(0, 4)); setRecoverErr('') }}
             onKeyDown={e => e.key === 'Enter' && handleRecoverFinish()}
           />
           {recoverErr && <p className="recover-error">{recoverErr}</p>}
@@ -194,7 +217,7 @@ export default function Unlock() {
 
       {/* PIN dots */}
       <div className="pin-dots">
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className={`pin-dot ${i < pin.length ? 'filled' : ''}`} />
         ))}
       </div>
