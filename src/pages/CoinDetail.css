@@ -275,18 +275,19 @@
   backdrop-filter: blur(6px);
   z-index: 300;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
+  padding: 16px;
 }
 
 .bottom-sheet {
   background: var(--bg-secondary);
-  border-radius: 24px 24px 0 0;
+  border-radius: 24px;
   width: 100%;
   max-width: 480px;
-  max-height: 90vh;
+  max-height: 88vh;
   overflow-y: auto;
-  padding: 20px 16px 32px;
+  padding: 20px 16px 24px;
   border: 1px solid var(--border-light);
   border-bottom: none;
   animation: cdSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
