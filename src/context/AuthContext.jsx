@@ -199,6 +199,27 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function forgotPassword(emailAddress) {
+    setError('')
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailAddress }),
+      })
+      const data = response.status !== 204 ? await response.json() : {}
+      if (!response.ok) throw new Error(data.error || 'Failed to send reset email')
+      return data
+    } catch (err) {
+      const message = err.message || 'Failed to send reset email. Please try again.'
+      setError(message)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   function logout() {
     localStorage.removeItem(STORAGE_KEY)
     localStorage.removeItem(USER_STORAGE_KEY)
@@ -228,6 +249,7 @@ export function AuthProvider({ children }) {
         verifyOTP,
         loginWithPassword,
         registerWithPassword,
+        forgotPassword,
         logout,
         topMessage,
         isAuthenticated: !!user,

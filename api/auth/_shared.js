@@ -66,6 +66,27 @@ export async function saveOtp(email, code, expiresMs) {
   )
 }
 
+export async function saveResetToken(email, token, expiresMs) {
+  await connectDB()
+  await User.updateOne(
+    { email: normalizeEmail(email) },
+    { $set: { resetToken: token, resetExpires: new Date(expiresMs) } }
+  )
+}
+
+export async function findUserByResetToken(token) {
+  await connectDB()
+  return User.findOne({ resetToken: token, resetExpires: { $gt: new Date() } })
+}
+
+export async function saveNewPassword(email, passwordHash, passwordSalt) {
+  await connectDB()
+  await User.updateOne(
+    { email: normalizeEmail(email) },
+    { $set: { passwordHash, passwordSalt, resetToken: null, resetExpires: null } }
+  )
+}
+
 export async function verifyOtpCode(email, code) {
   await connectDB()
   const user = await User.findOne({ email: normalizeEmail(email) })

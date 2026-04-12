@@ -21,9 +21,10 @@ import Home       from './pages/Home'
 import Trending   from './pages/Trending'
 import Trade      from './pages/Trade'
 import Profile    from './pages/Profile'
-import P2P        from './pages/P2P'
-import Assets     from './pages/Assets'
-import CoinDetail from './pages/CoinDetail'
+import P2P          from './pages/P2P'
+import Assets       from './pages/Assets'
+import CoinDetail   from './pages/CoinDetail'
+import ResetPassword from './pages/ResetPassword'
 
 import './App.css'
 
@@ -117,11 +118,18 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <XDTWalletProvider>
-          <AuthGate>
-            <AppShell />
-          </AuthGate>
-        </XDTWalletProvider>
+        <Routes>
+          {/* Public route — accessible without auth */}
+          <Route path="/reset-password" element={<ResetPassword />} />
+          {/* All other routes go through auth + wallet gate */}
+          <Route path="*" element={
+            <XDTWalletProvider>
+              <AuthGate>
+                <AppShell />
+              </AuthGate>
+            </XDTWalletProvider>
+          } />
+        </Routes>
       </AuthProvider>
     </BrowserRouter>
   )

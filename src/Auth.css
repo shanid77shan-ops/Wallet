@@ -283,3 +283,51 @@
   padding: 4px;
 }
 .auth-back-btn:hover { color: #e53535; }
+
+/* ── Landing buttons ────────────────────────────────────────────────────────── */
+.auth-landing-btns {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.auth-btn-outline {
+  background: transparent;
+  border: 1px solid rgba(220, 38, 38, 0.45);
+  color: #e53535;
+}
+.auth-btn-outline:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+/* ── Forgot password link ───────────────────────────────────────────────────── */
+.auth-forgot-link {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #6b7280);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: right;
+  padding: 0;
+  margin-top: -4px;
+  transition: color 0.15s;
+}
+.auth-forgot-link:hover { color: #e53535; }
+
+/* ── Success icon ───────────────────────────────────────────────────────────── */
+.auth-success-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}

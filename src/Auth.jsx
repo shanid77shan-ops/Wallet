@@ -2,34 +2,53 @@ import { useState } from 'react'
 import { useAuth } from './context/AuthContext'
 import './Auth.css'
 
-export default function Auth() {
-  const { sendOTP, verifyOTP, loginWithPassword, registerWithPassword, isLoading, error } = useAuth()
+const MODE = {
+  LANDING:      'landing',
+  LOGIN:        'login',
+  REGISTER:     'register',
+  FORGOT:       'forgot',
+  FORGOT_SENT:  'forgot_sent',
+}
 
-  const [mode,     setMode]     = useState('login')
+export default function Auth() {
+  const { loginWithPassword, registerWithPassword, forgotPassword, isLoading, error } = useAuth()
+
+  const [mode,     setMode]     = useState(MODE.LANDING)
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
-  const [otp,      setOtp]      = useState('')
   const [localErr, setLocalErr] = useState('')
 
+  function reset(nextMode) {
+    setLocalErr('')
+    setEmail('')
+    setPassword('')
+    setMode(nextMode)
+  }
+
   async function handleLogin(e) {
-    e.preventDefault(); setLocalErr('')
+    e.preventDefault()
+    setLocalErr('')
     try { await loginWithPassword(email.trim(), password) }
     catch (err) { setLocalErr(err.message || 'Login failed') }
   }
+
   async function handleRegister(e) {
-    e.preventDefault(); setLocalErr('')
+    e.preventDefault()
+    setLocalErr('')
+    if (password.length < 8) { setLocalErr('Password must be at least 8 characters'); return }
     try { await registerWithPassword(email.trim(), password) }
     catch (err) { setLocalErr(err.message || 'Registration failed') }
   }
-  async function handleSendOTP(e) {
-    e.preventDefault(); setLocalErr('')
-    try { await sendOTP(email.trim()); setMode('otp') }
-    catch (err) { setLocalErr(err.message || 'Failed to send OTP') }
-  }
-  async function handleVerifyOTP(e) {
-    e.preventDefault(); setLocalErr('')
-    try { await verifyOTP(email.trim(), otp.trim()) }
-    catch (err) { setLocalErr(err.message || 'Invalid OTP') }
+
+  async function handleForgot(e) {
+    e.preventDefault()
+    setLocalErr('')
+    try {
+      await forgotPassword(email.trim())
+      setMode(MODE.FORGOT_SENT)
+    } catch (err) {
+      setLocalErr(err.message || 'Failed to send reset email')
+    }
   }
 
   const displayErr = localErr || error
@@ -37,59 +56,118 @@ export default function Auth() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+
         <div className="auth-logo">
           <img src="/app-icon.jpg" alt="XDT Wallet" className="auth-logo-img" />
         </div>
         <h1 className="auth-title">XDT Wallet</h1>
-        <p className="auth-subtitle">
-          {mode === 'otp' ? `Enter the code sent to ${email}` : 'Sign in or create an account'}
-        </p>
-        {mode !== 'otp' && (
-          <div className="auth-tabs">
-            {['login', 'register', 'otp_send'].map(m => {
-              const labels = { login: 'Password', register: 'Register', otp_send: 'Email OTP' }
-              const current = mode === 'otp_send' ? 'otp_send' : mode
-              return (
-                <button key={m} className={`auth-tab ${current === m ? 'active' : ''}`}
-                  onClick={() => { setMode(m === 'otp_send' ? 'otp_send' : m); setLocalErr('') }}>
-                  {labels[m]}
-                </button>
-              )
-            })}
-          </div>
+
+        {/* ── LANDING ──────────────────────────────────────────────────────── */}
+        {mode === MODE.LANDING && (
+          <>
+            <p className="auth-subtitle">Your crypto. Your future.</p>
+            <div className="auth-landing-btns">
+              <button className="auth-btn" onClick={() => setMode(MODE.LOGIN)}>
+                Sign In
+              </button>
+              <button className="auth-btn auth-btn-outline" onClick={() => setMode(MODE.REGISTER)}>
+                Create Account
+              </button>
+            </div>
+            <p className="auth-footnote">Non-custodial · Your keys · Your crypto</p>
+          </>
         )}
-        {mode === 'login' && (
-          <form className="auth-form" onSubmit={handleLogin}>
-            <input className="auth-input" type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
-            <input className="auth-input" type="password" placeholder="Password" required value={password} onChange={e => setPassword(e.target.value)} />
-            {displayErr && <p className="auth-error">{displayErr}</p>}
-            <button className="auth-btn" type="submit" disabled={isLoading}>{isLoading ? <span className="auth-spinner" /> : null}Sign In</button>
-          </form>
+
+        {/* ── LOGIN ────────────────────────────────────────────────────────── */}
+        {mode === MODE.LOGIN && (
+          <>
+            <p className="auth-subtitle">Welcome back</p>
+            <form className="auth-form" onSubmit={handleLogin}>
+              <input
+                className="auth-input" type="email" placeholder="Email"
+                required autoComplete="email"
+                value={email} onChange={e => { setEmail(e.target.value); setLocalErr('') }}
+              />
+              <input
+                className="auth-input" type="password" placeholder="Password"
+                required autoComplete="current-password"
+                value={password} onChange={e => { setPassword(e.target.value); setLocalErr('') }}
+              />
+              <button
+                type="button" className="auth-forgot-link"
+                onClick={() => { setLocalErr(''); setPassword(''); setMode(MODE.FORGOT) }}
+              >
+                Forgot password?
+              </button>
+              {displayErr && <p className="auth-error">{displayErr}</p>}
+              <button className="auth-btn" type="submit" disabled={isLoading}>
+                {isLoading ? <span className="auth-spinner" /> : null}
+                Sign In
+              </button>
+            </form>
+            <button className="auth-back-btn" onClick={() => reset(MODE.LANDING)}>← Back</button>
+          </>
         )}
-        {mode === 'register' && (
-          <form className="auth-form" onSubmit={handleRegister}>
-            <input className="auth-input" type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
-            <input className="auth-input" type="password" placeholder="Password (min 6 chars)" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
-            {displayErr && <p className="auth-error">{displayErr}</p>}
-            <button className="auth-btn" type="submit" disabled={isLoading}>{isLoading ? <span className="auth-spinner" /> : null}Create Account</button>
-          </form>
+
+        {/* ── REGISTER ─────────────────────────────────────────────────────── */}
+        {mode === MODE.REGISTER && (
+          <>
+            <p className="auth-subtitle">Create your account</p>
+            <form className="auth-form" onSubmit={handleRegister}>
+              <input
+                className="auth-input" type="email" placeholder="Email"
+                required autoComplete="email"
+                value={email} onChange={e => { setEmail(e.target.value); setLocalErr('') }}
+              />
+              <input
+                className="auth-input" type="password" placeholder="Password (min 8 chars)"
+                required minLength={8} autoComplete="new-password"
+                value={password} onChange={e => { setPassword(e.target.value); setLocalErr('') }}
+              />
+              {displayErr && <p className="auth-error">{displayErr}</p>}
+              <button className="auth-btn" type="submit" disabled={isLoading}>
+                {isLoading ? <span className="auth-spinner" /> : null}
+                Create Account
+              </button>
+            </form>
+            <button className="auth-back-btn" onClick={() => reset(MODE.LANDING)}>← Back</button>
+          </>
         )}
-        {mode === 'otp_send' && (
-          <form className="auth-form" onSubmit={handleSendOTP}>
-            <input className="auth-input" type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
-            {displayErr && <p className="auth-error">{displayErr}</p>}
-            <button className="auth-btn" type="submit" disabled={isLoading}>{isLoading ? <span className="auth-spinner" /> : null}Send OTP</button>
-          </form>
+
+        {/* ── FORGOT PASSWORD ───────────────────────────────────────────────── */}
+        {mode === MODE.FORGOT && (
+          <>
+            <p className="auth-subtitle">Enter your email and we'll send a reset link.</p>
+            <form className="auth-form" onSubmit={handleForgot}>
+              <input
+                className="auth-input" type="email" placeholder="Email"
+                required autoComplete="email"
+                value={email} onChange={e => { setEmail(e.target.value); setLocalErr('') }}
+              />
+              {displayErr && <p className="auth-error">{displayErr}</p>}
+              <button className="auth-btn" type="submit" disabled={isLoading}>
+                {isLoading ? <span className="auth-spinner" /> : null}
+                Send Reset Link
+              </button>
+            </form>
+            <button className="auth-back-btn" onClick={() => reset(MODE.LOGIN)}>← Back to Sign In</button>
+          </>
         )}
-        {mode === 'otp' && (
-          <form className="auth-form" onSubmit={handleVerifyOTP}>
-            <input className="auth-input" type="text" placeholder="6-digit OTP" required inputMode="numeric" maxLength={6} value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ''))} />
-            {displayErr && <p className="auth-error">{displayErr}</p>}
-            <button className="auth-btn" type="submit" disabled={isLoading}>{isLoading ? <span className="auth-spinner" /> : null}Verify OTP</button>
-            <button type="button" className="auth-back-btn" onClick={() => { setMode('otp_send'); setOtp(''); setLocalErr('') }}>← Change email</button>
-          </form>
+
+        {/* ── FORGOT SENT ──────────────────────────────────────────────────── */}
+        {mode === MODE.FORGOT_SENT && (
+          <>
+            <div className="auth-success-icon">✓</div>
+            <p className="auth-subtitle">
+              If an account exists for <strong>{email}</strong>, a reset link has been sent.
+              Check your inbox.
+            </p>
+            <button className="auth-btn" onClick={() => reset(MODE.LOGIN)}>
+              Back to Sign In
+            </button>
+          </>
         )}
-        <p className="auth-footnote">Non-custodial · Your keys · Your crypto</p>
+
       </div>
     </div>
   )

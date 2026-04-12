@@ -125,7 +125,7 @@ export default function Setup() {
       <div className="setup-logo">
         <img src="/app-icon.jpg" alt="XDT Wallet" className="setup-logo-img" />
         <h1 className="setup-brand">XDT Wallet</h1>
-        <p className="setup-tagline">Your crypto. Your keys.</p>
+        <p className="setup-tagline">Your crypto. Your future.</p>
       </div>
 
       {/* ── LANDING ─────────────────────────────────────────────────────────── */}
@@ -227,9 +227,6 @@ export default function Setup() {
       {step === STEP.SET_PIN && (
         <div className="setup-card">
           <h2 className="setup-card-title">Set Your PIN</h2>
-          <p className="setup-card-sub">
-            This PIN encrypts your wallet on this device.
-          </p>
           <input
             className="setup-input"
             type="password"

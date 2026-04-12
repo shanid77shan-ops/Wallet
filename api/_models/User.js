@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema({
   passwordSalt: { type: String, default: null },
   otpCode:      { type: String, default: null },
   otpExpires:   { type: Date,   default: null },
+  resetToken:   { type: String, default: null },
+  resetExpires: { type: Date,   default: null },
   createdAt:    { type: Date,   default: Date.now },
 })
 
