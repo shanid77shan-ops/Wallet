@@ -10,6 +10,7 @@ import {
   ArrowClockwise, Eye, EyeSlash, QrCode, ClipboardText,
 } from '@phosphor-icons/react'
 import QRScanner from '../components/QRScanner'
+import TxHistorySheet from '../components/TxHistorySheet'
 import { useXDTWallet } from '../context/XDTWalletContext'
 import { useCoins }      from '../context/CoinContext'
 import { useCurrency, CURRENCIES } from '../context/CurrencyContext'
@@ -574,6 +575,7 @@ export default function Home() {
   const [receiveToken, setReceiveToken] = useState(null)
   const [hideBalance,  setHideBalance]  = useState(false)
   const [pickerMode,   setPickerMode]   = useState(null) // 'send' | 'receive' | null
+  const [showTxHistory, setShowTxHistory] = useState(false)
 
   const ethAddress  = keys?.ethAddress  ?? ''
   const tronAddress = keys?.tronAddress ?? ''
@@ -721,7 +723,12 @@ export default function Home() {
 
       {/* ── Recent Transactions ────────────────────────────────────────────── */}
       <div className="section">
-        <h3 className="section-title">Recent Activity</h3>
+        <div className="section-title-row">
+          <h3 className="section-title">Recent Activity</h3>
+          <button className="see-all-btn" onClick={() => setShowTxHistory(true)}>
+            See all →
+          </button>
+        </div>
         {txHistory.length === 0 ? (
           <div className="empty-tx"><p>No transactions yet</p></div>
         ) : (
@@ -803,6 +810,14 @@ export default function Home() {
           ethAddress={ethAddress}
           tronAddress={tronAddress}
           defaultNet={receiveToken._defaultNet}
+        />
+      )}
+      {showTxHistory && (
+        <TxHistorySheet
+          ethAddress={ethAddress}
+          tronAddress={tronAddress}
+          initialTxs={txHistory}
+          onClose={() => setShowTxHistory(false)}
         />
       )}
     </div>

@@ -14,6 +14,8 @@ import { CoinProvider, useCoins } from './context/CoinContext'
 import { CurrencyProvider } from './context/CurrencyContext'
 import BottomNav     from './components/BottomNav'
 import PullToRefresh from './components/PullToRefresh'
+import NotificationPermissionModal from './components/NotificationPermissionModal'
+import { useNotificationPermission } from './hooks/useNotificationPermission'
 import Setup      from './pages/Setup'
 import Unlock     from './pages/Unlock'
 import Home       from './pages/Home'
@@ -39,6 +41,7 @@ function InnerShell() {
   const { refreshBalances } = useXDTWallet()
   const { refresh: refreshCoins } = useCoins()
   const scrollRef = useRef(null)
+  const { showModal, requestPermission, dismissModal, ios } = useNotificationPermission()
 
   async function handleRefresh() {
     await Promise.allSettled([refreshBalances(), refreshCoins()])
@@ -58,6 +61,13 @@ function InnerShell() {
         </PullToRefresh>
       </main>
       <BottomNav />
+      {showModal && (
+        <NotificationPermissionModal
+          ios={ios}
+          onAllow={requestPermission}
+          onDismiss={dismissModal}
+        />
+      )}
     </div>
   )
 }
